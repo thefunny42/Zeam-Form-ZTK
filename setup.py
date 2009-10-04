@@ -8,9 +8,11 @@ setup(name='zeam.form.ztk',
       description="Zope Toolkit support for zeam.form",
       long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
-      # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
+        "Framework :: Zope3",
         "Programming Language :: Python",
+        "Programming Language :: Zope",
+        "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
       keywords='zeam form zope schema edit content',
@@ -18,15 +20,20 @@ setup(name='zeam.form.ztk',
       author_email='thefunny@gmail.com',
       url='',
       license='BSD',
-      packages=find_packages(exclude=['ez_setup']),
-      namespace_packages=['zeam', 'zeam.form'],
+      package_dir={'': 'src'},
+      packages=find_packages('src'),
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'setuptools',
-          # -*- Extra requirements: -*-
-      ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
+        'setuptools',
+        'zope.schema',
+        'zeam.form.base',
+        # Test
+        'zope.securitypolicy',
+        'zope.app.authentication',
+        'zope.app.testing',
+        'zope.app.zcmlfiles',
+        'zope.testing',
+        'zope.testbrowser',
+        ],
       )
