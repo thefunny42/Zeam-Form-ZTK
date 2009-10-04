@@ -26,6 +26,9 @@ setup(name='zeam.form.ztk',
       zip_safe=False,
       install_requires=[
         'setuptools',
+        'zope.interface',
+        'zope.component',
+        'grokcore.component',
         'zope.schema',
         'zeam.form.base',
         # Test

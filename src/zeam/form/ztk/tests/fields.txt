@@ -1,0 +1,78 @@
+zeam.form.ztk
+=============
+
+Fields can be generated from zope.schema.
+
+Creation from a Zope interface
+------------------------------
+
+You can create a full set of fields from a Zope interface:
+
+   >>> from zope import schema, interface
+
+   >>> class IPlanet(interface.Interface):
+   ...     name = schema.TextLine(title=u"Name")
+   ...     size = schema.Int(title=u"Size", description=u"Size in Km")
+
+   >>> from zeam.form.base import Fields
+   >>> s2 = Fields(IPlanet)
+   >>> list(s2)
+   [<SchemaField Name>, <SchemaField Size>]
+
+Those are correct fields, filled with the interface definition
+information:
+
+   >>> f2, f3 = list(s2)
+   >>> f2
+   <SchemaField Name>
+   >>> f2.title
+   u'Name'
+   >>> f2.identifier
+   'name'
+   >>> f2.description
+   u''
+   >>> f3
+   <SchemaField Size>
+   >>> f3.description
+   u'Size in Km'
+
+   >>> from zope.interface.verify import verifyObject
+   >>> from zeam.form.base import interfaces
+   >>> verifyObject(interfaces.IField, f2, f3)
+   True
+
+You can add fields via an interface after:
+
+   >>> class IHabitationSupport(interface.Interface):
+   ...     city = schema.TextLine(title=u"City name")
+   ...     people = schema.TextLine(title=u"Number of people")
+
+   >>> s2.extend(IHabitationSupport)
+   >>> list(s2)
+   [<SchemaField Name>, <SchemaField Size>,
+    <SchemaField City name>, <SchemaField Number of people>]
+
+You can add a field from an interface alone:
+
+   >>> class IFoodSupport(interface.Interface):
+   ...      vegetables = schema.TextLine(title=u"Vegetables kind")
+   ...      meat = schema.TextLine(title=u"Meat kind")
+
+   >>> s2.extend(IFoodSupport['vegetables'])
+   >>> list(s2.select('vegetables'))
+   [<SchemaField Vegetables kind>]
+
+   >>> list(Fields(IFoodSupport['meat']))
+   [<SchemaField Meat kind>]
+
+But it need to belong to an interface:
+
+   >>> Fields(schema.TextLine(title=u"Quality of McDo restaurant"))
+   Traceback (most recent call last):
+      ...
+   ValueError: Field has no interface
+   >>> s2.extend(schema.TextLine(title=u"Quality of McDo restaurant"))
+   Traceback (most recent call last):
+      ...
+   ValueError: Field has no interface
+
