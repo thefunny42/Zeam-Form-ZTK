@@ -61,10 +61,14 @@ class SchemaField(Field):
         self._field = field
 
     def validate(self, value):
+        error = super(SchemaField, self).validate(value)
+        if error is not None:
+            return error
+
         try:
             self._field.validate(value)
-        except schema_interfaces.ValidationError, e:
-            return e.doc()
+        except schema_interfaces.ValidationError, error:
+            return error.doc()
         return None
 
     def fromUnicode(self, value):
@@ -97,10 +101,11 @@ class SchemaWidgetExtractor(WidgetExtractor):
         if error is not None:
             return value, error
 
-        try:
-            converted_value = self.component.fromUnicode(value)
-        except schema_interfaces.ValidationError, e:
-            return value, e.doc()
+        if value is not NO_VALUE:
+            try:
+                value = self.component.fromUnicode(value)
+            except schema_interfaces.ValidationError, e:
+                return None, e.doc()
 
-        return converted_value, None
+        return value, None
 
