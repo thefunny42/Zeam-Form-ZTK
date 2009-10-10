@@ -12,7 +12,8 @@ You can create a full set of fields from a Zope interface:
 
    >>> class IPlanet(interface.Interface):
    ...     name = schema.TextLine(title=u"Name")
-   ...     size = schema.Int(title=u"Size", description=u"Size in Km")
+   ...     size = schema.Int(title=u"Size",
+   ...                       description=u"Size in Km")
 
    >>> from zeam.form.base import Fields
    >>> s2 = Fields(IPlanet)
@@ -45,7 +46,9 @@ You can add fields via an interface after:
 
    >>> class IHabitationSupport(interface.Interface):
    ...     city = schema.TextLine(title=u"City name")
-   ...     people = schema.TextLine(title=u"Number of people")
+   ...     people = schema.TextLine(title=u"Number of people",
+   ...                              required=False,
+   ...                              description=u"Or population size")
 
    >>> s2.extend(IHabitationSupport)
    >>> list(s2)
@@ -75,4 +78,25 @@ But it need to belong to an interface:
    Traceback (most recent call last):
       ...
    ValueError: Field has no interface
+
+
+Description and required
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Those values are correctly collected from the schema field:
+
+   >>> s2['city'].description
+   u''
+   >>> s2['city'].required
+   True
+
+   >>> s2['people'].description
+   u'Or population size'
+   >>> s2['people'].required
+   False
+
+   >>> s2['size'].description
+   u'Size in Km'
+   >>> s2['size'].required
+   True
 

@@ -57,6 +57,7 @@ class SchemaField(Field):
     def __init__(self, field):
         super(SchemaField, self).__init__(field.title, field.__name__)
         self.description = field.description
+        self.required = field.required
         self._field = field
 
     def validate(self, value):
