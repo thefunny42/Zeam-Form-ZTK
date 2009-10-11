@@ -9,11 +9,27 @@ from zope.interface import Interface
 from grokcore import component as grok
 
 
+# Password widget
+
 class PasswordSchemaField(SchemaField):
     pass
+
 
 registerSchemaField(PasswordSchemaField, schema_interfaces.IPassword)
 
 
 class PasswordFieldWidget(FieldWidget):
     grok.adapts(PasswordSchemaField, IFormCanvas, Interface)
+
+
+# Text widget
+
+class TextSchemaField(SchemaField):
+    pass
+
+
+registerSchemaField(TextSchemaField, schema_interfaces.ISourceText)
+
+
+class TextFieldWidget(FieldWidget):
+    grok.adapts(TextSchemaField, IFormCanvas, Interface)
