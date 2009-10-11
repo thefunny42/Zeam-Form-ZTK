@@ -64,10 +64,11 @@ class SchemaField(Field):
         if error is not None:
             return error
 
-        try:
-            self._field.validate(value)
-        except schema_interfaces.ValidationError, error:
-            return error.doc()
+        if value is not NO_VALUE:
+            try:
+                self._field.validate(value)
+            except schema_interfaces.ValidationError, error:
+                return error.doc()
         return None
 
     def fromUnicode(self, value):
@@ -75,7 +76,9 @@ class SchemaField(Field):
             return self._field.fromUnicode(value)
         return value
 
-    def setContentValue(self, value, content):
+    def setContentValue(self, content, value):
+        if value is NO_VALUE:
+            value = self._field.default
         self._field.set(content, value)
 
     def getContentValue(self, content):

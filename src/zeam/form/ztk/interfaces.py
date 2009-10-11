@@ -6,7 +6,7 @@ class ISchemaField(interfaces.IField):
     """This is a field for zope schema field.
     """
 
-    def setContentValue(content, value):
+    def setContentValue(value, content):
         """Set the value on the content.
         """
 
