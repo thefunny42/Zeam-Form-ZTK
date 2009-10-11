@@ -52,7 +52,6 @@ component.provideAdapter(
 
 class SchemaField(Field):
     grok.implements(ISchemaField)
-    grok.context(schema_interfaces.IField)
 
     def __init__(self, field):
         super(SchemaField, self).__init__(field.title, field.__name__)
@@ -83,14 +82,18 @@ class SchemaField(Field):
         return self._field.get(content, NO_VALUE)
 
     def getDefaultValue(self):
-        return self._field.default
+        default = self._field.default
+        if default is None:     # Zope schema use None to say no default
+            return NO_VALUE
+        return default
 
 
-# We register it by hand to have the adapter available when loading ZCML.
-component.provideAdapter(
-    SchemaField,
-    (schema_interfaces.IField,),
-    interfaces.IField)
+def registerSchemaField(factory, schema_field):
+    # We register it by hand to have the adapter available when loading ZCML.
+    component.provideAdapter(factory, (schema_field,), interfaces.IField)
+
+
+registerSchemaField(SchemaField, schema_interfaces.IField)
 
 
 class SchemaWidgetExtractor(WidgetExtractor):
