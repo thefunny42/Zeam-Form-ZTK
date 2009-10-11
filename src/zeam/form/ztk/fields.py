@@ -15,6 +15,8 @@ from grokcore import component as grok
 
 
 class SchemaFieldFactory(object):
+    """Create form fields from a zope.schema field (by adapting it).
+    """
     grok.implements(interfaces.IFieldFactory)
 
     def __init__(self, context):
@@ -34,6 +36,9 @@ component.provideAdapter(
 
 
 class InterfaceSchemaFieldFactory(object):
+    """Create a set of form fields from a zope.interface by looking
+    each zope.schema fields defined on it and adapting them.
+    """
     grok.implements(interfaces.IFieldFactory)
 
     def __init__(self, context):
@@ -51,6 +56,8 @@ component.provideAdapter(
 
 
 class SchemaField(Field):
+    """A form field using a zope.schema field as settings.
+    """
     grok.implements(ISchemaField)
 
     def __init__(self, field):
@@ -82,7 +89,10 @@ class SchemaField(Field):
         self._field.set(content, value)
 
     def getContentValue(self, content):
-        return self._field.get(content, NO_VALUE)
+        value = self._field.get(content)
+        if value is None:
+            return NO_VALUE
+        return value
 
     def getDefaultValue(self):
         default = self._field.default

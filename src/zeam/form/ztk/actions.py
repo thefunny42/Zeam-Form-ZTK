@@ -1,30 +1,50 @@
 
 from zope.app.container.interfaces import INameChooser
-from zope.lifecycleevent import ObjectCreatedEvent
+from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 from zope.event import notify
 
 from zeam.form.base import Action
 
 
 class CancelAction(Action):
+    """Cancel the current form and return on the default content view.
+    """
 
     def __call__(self, form):
         form.redirect(form.url())
 
 
-class AddAction(Action):
-
-    fieldName = 'name'
-
-    def __init__(self, title, factory):
-        super(AddAction, self).__init__(title)
-        self.factory = factory
+class EditAction(Action):
+    """Edit the form content using the form fields.
+    """
 
     def applyData(self, form, content, data):
         for field in form.fields:
             value = data.get(field.identifier, None)
             if value is not None:
                 field.setContentValue(content, value)
+
+    def __call__(self, form):
+        data, errors = form.extractData()
+        if errors:
+            return
+
+        content = form.getContent()
+        self.applyData(form, content, data)
+        notify(ObjectModifiedEvent(content))
+        form.status = u"Modification saved"
+
+
+class AddAction(EditAction):
+    """Add a new content in the form content, saving the form fields
+    on the newly created content.
+    """
+
+    fieldName = 'name'
+
+    def __init__(self, title, factory):
+        super(AddAction, self).__init__(title)
+        self.factory = factory
 
     def create(self, form, data):
         content = self.factory()
