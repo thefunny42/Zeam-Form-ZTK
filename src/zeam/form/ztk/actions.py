@@ -40,7 +40,7 @@ class AddAction(EditAction):
     on the newly created content.
     """
 
-    fieldName = 'name'
+    fieldName = 'title'
 
     def __init__(self, title, factory):
         super(AddAction, self).__init__(title)
