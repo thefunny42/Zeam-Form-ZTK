@@ -122,6 +122,8 @@ class SchemaWidgetExtractor(WidgetExtractor):
                 value = self.component.fromUnicode(value)
             except schema_interfaces.ValidationError, e:
                 return None, e.doc()
+            except ValueError, e:
+                return None, u"Invalid value"
 
         return value, None
 
