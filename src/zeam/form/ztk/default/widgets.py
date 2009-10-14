@@ -56,7 +56,7 @@ class CheckBoxWidgetExtractor(WidgetExtractor):
         value, error = super(CheckBoxWidgetExtractor, self).extract()
         if value is NO_VALUE:
             value = False
-        elif value == 'true':
+        elif value == 'True':
             value = True
         return (value, error)
 
