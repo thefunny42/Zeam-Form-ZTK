@@ -54,8 +54,12 @@ class AddAction(EditAction):
 
     def add(self, form, content, data):
         container = form.getContent()
+        default_name = None
+        if self.fieldName is not None:
+            default_name = getattr(content, self.fieldName)
+
         chooser = INameChooser(container)
-        name = chooser.chooseName(data[self.fieldName], content)
+        name = chooser.chooseName(default_name, content)
         container[name] = content
 
     def nextURL(self, form, content):
