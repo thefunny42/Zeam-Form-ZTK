@@ -1,0 +1,78 @@
+===========================
+zeam.form.ztk choice widget
+===========================
+
+First we need a choice:
+
+  >>> from zope import interface, schema
+  >>> from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+
+  >>> firstVocabulary = SimpleVocabulary([
+  ...     SimpleTerm(value='A', token='a1', title='Letter A'),
+  ...     SimpleTerm(value='B', token='b1', title='Letter B'),
+  ...     SimpleTerm(value='C', token='c1', title='Letter C')])
+
+  >>> class IFirstChoice(interface.Interface):
+  ...     choice = schema.Choice(
+  ...         title=u"My Choice",
+  ...         source=firstVocabulary)
+
+
+And we will need a content and a request to test:
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class Content(object):
+  ...    interface.implements(IFirstChoice)
+  ...    choice = None
+  >>> content = Content()
+  >>> content.choice = 'B'
+
+
+Field
+-----
+
+So now you can create a field, and get a choice field:
+
+  >>> from zeam.form.ztk import Fields
+
+  >>> firstChoiceFields = Fields(IFirstChoice)
+  >>> firstField = firstChoiceFields['choice']
+  >>> firstField
+  <ChoiceSchemaField My Choice>
+  >>> firstField.source is firstVocabulary
+  True
+
+
+Widget
+------
+
+You have an associated widget:
+
+  >>> from zeam.form.ztk import Widgets, FormSubmission
+
+  >>> firstSub = FormSubmission(content, request)
+  >>> firstSub.ignoreContent = False
+
+  >>> firstWidgets = Widgets(
+  ...     firstChoiceFields,
+  ...     form=firstSub,
+  ...     request=request)
+
+  >>> firstWidgets.update()
+
+  >>> firstWidget = firstWidgets['form.field.choice']
+  >>> firstWidget
+  <ChoiceFieldWidget My Choice>
+
+  >>> firstWidget.inputValue()
+  'b1'
+
+  >>> print firstWidget.render()
+  <select id="form-field-choice" name="form.field.choice">
+    <option value="a1">Letter A</option>
+    <option value="b1" selected="selected">Letter B</option>
+    <option value="c1">Letter C</option>
+  </select>
+
