@@ -2,6 +2,9 @@
 zeam.form.ztk choice widget
 ===========================
 
+Simple case
+===========
+
 First we need a choice:
 
   >>> from zope import interface, schema
@@ -23,10 +26,10 @@ And we will need a content and a request to test:
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
 
-  >>> class Content(object):
+  >>> class FirstContent(object):
   ...    interface.implements(IFirstChoice)
   ...    choice = None
-  >>> content = Content()
+  >>> content = FirstContent()
   >>> content.choice = 'B'
 
 
@@ -76,3 +79,74 @@ You have an associated widget:
     <option value="c1">Letter C</option>
   </select>
 
+
+Context binded source
+=====================
+
+Let's define a source which need the context to produce its values,
+and an interface for it:
+
+  >>> from grokcore import component
+  >>> from zope.schema.interfaces import IContextSourceBinder
+
+  >>> @component.provider(IContextSourceBinder)
+  ... def secondVocabulary(context):
+  ...     return firstVocabulary
+
+  >>> class ISecondChoice(interface.Interface):
+  ...     choice = schema.Choice(
+  ...         title=u"My Choice",
+  ...         source=secondVocabulary)
+
+  >>> class SecondContent(object):
+  ...    interface.implements(IFirstChoice)
+  ...    choice = None
+  >>> content = SecondContent()
+  >>> content.choice = 'C'
+
+
+Field
+-----
+
+So now you can create a field, and get a choice field:
+
+  >>> from zeam.form.ztk import Fields
+
+  >>> secondChoiceFields = Fields(ISecondChoice)
+  >>> secondField = secondChoiceFields['choice']
+  >>> secondField
+  <ChoiceSchemaField My Choice>
+  >>> secondField.source is secondVocabulary
+  True
+
+
+Widget
+------
+
+You have an associated widget:
+
+  >>> from zeam.form.ztk import Widgets, FormSubmission
+
+  >>> secondSub = FormSubmission(content, request)
+  >>> secondSub.ignoreContent = False
+
+  >>> secondWidgets = Widgets(
+  ...     secondChoiceFields,
+  ...     form=secondSub,
+  ...     request=request)
+
+  >>> secondWidgets.update()
+
+  >>> secondWidget = secondWidgets['form.field.choice']
+  >>> secondWidget
+  <ChoiceFieldWidget My Choice>
+
+  >>> secondWidget.inputValue()
+  'c1'
+
+  >>> print secondWidget.render()
+  <select id="form-field-choice" name="form.field.choice">
+    <option value="a1">Letter A</option>
+    <option value="b1">Letter B</option>
+    <option value="c1" selected="selected">Letter C</option>
+  </select>

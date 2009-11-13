@@ -30,10 +30,21 @@ registerSchemaField(ChoiceSchemaField, schema_interfaces.IChoice)
 class ChoiceFieldWidget(FieldWidget):
     grok.adapts(ChoiceSchemaField, Interface, Interface)
 
+    def __init__(self, *args):
+        super(ChoiceFieldWidget, self).__init__(*args)
+        self.__choices = None
+
     def valueToUnicode(self, value):
-        term = self.component.source.getTerm(value)
+        term = self.choices().getTerm(value)
         return term.token
 
-    @property
     def choices(self):
-        return self.component.source
+        if self.__choices is not None:
+            return self.__choices
+        source = self.component.source
+        if (schema_interfaces.IContextSourceBinder.providedBy(source) or
+            schema_interfaces.IVocabularyFactory.providedBy(source)):
+            source = source(self.form.getContent())
+        assert schema_interfaces.IVocabularyTokenized.providedBy(source)
+        self.__choices = source
+        return self.__choices
