@@ -10,32 +10,6 @@ from zope.interface import Interface
 from grokcore import component as grok
 
 
-# Password widget
-
-class PasswordSchemaField(SchemaField):
-    pass
-
-
-registerSchemaField(PasswordSchemaField, schema_interfaces.IPassword)
-
-
-class PasswordFieldWidget(FieldWidget):
-    grok.adapts(PasswordSchemaField, Interface, Interface)
-
-
-# Text widget
-
-class TextSchemaField(SchemaField):
-    pass
-
-
-registerSchemaField(TextSchemaField, schema_interfaces.ISourceText)
-
-
-class TextFieldWidget(FieldWidget):
-    grok.adapts(TextSchemaField, Interface, Interface)
-
-
 # Checkbox widget
 
 class BooleanSchemaField(SchemaField):
@@ -59,22 +33,3 @@ class CheckBoxWidgetExtractor(WidgetExtractor):
         elif value == 'True':
             value = True
         return (value, error)
-
-# Datetime
-
-class DatetimeSchemaField(SchemaField):
-
-    def __init__(self, field):
-        super(DatetimeSchemaField, self).__init__(field)
-
-
-registerSchemaField(DatetimeSchemaField, schema_interfaces.IDatetime)
-
-
-class DatetimeDisplayFieldWidget(DisplayFieldWidget):
-    grok.adapts(DatetimeSchemaField, Interface, Interface)
-
-    def valueToUnicode(self, value):
-        formatter = self.request.locale.dates.getFormatter('dateTime')
-        return formatter.format(value)
-
