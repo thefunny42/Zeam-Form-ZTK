@@ -73,3 +73,15 @@ the value is False:
   >>> extractor.extract()
   (False, None)
 
+And if there is True in the request that means the checkbox is
+checked:
+
+  >>> request = TestRequest(
+  ...         form={booleanWidget.identifier: u'True', })
+
+  >>> extractor = component.getMultiAdapter(
+  ...      (booleanField, sub, request), interfaces.IWidgetExtractor)
+
+  >>> extractor.extract()
+  (True, None)
+
