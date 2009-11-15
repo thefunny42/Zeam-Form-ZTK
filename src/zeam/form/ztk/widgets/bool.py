@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from grokcore import component as grok
-from zeam.form.ztk.fields import SchemaField, registerSchemaField
+from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
+from zeam.form.ztk.fields import SchemaField, registerSchemaField
+
 from zope.schema import interfaces as schema_interfaces
+
+from grokcore import component as grok
 
 
 class BooleanSchemaField(SchemaField):

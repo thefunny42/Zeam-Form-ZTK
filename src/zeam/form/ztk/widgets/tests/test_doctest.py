@@ -10,7 +10,7 @@ def test_suite():
     globs= {}
 
     suite = unittest.TestSuite()
-    for filename in ['choice.txt',]:
+    for filename in ['bool.txt', 'choice.txt',]:
         test = doctest.DocFileSuite(
             filename,
             optionflags=optionflags,

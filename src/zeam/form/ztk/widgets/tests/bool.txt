@@ -1,0 +1,75 @@
+============================
+zeam.form.ztk boolean widget
+============================
+
+We need first a boolean:
+
+  >>> from zope import interface, schema
+
+  >>> class IQuestion(interface.Interface):
+  ...     answer = schema.Bool(title=u"Do you like zeam?")
+
+
+And a test content and request:
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class Question(object):
+  ...    interface.implements(IQuestion)
+  ...    answer = True
+  >>> content = Question()
+
+
+Field
+-----
+
+So now you can create a field, and get a boolean field:
+
+  >>> from zeam.form.ztk import Fields
+
+  >>> fields = Fields(IQuestion)
+  >>> booleanField = fields['answer']
+  >>> booleanField
+  <BooleanSchemaField Do you like zeam?>
+
+
+Widget
+------
+
+You have an associated widget:
+
+  >>> from zeam.form.ztk import Widgets, FormSubmission
+
+  >>> sub = FormSubmission(content, request)
+  >>> sub.ignoreContent = False
+
+  >>> widgets = Widgets(fields, form=sub, request=request)
+  >>> widgets.update()
+
+  >>> booleanWidget = widgets['form.field.answer']
+  >>> booleanWidget
+  <CheckBoxWidget Do you like zeam?>
+
+  >>> print booleanWidget.render()
+  <input id="form-field-answer" name="form.field.answer"
+         checked="checked" value="True" type="checkbox" />
+
+
+Extractor
+---------
+
+And finaly we have an extractor. If there is nothing in the request
+the value is False:
+
+  >>> from zope import component
+  >>> from zeam.form.base import interfaces
+
+  >>> extractor = component.getMultiAdapter(
+  ...      (booleanField, sub, request), interfaces.IWidgetExtractor)
+
+  >>> extractor
+  <zeam.form.ztk.widgets.bool.CheckBoxWidgetExtractor object at ...>
+  >>> extractor.extract()
+  (False, None)
+

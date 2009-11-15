@@ -1,15 +1,19 @@
+# -*- coding: utf-8 -*-
 
-from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.base.markers import NO_VALUE
+from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.ztk.fields import SchemaField, registerSchemaField
 
-from zope.schema import interfaces as schema_interfaces
+from zope import component
 from zope.interface import Interface
+from zope.schema import interfaces as schema_interfaces
 
 from grokcore import component as grok
 
 
 class ChoiceSchemaField(SchemaField):
+    """A choice field.
+    """
 
     def __init__(self, field):
         super(ChoiceSchemaField, self).__init__(field)

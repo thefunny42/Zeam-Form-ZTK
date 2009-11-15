@@ -2,7 +2,7 @@
 from zeam.form.base import interfaces
 from zeam.form.base.fields import Field
 from zeam.form.base.markers import NO_VALUE
-from zeam.form.base.widgets import Widget, WidgetExtractor
+from zeam.form.base.widgets import WidgetExtractor
 
 from zeam.form.ztk.interfaces import ISchemaField
 
