@@ -18,14 +18,14 @@ You can create a full set of fields from a Zope interface:
    >>> from zeam.form.base import Fields
    >>> s2 = Fields(IPlanet)
    >>> list(s2)
-   [<SchemaField Name>, <SchemaField Size>]
+   [<TextLineSchemaField Name>, <SchemaField Size>]
 
 Those are correct fields, filled with the interface definition
 information:
 
    >>> f2, f3 = list(s2)
    >>> f2
-   <SchemaField Name>
+   <TextLineSchemaField Name>
    >>> f2.title
    u'Name'
    >>> f2.identifier
@@ -46,14 +46,14 @@ You can add fields via an interface after:
 
    >>> class IHabitationSupport(interface.Interface):
    ...     city = schema.TextLine(title=u"City name")
-   ...     people = schema.TextLine(title=u"Number of people",
-   ...                              required=False,
-   ...                              description=u"Or population size")
+   ...     people = schema.Int(title=u"Number of people",
+   ...                         required=False,
+   ...                         description=u"Or population size")
 
    >>> s2.extend(IHabitationSupport)
    >>> list(s2)
-   [<SchemaField Name>, <SchemaField Size>,
-    <SchemaField City name>, <SchemaField Number of people>]
+   [<TextLineSchemaField Name>, <SchemaField Size>,
+    <TextLineSchemaField City name>, <SchemaField Number of people>]
 
 You can add a field from an interface alone:
 
@@ -63,10 +63,10 @@ You can add a field from an interface alone:
 
    >>> s2.extend(IFoodSupport['vegetables'])
    >>> list(s2.select('vegetables'))
-   [<SchemaField Vegetables kind>]
+   [<TextLineSchemaField Vegetables kind>]
 
    >>> list(Fields(IFoodSupport['meat']))
-   [<SchemaField Meat kind>]
+   [<TextLineSchemaField Meat kind>]
 
 But it need to belong to an interface:
 

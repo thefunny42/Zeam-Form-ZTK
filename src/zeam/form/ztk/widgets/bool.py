@@ -6,20 +6,20 @@ from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zope.schema import interfaces as schema_interfaces
 
 
-class BooleanField(SchemaField):
+class BooleanSchemaField(SchemaField):
     """A boolean field.
     """
 
 
-registerSchemaField(BooleanField, schema_interfaces.IBool)
+registerSchemaField(BooleanSchemaField, schema_interfaces.IBool)
 
 
-class CheckBoxdWidget(FieldWidget):
-    grok.adapts(BooleanField, None, None)
+class CheckBoxWidget(FieldWidget):
+    grok.adapts(BooleanSchemaField, None, None)
 
 
 class CheckBoxWidgetExtractor(WidgetExtractor):
-    grok.adapts(BooleanField, None, None)
+    grok.adapts(BooleanSchemaField, None, None)
 
     def extract(self):
         value, error = WidgetExtractor.extract(self)
