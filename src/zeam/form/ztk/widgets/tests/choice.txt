@@ -80,6 +80,35 @@ You have an associated widget:
   </select>
 
 
+Extractor
+---------
+
+We need a custom extractor as the token value used in the form can be
+different than the real value:
+
+  >>> from zope import component
+  >>> from zeam.form.base import interfaces
+
+  >>> firstExtractor = component.getMultiAdapter(
+  ...      (firstField, firstSub, request), interfaces.IWidgetExtractor)
+
+  >>> firstExtractor
+  <zeam.form.ztk.widgets.choice.ChoiceWidgetExtractor object at ...>
+  >>> firstExtractor.extract()
+  (<Marker NO_VALUE>, None)
+
+Let's now do it with a value:
+
+  >>> firstRequest = TestRequest(
+  ...         form={firstWidget.identifier: u'a1', })
+
+  >>> firstExtractor = component.getMultiAdapter(
+  ...      (firstField, firstSub, firstRequest), interfaces.IWidgetExtractor)
+
+  >>> firstExtractor.extract()
+  ('A', None)
+
+
 Context binded source
 =====================
 

@@ -23,6 +23,14 @@ class ChoiceSchemaField(SchemaField):
     def source(self):
         return self.__source
 
+    def getChoices(self, getContext):
+        source = self.__source
+        if (schema_interfaces.IContextSourceBinder.providedBy(source) or
+            schema_interfaces.IVocabularyFactory.providedBy(source)):
+            source = source(getContext())
+        assert schema_interfaces.IVocabularyTokenized.providedBy(source)
+        return source
+
 
 registerSchemaField(ChoiceSchemaField, schema_interfaces.IChoice)
 
@@ -41,10 +49,19 @@ class ChoiceFieldWidget(FieldWidget):
     def choices(self):
         if self.__choices is not None:
             return self.__choices
-        source = self.component.source
-        if (schema_interfaces.IContextSourceBinder.providedBy(source) or
-            schema_interfaces.IVocabularyFactory.providedBy(source)):
-            source = source(self.form.getContent())
-        assert schema_interfaces.IVocabularyTokenized.providedBy(source)
-        self.__choices = source
+        self.__choices = self.component.getChoices(self.form.getContent)
         return self.__choices
+
+
+class ChoiceWidgetExtractor(WidgetExtractor):
+    grok.adapts(ChoiceSchemaField, Interface, Interface)
+
+    def extract(self):
+        value, error = super(ChoiceWidgetExtractor, self).extract()
+        if value is not NO_VALUE:
+            choices = self.component.getChoices(self.form.getContent)
+            try:
+                value = choices.getTermByToken(value).value
+            except LookupError:
+                return (None, 'Invalid value')
+        return (value, error)
