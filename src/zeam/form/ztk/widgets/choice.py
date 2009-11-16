@@ -27,11 +27,11 @@ class ChoiceSchemaField(SchemaField):
     def source(self):
         return self.__source
 
-    def getChoices(self, getContext):
+    def getChoices(self, context):
         source = self.__source
         if (schema_interfaces.IContextSourceBinder.providedBy(source) or
             schema_interfaces.IVocabularyFactory.providedBy(source)):
-            source = source(getContext())
+            source = source(context)
         assert schema_interfaces.IVocabularyTokenized.providedBy(source)
         return source
 
@@ -53,7 +53,7 @@ class ChoiceFieldWidget(FieldWidget):
     def choices(self):
         if self.__choices is not None:
             return self.__choices
-        self.__choices = self.component.getChoices(self.form.getContent)
+        self.__choices = self.component.getChoices(self.form.context)
         return self.__choices
 
 
@@ -63,7 +63,7 @@ class ChoiceWidgetExtractor(WidgetExtractor):
     def extract(self):
         value, error = super(ChoiceWidgetExtractor, self).extract()
         if value is not NO_VALUE:
-            choices = self.component.getChoices(self.form.getContent)
+            choices = self.component.getChoices(self.form.context)
             try:
                 value = choices.getTermByToken(value).value
             except LookupError:
