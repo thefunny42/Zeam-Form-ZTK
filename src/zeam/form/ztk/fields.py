@@ -73,7 +73,12 @@ class SchemaField(Field):
 
         if value is not NO_VALUE:
             try:
-                self._field.validate(value)
+                # It's required to call bind on the field before
+                # validate because of choice fields. We put None for
+                # the time being as object (don't have them, make no
+                # sense)
+                binded_field  = self._field.bind(None)
+                binded_field.validate(value)
             except schema_interfaces.ValidationError, error:
                 return error.doc()
         return None
