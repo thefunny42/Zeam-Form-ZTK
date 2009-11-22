@@ -10,7 +10,7 @@ from grokcore.component import zcml
 ftesting_zcml = os.path.join(
     os.path.dirname(zeam.form.ztk.__file__), 'ftesting.zcml')
 FunctionalLayer = ZCMLLayer(
-    ftesting_zcml, __name__, 'FunctionalLayer', allow_teardown=True)
+    ftesting_zcml, __name__, 'FunctionalLayer', allow_teardown=False)
 
 def setUp(test):
     FunctionalTestSetup().setUp()
