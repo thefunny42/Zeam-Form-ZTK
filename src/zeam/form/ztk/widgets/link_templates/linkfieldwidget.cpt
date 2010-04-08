@@ -1,0 +1,5 @@
+<a href="#"
+   tal:attributes="href widget.url()"
+   tal:content="widget.inputValue()">
+  data
+</a>
