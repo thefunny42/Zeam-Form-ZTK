@@ -1,4 +1,0 @@
-<textarea id="#" name="#" cols="80" rows="5"
-          tal:attributes="name widget/identifier;
-                          id widget/htmlId"
-          tal:content="widget/inputValue"></textarea>

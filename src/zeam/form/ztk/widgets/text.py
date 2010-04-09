@@ -10,7 +10,7 @@ from zeam.form.ztk.fields import registerSchemaField
 class TextField(SchemaField):
     """A text field.
     """
-    
+
 
 class TextWidget(FieldWidget):
     grok.adapts(TextField, None, None)

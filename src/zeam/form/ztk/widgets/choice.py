@@ -42,8 +42,9 @@ registerSchemaField(ChoiceSchemaField, schema_interfaces.IChoice)
 class ChoiceFieldWidget(FieldWidget):
     grok.adapts(ChoiceSchemaField, Interface, Interface)
 
-    def __init__(self, *args):
-        super(ChoiceFieldWidget, self).__init__(*args)
+    def __init__(self, field, form, request):
+        super(ChoiceFieldWidget, self).__init__(field, form, request)
+        self.source = field
         self.__choices = None
 
     def valueToUnicode(self, value):
@@ -53,7 +54,9 @@ class ChoiceFieldWidget(FieldWidget):
     def choices(self):
         if self.__choices is not None:
             return self.__choices
-        self.__choices = self.component.getChoices(self.form.context)
+        # self.source is used instead of self.component in order to be
+        # able to override it in subclasses.
+        self.__choices = self.source.getChoices(self.form.context)
         return self.__choices
 
 

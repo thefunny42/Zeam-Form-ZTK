@@ -31,6 +31,7 @@ setup(name='zeam.form.ztk',
         'grokcore.component',
         'zope.schema',
         'zeam.form.base',
+        'megrok.chameleon',
         # Test
         'zope.securitypolicy',
         'zope.app.authentication',

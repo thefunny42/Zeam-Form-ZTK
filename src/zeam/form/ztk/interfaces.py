@@ -17,6 +17,15 @@ class ISchemaField(IField):
         """
 
 
+class ICollectionSchemaField(ISchemaField):
+    """This is a field for zope schema collection field. It is defined
+    in order to be able to have a generic behavior on collections.
+    """
+
+    collectionType = interface.Attribute(
+        u"Python type represented by this collection (like set, list...)")
+
+
 class IZeamFormZTKAPI(IZeamFormBaseAPI):
     """API exported by zeam.form.ztk.
     """

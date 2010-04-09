@@ -1,5 +1,0 @@
-<input id="#" name="#" checked="" value="True" type="checkbox"
-       tal:define="checked python:widget.inputValue() == 'True'"
-       tal:attributes="name widget/identifier;
-                       id widget/htmlId;
-                       checked python:checked and 'checked' or None" />
