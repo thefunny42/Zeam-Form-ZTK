@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 
 from grokcore import component as grok
-from zeam.form.ztk.fields import SchemaField
 from zeam.form.base.widgets import FieldWidget
-from zope.schema import interfaces as schema_interfaces
+from zeam.form.ztk.fields import SchemaField
 from zeam.form.ztk.fields import registerSchemaField
+from zope.interface import Interface
+from zope.schema import interfaces as schema_interfaces
 
 
-class TextField(SchemaField):
+class TextSchemaField(SchemaField):
     """A text field.
     """
 
-
-class TextWidget(FieldWidget):
-    grok.adapts(TextField, None, None)
+registerSchemaField(TextSchemaField, schema_interfaces.IText)
 
 
-registerSchemaField(TextField, schema_interfaces.IText)
+class TextFieldWidget(FieldWidget):
+    grok.adapts(TextSchemaField, Interface, Interface)
+
+

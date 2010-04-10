@@ -66,6 +66,12 @@ class SchemaField(Field):
         self.required = field.required
         self._field = field
 
+    def copy(self, new_identifier=None):
+        copy = self.__class__(self._field)
+        if new_identifier is not None:
+            copy.identifier = new_identifier
+        return copy
+
     def validate(self, value):
         error = super(SchemaField, self).validate(value)
         if error is not None:
@@ -86,17 +92,6 @@ class SchemaField(Field):
     def fromUnicode(self, value):
         if schema_interfaces.IFromUnicode.providedBy(self._field):
             return self._field.fromUnicode(value)
-        return value
-
-    def setContentValue(self, content, value):
-        if value is NO_VALUE:
-            value = self._field.default
-        self._field.set(content, value)
-
-    def getContentValue(self, content):
-        value = self._field.get(content)
-        if value is None:
-            return NO_VALUE
         return value
 
     def getDefaultValue(self):
