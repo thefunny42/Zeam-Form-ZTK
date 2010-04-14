@@ -101,7 +101,7 @@ class MultiGenericFieldWidget(FieldWidget):
         values = self.inputValue()
         if values is not NO_VALUE:
             for position, value in enumerate(values):
-                field = self.valueField.copy()
+                field = self.valueField.clone()
                 form = cloneSubmission(self.form, NoneDataManager(value))
                 form.prefix = '%s.%d' % (self.identifier, position)
                 widget = createWidget(field, form, self.request)

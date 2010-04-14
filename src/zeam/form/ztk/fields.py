@@ -66,7 +66,7 @@ class SchemaField(Field):
         self.required = field.required
         self._field = field
 
-    def copy(self, new_identifier=None):
+    def clone(self, new_identifier=None):
         copy = self.__class__(self._field)
         if new_identifier is not None:
             copy.identifier = new_identifier
