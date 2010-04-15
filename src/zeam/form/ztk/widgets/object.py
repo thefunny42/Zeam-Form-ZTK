@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from zeam.form.base.datamanager import ObjectDataManager
+from zeam.form.base.datamanager import ObjectDataManager, DictDataManager
 from zeam.form.base.fields import Fields
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
@@ -8,6 +8,8 @@ from zeam.form.base.widgets import Widgets
 from zeam.form.base.form import cloneSubmission
 from zeam.form.ztk.fields import SchemaField, registerSchemaField
 
+from zope.component import getUtility
+from zope.component.interfaces import IFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
 
@@ -18,8 +20,23 @@ class ObjectSchemaField(SchemaField):
     """A collection field.
     """
 
+    objectFactory = None
+
+    def __init__(self, field):
+        super(ObjectSchemaField, self).__init__(field)
+        self._object_fields = Fields(field.schema)
+
     def getObjectSchema(self):
         return self._field.schema
+
+    def getObjectFields(self):
+        return self._object_fields
+
+    def getObjectFactory(self):
+        if self.objectFactory is not None:
+            return self.objectFactory
+        schema = self.getObjectSchema()
+        return getUtility(IFactory, name=schema.__identifier__)
 
 
 registerSchemaField(ObjectSchemaField, schema_interfaces.IObject)
@@ -36,9 +53,25 @@ class ObjectFieldWidget(FieldWidget):
     def update(self):
         super(ObjectFieldWidget, self).update()
         value = self.inputValue()
-        self.form = cloneSubmission(self.form, ObjectDataManager(value))
-        self.fields = Fields(self.component.getObjectSchema())
-        self.fieldWidgets = Widgets(form=self.form, request=self.request)
-        self.fieldWidgets.extend(self.fields)
+        fields = self.component.getObjectFields()
+        form = cloneSubmission(
+            self.form, ObjectDataManager(value), self.identifier)
+        self.fieldWidgets = Widgets(form=form, request=self.request)
+        self.fieldWidgets.extend(fields)
         self.fieldWidgets.update()
+
+
+class ObjectFieldExtractor(WidgetExtractor):
+    grok.adapts(ObjectSchemaField, Interface, Interface)
+
+    def extract(self):
+        value = None
+        form = cloneSubmission(self.form, None, self.identifier)
+        data, errors = form.extractData(self.component.getObjectFields())
+        if not errors:
+            factory = self.component.getObjectFactory()
+            value = factory(**data)
+        return (value, errors)
+
+
 

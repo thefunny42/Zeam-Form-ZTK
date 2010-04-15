@@ -91,6 +91,8 @@ class SchemaField(Field):
 
     def fromUnicode(self, value):
         if schema_interfaces.IFromUnicode.providedBy(self._field):
+            if not isinstance(value, unicode):
+                value = unicode(value)
             return self._field.fromUnicode(value)
         return value
 

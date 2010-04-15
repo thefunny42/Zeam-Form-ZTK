@@ -3,7 +3,7 @@ from zope.app.container.interfaces import INameChooser
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 from zope.event import notify
 
-from zeam.form.base import Action
+from zeam.form.base import Action, NO_VALUE
 
 
 class CancelAction(Action):
@@ -20,9 +20,9 @@ class EditAction(Action):
 
     def applyData(self, form, content, data):
         for field in form.fields:
-            value = data.get(field.identifier, None)
-            if value is not None:
-                field.setContentValue(content, value)
+            value = data.get(field.identifier, NO_VALUE)
+            if value is not NO_VALUE:
+                content.set(field.identifier, value)
 
     def __call__(self, form):
         data, errors = form.extractData()

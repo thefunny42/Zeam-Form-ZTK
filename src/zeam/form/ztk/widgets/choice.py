@@ -70,5 +70,5 @@ class ChoiceWidgetExtractor(WidgetExtractor):
             try:
                 value = choices.getTermByToken(value).value
             except LookupError:
-                return (None, 'Invalid value')
+                return (None, u'Invalid value')
         return (value, error)

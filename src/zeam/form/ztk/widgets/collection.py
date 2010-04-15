@@ -101,9 +101,9 @@ class MultiGenericFieldWidget(FieldWidget):
         values = self.inputValue()
         if values is not NO_VALUE:
             for position, value in enumerate(values):
-                field = self.valueField.clone()
-                form = cloneSubmission(self.form, NoneDataManager(value))
-                form.prefix = '%s.%d' % (self.identifier, position)
+                field = self.valueField.clone(new_identifier=str(position))
+                form = cloneSubmission(
+                    self.form, NoneDataManager(value), self.identifier)
                 widget = createWidget(field, form, self.request)
                 if widget is not None:
                     self.valueForms.append(form)
@@ -129,6 +129,8 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
         # Not implemented yet
         return (NO_VALUE, None)
 
+
+# Multi-Choice widget
 
 class MultiChoiceFieldWidget(ChoiceFieldWidget):
     grok.adapts(ICollectionSchemaField, ChoiceSchemaField, Interface, Interface)
@@ -160,6 +162,12 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
         self.source = value_field
 
     def extract(self):
-        import pdb ; pdb.set_trace()
-        # Not implemented yet
-        return (NO_VALUE, None)
+        value, error = super(MultiChoiceWidgetExtractor, self).extract()
+        if value is not NO_VALUE:
+            choices = self.source.getChoices(self.form.context)
+            try:
+                value = self.component.collectionType(
+                    [choices.getTermByToken(t).value for t in value])
+            except LookupError:
+                return (None, u'Invalid value')
+        return (value, error)
