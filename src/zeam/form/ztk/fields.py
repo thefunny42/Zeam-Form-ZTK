@@ -97,6 +97,9 @@ class SchemaField(Field):
         return value
 
     def getDefaultValue(self):
+        default = super(SchemaField, self).getDefaultValue()
+        if default is not NO_VALUE:
+            return default
         default = self._field.default
         if default is None:     # Zope schema use None to say no default
             return NO_VALUE

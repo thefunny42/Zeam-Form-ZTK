@@ -85,36 +85,49 @@ class MultiGenericFieldWidget(FieldWidget):
 
     def __init__(self, field, value_field, form, request):
         super(MultiGenericFieldWidget, self).__init__(field, form, request)
-        self.valueCount = 0
         self.valueField = value_field
-        self.valueForms = []
         self.valueWidgets = Widgets()
 
-    def prepareValue(self, value):
-        if value is NO_VALUE:
-            return {self.identifier: []}
-        return {self.identifier: value}
+    def newValueWidget(self, new_identifier, value):
+        field = self.valueField.clone(new_identifier=str(new_identifier))
+        form = cloneFormData(self.form, prefix=self.identifier)
+        if value is not None:
+            form.ignoreContent = False
+            form.setContentData(NoneDataManager(value))
+        else:
+            form.ignoreRequest = False
+            form.ignoreContent = True
+        widget = createWidget(field, form, self.request)
+        if widget is not None:
+            self.valueWidgets.append(widget)
 
-    def createValueWidgets(self):
-        # We create a form submission per widget in order to have a
-        # different getContent, one for each content for each widget.
-        values = self.inputValue()
-        if values is not NO_VALUE:
-            for position, value in enumerate(values):
-                field = self.valueField.clone(new_identifier=str(position))
-                form = cloneFormData(
-                    self.form, NoneDataManager(value), self.identifier)
-                widget = createWidget(field, form, self.request)
-                if widget is not None:
-                    self.valueForms.append(form)
-                    self.valueWidgets.append(widget)
-            self.valueCount = len(values)
-        if not self.valueCount:
-            self.allowRemove = False
+    def prepareContentValue(self, values):
+        if values is NO_VALUE:
+            return {self.identifier: '0'}
+        for position, value in enumerate(values):
+            # Create new widgets for each value
+            self.newValueWidget(position, value)
+        return {self.identifier: str(len(values))}
+
+    def prepareRequestValue(self, values):
+        count = int(values.get(self.identifier, '0'))
+        remove_something = self.identifier + '.remove' in self.request.form
+        for position in range(0, count):
+            value_selected = '%s.field.%d.checked' % (
+                self.identifier, position) in self.request.form
+            if remove_something and value_selected:
+                print 'Remove %d' % position
+                continue
+            self.newValueWidget(position, None)
+        if self.identifier + '.add' in self.request.form:
+            self.newValueWidget(count, None)
+            values[self.identifier] = str(count)
+        return values
 
     def update(self):
         super(MultiGenericFieldWidget, self).update()
-        self.createValueWidgets()
+        if not int(self.inputValue()):
+            self.allowRemove = False
         self.valueWidgets.update()
 
 
@@ -139,7 +152,7 @@ class MultiChoiceFieldWidget(ChoiceFieldWidget):
         super(MultiChoiceFieldWidget, self).__init__(field, form, request)
         self.source = value_field
 
-    def prepareValue(self, value):
+    def prepareContentValue(self, value):
         if value is NO_VALUE:
             return {self.identifier: []}
         return {self.identifier: value}

@@ -1,13 +1,13 @@
 <tal:multi>
-  <tal:values tal:repeat="widget widget.valueWidgets">
+  <tal:values tal:repeat="valueWidget widget.valueWidgets">
     <input type="checkbox" name="#"
-           tal:attributes="name string:${widget.identifier}.checked"/>
-    <tal:widget tal:replace="structure widget.render()" />
+           tal:attributes="name string:${valueWidget.identifier}.checked"/>
+    <tal:widget tal:replace="structure valueWidget.render()" />
   </tal:values>
 
   <input type="hidden" name="#" value="#"
-         tal:attributes="name string:${widget.identifier}.count;
-                         value widget.valueCount" />
+         tal:attributes="name string:${widget.identifier};
+                         value widget.inputValue()" />
   <div class="multi-actions">
     <input type="submit" name="#" value="Add"
            tal:attributes="name string:${widget.identifier}.add"

@@ -45,7 +45,7 @@ registerSchemaField(ObjectSchemaField, schema_interfaces.IObject)
 class ObjectFieldWidget(FieldWidget):
     grok.adapts(ObjectSchemaField, Interface, Interface)
 
-    def prepareValue(self, value):
+    def prepareContentValue(self, value):
         if value is NO_VALUE:
             return {self.identifier: []}
         return {self.identifier: value}
