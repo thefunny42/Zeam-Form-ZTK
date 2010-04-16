@@ -2,7 +2,7 @@
 
 from zeam.form.base.datamanager import NoneDataManager
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
-from zeam.form.base.form import cloneSubmission
+from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import (
     FieldWidget, WidgetExtractor, Widgets, createWidget)
@@ -102,7 +102,7 @@ class MultiGenericFieldWidget(FieldWidget):
         if values is not NO_VALUE:
             for position, value in enumerate(values):
                 field = self.valueField.clone(new_identifier=str(position))
-                form = cloneSubmission(
+                form = cloneFormData(
                     self.form, NoneDataManager(value), self.identifier)
                 widget = createWidget(field, form, self.request)
                 if widget is not None:

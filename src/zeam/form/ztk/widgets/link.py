@@ -14,5 +14,5 @@ class LinkFieldWidget(FieldWidget):
     grok.name('link')
 
     def url(self):
-        content = self.form.getContent()
-        return getMultiAdapter((content, self.request), IAbsoluteURL)()
+        context = self.form.context
+        return getMultiAdapter((context, self.request), IAbsoluteURL)()

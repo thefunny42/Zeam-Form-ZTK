@@ -5,7 +5,7 @@ from zeam.form.base.fields import Fields
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.base.widgets import Widgets
-from zeam.form.base.form import cloneSubmission
+from zeam.form.base.form import cloneFormData
 from zeam.form.ztk.fields import SchemaField, registerSchemaField
 
 from zope.component import getUtility
@@ -54,7 +54,7 @@ class ObjectFieldWidget(FieldWidget):
         super(ObjectFieldWidget, self).update()
         value = self.inputValue()
         fields = self.component.getObjectFields()
-        form = cloneSubmission(
+        form = cloneFormData(
             self.form, ObjectDataManager(value), self.identifier)
         self.fieldWidgets = Widgets(form=form, request=self.request)
         self.fieldWidgets.extend(fields)
@@ -66,7 +66,7 @@ class ObjectFieldExtractor(WidgetExtractor):
 
     def extract(self):
         value = None
-        form = cloneSubmission(self.form, None, self.identifier)
+        form = cloneFormData(self.form, None, self.identifier)
         data, errors = form.extractData(self.component.getObjectFields())
         if not errors:
             factory = self.component.getObjectFactory()

@@ -29,7 +29,7 @@ class EditAction(Action):
         if errors:
             return
 
-        content = form.getContent()
+        content = form.getContentData()
         self.applyData(form, content, data)
         notify(ObjectModifiedEvent(content))
         form.status = u"Modification saved"

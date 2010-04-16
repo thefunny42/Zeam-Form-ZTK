@@ -56,9 +56,9 @@ Widget
 
 You have an associated widget:
 
-  >>> from zeam.form.ztk import Widgets, FormSubmission
+  >>> from zeam.form.ztk import Widgets, FormData
 
-  >>> firstSub = FormSubmission(content, request)
+  >>> firstSub = FormData(content, request)
   >>> firstSub.ignoreContent = False
 
   >>> firstWidgets = Widgets(
@@ -160,9 +160,9 @@ Widget
 
 You have an associated widget:
 
-  >>> from zeam.form.ztk import Widgets, FormSubmission
+  >>> from zeam.form.ztk import Widgets, FormData
 
-  >>> secondSub = FormSubmission(content, request)
+  >>> secondSub = FormData(content, request)
   >>> secondSub.ignoreContent = False
 
   >>> secondWidgets = Widgets(
