@@ -31,7 +31,7 @@ class EditAction(Action):
 
         content = form.getContentData()
         self.applyData(form, content, data)
-        notify(ObjectModifiedEvent(content))
+        notify(ObjectModifiedEvent(content.content))
         form.status = u"Modification saved"
 
 

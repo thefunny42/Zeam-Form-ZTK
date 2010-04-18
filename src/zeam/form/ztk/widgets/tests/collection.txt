@@ -1,0 +1,223 @@
+================================
+zeam.form.ztk collection widgets
+================================
+
+First we need some test interfaces that uses collections:
+
+  >>> from zope import schema, interface
+  >>> from zope.component import getMultiAdapter
+  >>> from zope.interface.verify import verifyObject
+  >>> from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+
+  >>> class IListOfNames(interface.Interface):
+  ...     names = schema.List(
+  ...         title=u"People Names",
+  ...         value_type=schema.TextLine())
+
+  >>> drinks = SimpleVocabulary([
+  ...     SimpleTerm('vodka', title=u'Vodka'),
+  ...     SimpleTerm('tequila', title=u'Tequila'),
+  ...     SimpleTerm('cognac', title=u'Cognac'),
+  ...     SimpleTerm('champagne', title=u'Champagne')])
+
+  >>> class ISetOfDrinks(interface.Interface):
+  ...     drinks = schema.Set(
+  ...         title=u"My beverages",
+  ...         value_type=schema.Choice(source=drinks))
+
+And we will need a content and a request to test:
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class ListOfNames(object):
+  ...    interface.implements(IListOfNames)
+  ...    names = None
+
+  >>> class SetOfDrinks(object):
+  ...    interface.implements(ISetOfDrinks)
+  ...    drinks = None
+
+  >>> content = ListOfNames()
+  >>> content.names = list()
+
+  >>> drinkableContent = SetOfDrinks()
+  >>> drinkableContent.drinks = set()
+
+Field
+-----
+
+So now you can create a field, and get a collection field:
+
+  >>> from zeam.form.ztk import Fields
+  >>> from zeam.form.base import interfaces
+
+  >>> listFields = Fields(IListOfNames)
+  >>> listField = listFields['names']
+  >>> listField
+  <CollectionSchemaField People Names>
+  >>> verifyObject(interfaces.IField, listField)
+  True
+
+This field works on list, and contains text lines:
+
+  >>> listField.collectionType
+  <type 'list'>
+  >>> valueField = listField.getValueField()
+  >>> valueField
+  <TextLineSchemaField >
+  >>> verifyObject(interfaces.IField, valueField)
+  True
+
+However you can have different type of collection, like this is a set
+of choice:
+
+  >>> drinkFields = Fields(ISetOfDrinks)
+  >>> drinkField = drinkFields['drinks']
+  >>> drinkField
+  <SetSchemaField My beverages>
+
+And like the list collection:
+
+  >>> drinkField.collectionType
+  <type 'set'>
+  >>> valueField = drinkField.getValueField()
+  >>> valueField
+  <ChoiceSchemaField >
+  >>> verifyObject(interfaces.IField, drinkField)
+  True
+
+
+Generic Widget
+--------------
+
+You can get a generic widget out of your field:
+
+  >>> from zeam.form.ztk import Widgets, FormData
+
+  >>> emptyList = FormData(content, request)
+  >>> emptyList.ignoreContent = False
+
+  >>> listWidgets = Widgets(
+  ...     listFields,
+  ...     form=emptyList,
+  ...     request=request)
+
+  >>> listWidgets.update()
+  >>> listWidget = listWidgets['form.field.names']
+  >>> listWidget
+  <MultiGenericFieldWidget People Names>
+  >>> verifyObject(interfaces.IWidget, listWidget)
+  True
+
+The widget create a list of sub widget to edit each value of the list.
+But since our list of values was empty in our contant, we have no
+widgets here. An another side effect is that we can't remove values as
+well:
+
+  >>> listWidget.valueField
+  <TextLineSchemaField >
+  >>> len(listWidget.valueWidgets)
+  0
+  >>> listWidget.allowAdding
+  True
+  >>> listWidget.allowRemove
+  False
+
+Let's now create a widget which have values, and we will see that we
+have a widgets for each entry of the collection:
+
+  >>> inviteList = ListOfNames()
+  >>> inviteList.names = [u'arthur', u'henri', u'paul']
+
+  >>> listInvitation = FormData(inviteList, request)
+  >>> listInvitation.ignoreContent = False
+
+  >>> invitationWidgets = Widgets(
+  ...     listFields,
+  ...     form=listInvitation,
+  ...     request=request)
+
+  >>> invitationWidgets.update()
+  >>> invitationWidget = invitationWidgets['form.field.names']
+  >>> invitationWidget
+  <MultiGenericFieldWidget People Names>
+
+  >>> len(invitationWidget.valueWidgets)
+  3
+  >>> invitationWidget.allowAdding = True
+  >>> invitationWidget.allowRemove = True
+  >>> list(invitationWidget.valueWidgets)
+  [<TextLineWidget form.field.names.field.0>,
+   <TextLineWidget form.field.names.field.1>,
+   <TextLineWidget form.field.names.field.2>]
+
+
+Multi choice widget
+-------------------
+
+Collection fields can get by default a widget and extractor picked
+differently dependently of the value type. When the value type is a
+choice, you will get a multi-choice widget by default:
+
+  >>> drinkableContent.drinks = set(['vodka', 'champagne'])
+
+  >>> someDrinks = FormData(drinkableContent, request)
+  >>> someDrinks.ignoreContent = False
+
+  >>> drinkWidgets = Widgets(
+  ...     drinkFields,
+  ...     form=someDrinks,
+  ...     request=request)
+
+  >>> drinkWidgets.update()
+  >>> drinkWidget = drinkWidgets['form.field.drinks']
+  >>> drinkWidget
+  <MultiChoiceFieldWidget My beverages>
+  >>> verifyObject(interfaces.IWidget, drinkWidget)
+  True
+
+You will be to a get list of choice that you can render. The ones
+already selected in the content will already by marked:
+
+  >>> list(drinkWidget.renderableChoice())
+  [{'token': 'vodka', 'checked': 'checked', 'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
+   {'token': 'tequila', 'checked': None, 'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
+   {'token': 'cognac', 'checked': None, 'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
+   {'token': 'champagne', 'checked': 'checked', 'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+
+Multi Choice Widget extractor
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You need to be able to get the corresponding extractor with
+multi-choice widgets:
+
+  >>> drinksRequest = TestRequest(form={'form.field.drinks': ['vodka', 'tequila']})
+  >>> myChoiceOfDrinks = FormData(drinkableContent, drinksRequest)
+
+  >>> drinksExtractor = getMultiAdapter(
+  ...      (drinkField, myChoiceOfDrinks, drinksRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> drinksExtractor
+  <zeam.form.ztk.widgets.collection.MultiChoiceWidgetExtractor object at ...>
+  >>> verifyObject(interfaces.IWidgetExtractor, drinksExtractor)
+  True
+
+And you can get your values out of it:
+
+  >>> drinksExtractor.extract()
+  (set(['vodka', 'tequila']), None)
+
+
+If you have nothing in your request, you will get nothing:
+
+  >>> noDrinksExtractor = getMultiAdapter(
+  ...      (drinkField, someDrinks, request),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, noDrinksExtractor)
+  True
+
+  >>> noDrinksExtractor.extract()
+  (<Marker NO_VALUE>, None)

@@ -10,10 +10,10 @@ class TextLineSchemaField(SchemaField):
     """A text line field.
     """
 
+registerSchemaField(TextLineSchemaField, schema_interfaces.ITextLine)
+
 
 class TextLineWidget(FieldWidget):
     grok.adapts(TextLineSchemaField, None, None)
 
-
-registerSchemaField(TextLineSchemaField, schema_interfaces.ITextLine)
 
