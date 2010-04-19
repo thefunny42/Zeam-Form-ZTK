@@ -5,6 +5,7 @@ zeam.form.ztk object widget
 First we need a test interface and content::
 
   >>> from zope import interface, schema
+  >>> from zope.component import getMultiAdapter
   >>> from zope.interface.verify import verifyObject
 
   >>> class IComment(interface.Interface):
@@ -22,13 +23,15 @@ And we will need a content and a request to test::
 
   >>> class Comment(object):
   ...    interface.implements(IComment)
-  ...    title = None
-  ...    comment = None
-  ...    email = None
+  ...    def __init__(self, title=None, comment=None, email=None):
+  ...        self.title = title
+  ...        self.comment = comment
+  ...        self.email = email
 
   >>> class Post(object):
   ...    interface.implements(IPost)
-  ...    comment = None
+  ...    def __init__(self, comment=None):
+  ...        self.comment = comment
 
   >>> content = Comment()
 
@@ -71,7 +74,8 @@ object, or set your factory on the field, as ``objectFactory``. That
 last will be used in priority::
 
   >>> from zope.component import IFactory, provideUtility
-  >>> provideUtility(Comment, IFactory, name=postField.getObjectSchema().__identifier__)
+  >>> factoryName = postField.getObjectSchema().__identifier__
+  >>> provideUtility(Comment, IFactory, name=factoryName)
 
   >>> postField.getObjectFactory()
   <class 'Comment'>
@@ -128,3 +132,44 @@ object, all of them prefixed by the main widget identifier::
 
 Extractor
 ---------
+
+You can extract from a request values to create an object by getting
+an extractor for the widget::
+
+  >>> commentRequest = TestRequest(form={
+  ...     'form.field.comment.field.title': 'Super cool',
+  ...     'form.field.comment.field.comment': 'Everything is working alright.',
+  ...     'form.field.comment.field.email': ''})
+  >>> commentData = FormData(content, commentRequest)
+
+  >>> commentExtractor = getMultiAdapter(
+  ...      (postField, commentData, commentRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> commentExtractor
+  <zeam.form.ztk.widgets.object.ObjectFieldExtractor object at ...>
+  >>> verifyObject(interfaces.IWidgetExtractor, commentExtractor)
+  True
+
+And you can extract the object of the request::
+
+  >>> value, errors = commentExtractor.extract()
+  >>> value
+  <Comment object at ...>
+  >>> errors
+
+  >>> value.title
+  u'Super cool'
+  >>> value.comment
+  u'Everything is working alright.'
+  >>> value.email
+
+If nothing is in the request, you have no value::
+
+  >>> commentData = FormData(content, request)
+
+  >>> commentExtractor = getMultiAdapter(
+  ...      (postField, commentData, request),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> commentExtractor.extract()

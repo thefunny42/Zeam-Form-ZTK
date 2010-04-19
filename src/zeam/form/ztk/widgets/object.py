@@ -2,7 +2,7 @@
 
 from zeam.form.base.datamanager import ObjectDataManager, DictDataManager
 from zeam.form.base.fields import Fields
-from zeam.form.base.markers import NO_VALUE
+from zeam.form.base.markers import NO_VALUE, Marker
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.base.widgets import Widgets
 from zeam.form.base.form import cloneFormData
@@ -71,7 +71,10 @@ class ObjectFieldExtractor(WidgetExtractor):
         data, errors = form.extractData(self.component.getObjectFields())
         if not errors:
             factory = self.component.getObjectFactory()
-            value = factory(**data)
+            # Create an object with values
+            value = factory(**dict(filter(
+                        lambda (k, v): not isinstance(v, Marker),
+                        data.items())))
         return (value, errors)
 
 
