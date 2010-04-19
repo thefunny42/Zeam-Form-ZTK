@@ -1,0 +1,38 @@
+<tal:multi>
+  <table tal:condition="widget.valueWidgets">
+    <thead>
+      <tr>
+        <th></th>
+        <th tal:repeat="field widget.getFields()">
+          <span tal:replace="field.title">Title</span>
+          <span class="field-required"
+                tal:condition="widget.required">*</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr tal:repeat="objectWidget widget.valueWidgets">
+        <td>
+          <input type="checkbox" name="#"
+                 tal:attributes="name string:${widget.identifier}.checked.${objectWidget.component.identifier}" />
+          <input type="hidden" value="1" name="#"
+                 tal:attributes="name string:${widget.identifier}.present.${objectWidget.component.identifier}" />
+        </td>
+        <td tal:repeat="fieldWidget objectWidget.fieldWidgets">
+          <tal:widget tal:replace="structure fieldWidget.render()" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <input type="hidden" name="#" value="#"
+         tal:attributes="name string:${widget.identifier};
+                         value widget.inputValue()" />
+  <div class="multi-actions">
+    <input type="submit" name="#" value="Add"
+           tal:attributes="name string:${widget.identifier}.add"
+           tal:condition="widget.allowAdding" />
+    <input type="submit" name="#" value="Remove"
+           tal:attributes="name string:${widget.identifier}.remove"
+           tal:condition="widget.allowRemove" />
+  </div>
+</tal:multi>
