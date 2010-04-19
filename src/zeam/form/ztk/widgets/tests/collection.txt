@@ -268,6 +268,58 @@ empty::
    {'form.field.names.field.3': u''}]
 
 
+Generic Widget extractor
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+You are able to extract values from the request using the
+corresponding widget extractor::
+
+  >>> peopleRequest = TestRequest(form={
+  ...     'form.field.names': '4',
+  ...     'form.field.names.present.0': '1',
+  ...     'form.field.names.field.0': 'Nicolas',
+  ...     'form.field.names.present.2': '1',
+  ...     'form.field.names.field.2': 'Jean',})
+
+  >>> peopleInvitation = FormData(content, peopleRequest)
+
+  >>> peopleExtractor = getMultiAdapter(
+  ...      (listField, peopleInvitation, peopleRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> peopleExtractor
+  <zeam.form.ztk.widgets.collection.MultiGenericWidgetExtractor object at ...>
+  >>> verifyObject(interfaces.IWidgetExtractor, peopleExtractor)
+  True
+
+And you are able to get back your values:
+
+  >>> peopleExtractor.extract()
+  ([u'Nicolas', u'Jean'], None)
+
+It will work as well if you have no values in your request::
+
+  >>> noPeopleRequest = TestRequest(form={
+  ...     'form.field.names': '0'})
+  >>> noPeopleInvitation = FormData(content, noPeopleRequest)
+
+  >>> noPeopleExtractor = getMultiAdapter(
+  ...      (listField, noPeopleInvitation, noPeopleRequest),
+  ...      interfaces.IWidgetExtractor)
+  >>> noPeopleExtractor.extract()
+  ([], None)
+
+If you have a fully empty request::
+
+  >>> noPeopleInvitation = FormData(content, request)
+
+  >>> noPeopleExtractor = getMultiAdapter(
+  ...      (listField, noPeopleInvitation, request),
+  ...      interfaces.IWidgetExtractor)
+  >>> noPeopleExtractor.extract()
+  (<Marker NO_VALUE>, None)
+
+
 Multi choice widget
 -------------------
 
@@ -292,8 +344,8 @@ choice, you will get a multi-choice widget by default::
   >>> verifyObject(interfaces.IWidget, drinkWidget)
   True
 
-You will be to a get list of choice that you can render. The ones
-already selected in the content will already by marked::
+The widget will provides a list of choice that you can render. The
+ones already selected in the content will already by marked::
 
   >>> list(drinkWidget.renderableChoice())
   [{'token': 'vodka', 'checked': 'checked',
@@ -322,7 +374,7 @@ The widget is able to have input from the request only::
   >>> myChoiceOfDrinksWidgets.update()
   >>> myChoiceOfDrinksWidget = myChoiceOfDrinksWidgets['form.field.drinks']
 
-And so now you have only Vodka and Tequila of selected::
+And so now you have only Vodka and Tequila of selected by the widget::
 
   >>> list(myChoiceOfDrinksWidget.renderableChoice())
   [{'token': 'vodka', 'checked': 'checked',

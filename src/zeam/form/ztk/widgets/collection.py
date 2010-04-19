@@ -142,21 +142,26 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
         self.valueField = value_field
 
     def extract(self):
-        valueCount = super(MultiGenericWidgetExtractor, self).extract()
-        collectionValues = []
-        for position in range(0, int(valueCount)):
-            value_present = '%s.field.present.%d' % (
-                self.identifier, position) in self.request.form
-            if not value_present:
-                # This value have been removed
-                continue
-            field = self.valueField.clone(new_identifier=str(position))
-            form = cloneFormData(self.form, prefix=self.identifier)
-            data, errors = form.extractData(Fields(field))
-            if errors:
-                return (None, errors)
-            collectionValues.append(data)
-        value = self.component.collectionType(collectionValues)
+        value = self.request.form.get(self.identifier, NO_VALUE)
+        if value is not NO_VALUE:
+            try:
+                value = int(value)
+            except ValueError:
+                return (None, u"Invalid internal input")
+            collectedValues = []
+            for position in range(0, int(value)):
+                value_present = '%s.present.%d' % (
+                    self.identifier, position) in self.request.form
+                if not value_present:
+                    # This value have been removed
+                    continue
+                field = self.valueField.clone(new_identifier=str(position))
+                form = cloneFormData(self.form, prefix=self.identifier)
+                data, errors = form.extractData(Fields(field))
+                if errors is not None:
+                    return (None, errors)
+                collectedValues.append(data[field.identifier])
+            value = self.component.collectionType(collectedValues)
         return (value, None)
 
 
@@ -192,12 +197,12 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
         self.source = value_field
 
     def extract(self):
-        value, error = super(MultiChoiceWidgetExtractor, self).extract()
-        if value is not NO_VALUE:
+        value, errors = super(MultiChoiceWidgetExtractor, self).extract()
+        if value is not NO_VALUE and errors is None:
             choices = self.source.getChoices(self.form.context)
             try:
                 value = self.component.collectionType(
                     [choices.getTermByToken(t).value for t in value])
             except LookupError:
                 return (None, u'Invalid value')
-        return (value, error)
+        return (value, errors)

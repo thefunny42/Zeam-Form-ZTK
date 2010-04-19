@@ -115,7 +115,7 @@ registerSchemaField(SchemaField, schema_interfaces.IField)
 
 
 class SchemaWidgetExtractor(WidgetExtractor):
-    grok.adapts(ISchemaField, interfaces.IFormCanvas, Interface)
+    grok.adapts(ISchemaField, Interface, Interface)
 
     def extract(self):
         value, error = super(SchemaWidgetExtractor, self).extract()
