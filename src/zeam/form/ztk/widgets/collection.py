@@ -4,6 +4,7 @@ from zeam.form.base.datamanager import NoneDataManager
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE
+from zeam.form.base.fields import Fields
 from zeam.form.base.widgets import (
     FieldWidget, WidgetExtractor, Widgets, createWidget)
 from zeam.form.ztk.fields import SchemaField, registerSchemaField
@@ -113,10 +114,13 @@ class MultiGenericFieldWidget(FieldWidget):
         count = int(values.get(self.identifier, '0'))
         remove_something = self.identifier + '.remove' in self.request.form
         for position in range(0, count):
-            value_selected = '%s.field.%d.checked' % (
+            value_present = '%s.field.present.%d' % (
+                self.identifier, position) in self.request.form
+            if not value_present:
+                continue
+            value_selected = '%s.field.checked.%d' % (
                 self.identifier, position) in self.request.form
             if remove_something and value_selected:
-                print 'Remove %d' % position
                 continue
             self.newValueWidget(position, None)
         if self.identifier + '.add' in self.request.form:
@@ -136,11 +140,25 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
 
     def __init__(self, field, value_field, form, request):
         super(MultiGenericWidgetExtractor, self).__init__(field, form, request)
-        self.source = value_field
+        self.valueField = value_field
 
     def extract(self):
-        # Not implemented yet
-        return (NO_VALUE, None)
+        valueCount = super(MultiGenericWidgetExtractor, self).extract()
+        collectionValues = []
+        for position in range(0, int(valueCount)):
+            value_present = '%s.field.present.%d' % (
+                self.identifier, position) in self.request.form
+            if not value_present:
+                # This value have been removed
+                continue
+            field = self.valueField.clone(new_identifier=str(position))
+            form = cloneFormData(self.form, prefix=self.identifier)
+            data, errors = form.extractData(Fields(field))
+            if errors:
+                return (None, errors)
+            collectionValues.append(data)
+        value = self.component.collectionType(collectionValues)
+        return (value, None)
 
 
 # Multi-Choice widget

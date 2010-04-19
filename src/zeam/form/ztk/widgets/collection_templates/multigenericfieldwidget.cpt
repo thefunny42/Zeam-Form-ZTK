@@ -1,7 +1,9 @@
 <tal:multi>
   <tal:values tal:repeat="valueWidget widget.valueWidgets">
     <input type="checkbox" name="#"
-           tal:attributes="name string:${valueWidget.identifier}.checked"/>
+           tal:attributes="name string:${widget.identifier}.checked.${valueWidget.component.identifier}" />
+    <input type="hidden" value="1" name="#"
+           tal:attributes="name string:${widget.identifier}.present.${valueWidget.component.identifier}" />
     <tal:widget tal:replace="structure valueWidget.render()" />
   </tal:values>
 

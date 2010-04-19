@@ -5,10 +5,10 @@ zeam.form.ztk boolean widget
 We need first a boolean:
 
   >>> from zope import interface, schema
+  >>> from zope.interface.verify import verifyObject
 
   >>> class IQuestion(interface.Interface):
   ...     answer = schema.Bool(title=u"Do you like zeam?")
-
 
 And a test content and request:
 
@@ -27,11 +27,15 @@ Field
 So now you can create a field, and get a boolean field:
 
   >>> from zeam.form.ztk import Fields
+  >>> from zeam.form.base import interfaces
 
   >>> fields = Fields(IQuestion)
   >>> booleanField = fields['answer']
   >>> booleanField
   <BooleanSchemaField Do you like zeam?>
+
+  >>> verifyObject(interfaces.IField, booleanField)
+  True
 
 
 Widget
@@ -51,6 +55,9 @@ You have an associated widget:
   >>> booleanWidget
   <CheckBoxWidget Do you like zeam?>
 
+  >>> verifyObject(interfaces.IWidget, booleanWidget)
+  True
+
   >>> print booleanWidget.render()
   <input id="form-field-answer" name="form.field.answer"
          checked="checked" value="True" type="checkbox" />
@@ -63,24 +70,26 @@ And finaly we have an extractor. If there is nothing in the request
 the value is False:
 
   >>> from zope import component
-  >>> from zeam.form.base import interfaces
 
-  >>> extractor = component.getMultiAdapter(
+  >>> falseExtractor = component.getMultiAdapter(
   ...      (booleanField, sub, request), interfaces.IWidgetExtractor)
 
-  >>> extractor
+  >>> falseExtractor
   <zeam.form.ztk.widgets.bool.CheckBoxWidgetExtractor object at ...>
-  >>> extractor.extract()
+  >>> falseExtractor.extract()
   (False, None)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, falseExtractor)
+  True
 
 And if there is True in the request that means the checkbox is
 checked:
 
-  >>> request = TestRequest(
+  >>> trueRequest = TestRequest(
   ...         form={booleanWidget.identifier: u'True', })
 
   >>> extractor = component.getMultiAdapter(
-  ...      (booleanField, sub, request), interfaces.IWidgetExtractor)
+  ...      (booleanField, sub, trueRequest), interfaces.IWidgetExtractor)
 
   >>> extractor.extract()
   (True, None)

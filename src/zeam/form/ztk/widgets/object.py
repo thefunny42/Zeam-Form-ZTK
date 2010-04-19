@@ -7,10 +7,11 @@ from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.base.widgets import Widgets
 from zeam.form.base.form import cloneFormData
 from zeam.form.ztk.fields import SchemaField, registerSchemaField
+from zeam.form.ztk.interfaces import IObjectSchemaField
 
 from zope.component import getUtility
 from zope.component.interfaces import IFactory
-from zope.interface import Interface
+from zope.interface import Interface, implements
 from zope.schema import interfaces as schema_interfaces
 
 from grokcore import component as grok
@@ -19,7 +20,7 @@ from grokcore import component as grok
 class ObjectSchemaField(SchemaField):
     """A collection field.
     """
-
+    implements(IObjectSchemaField)
     objectFactory = None
 
     def __init__(self, field):

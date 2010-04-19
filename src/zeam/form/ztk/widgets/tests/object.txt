@@ -1,0 +1,130 @@
+===========================
+zeam.form.ztk object widget
+===========================
+
+First we need a test interface and content::
+
+  >>> from zope import interface, schema
+  >>> from zope.interface.verify import verifyObject
+
+  >>> class IComment(interface.Interface):
+  ...    title = schema.TextLine(title=u"Title")
+  ...    comment = schema.Text(title=u"Comment")
+  ...    email = schema.TextLine(title=u"Email", required=False)
+
+  >>> class IPost(interface.Interface):
+  ...    comment = schema.Object(title=u"Comment", schema=IComment)
+
+And we will need a content and a request to test::
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class Comment(object):
+  ...    interface.implements(IComment)
+  ...    title = None
+  ...    comment = None
+  ...    email = None
+
+  >>> class Post(object):
+  ...    interface.implements(IPost)
+  ...    comment = None
+
+  >>> content = Comment()
+
+
+Field
+-----
+
+You have an Object field you get out of the interface::
+
+  >>> from zeam.form.base.fields import Fields
+  >>> from zeam.form.base import interfaces
+  >>> from zeam.form.ztk.interfaces import IObjectSchemaField
+
+  >>> postFields = Fields(IPost)
+  >>> postField = postFields['comment']
+  >>> postField
+  <ObjectSchemaField Comment>
+  >>> verifyObject(IObjectSchemaField, postField)
+  True
+  >>> IObjectSchemaField.extends(interfaces.IField)
+  True
+
+Now we have a couple more methods on our field to help us with our
+object, to get its schema and fields::
+
+  >>> postField.getObjectSchema()
+  <InterfaceClass __builtin__.IComment>
+
+  >>> commentFields = postField.getObjectFields()
+  >>> commentFields
+  <Fields>
+  >>> list(commentFields)
+  [<TextLineSchemaField Title>,
+   <TextSchemaField Comment>,
+   <TextLineSchemaField Email>]
+
+An another method let you get a factory for the object. You can either
+register an utility with name the schema interface identifier of the
+object, or set your factory on the field, as ``objectFactory``. That
+last will be used in priority::
+
+  >>> from zope.component import IFactory, provideUtility
+  >>> provideUtility(Comment, IFactory, name=postField.getObjectSchema().__identifier__)
+
+  >>> postField.getObjectFactory()
+  <class 'Comment'>
+
+  >>> def customizedOtherFactory(*args):
+  ...    return Comment(*args)
+
+  >>> postField.objectFactory = customizedOtherFactory
+
+  >>> postField.getObjectFactory()
+  <function customizedOtherFactory at ...>
+
+  >>> postField.objectFactory = None
+  >>> postField.getObjectFactory()
+  <class 'Comment'>
+
+
+Widget
+------
+
+You can now have a widget for your object field::
+
+  >>> from zeam.form.ztk import Widgets, FormData
+
+  >>> post = FormData(content, request)
+  >>> post.ignoreContent = False
+
+  >>> postWidgets = Widgets(
+  ...     postFields,
+  ...     form=post,
+  ...     request=request)
+
+  >>> postWidgets.update()
+  >>> commentWidget = postWidgets['form.field.comment']
+  >>> commentWidget
+  <ObjectFieldWidget Comment>
+  >>> verifyObject(interfaces.IWidget, commentWidget)
+  True
+
+You will have on the widget one widget generated per field in the
+object, all of them prefixed by the main widget identifier::
+
+  >>> len(commentWidget.fieldWidgets)
+  3
+  >>> list(commentWidget.fieldWidgets)
+  [<TextLineWidget Title>,
+   <TextFieldWidget Comment>,
+   <TextLineWidget Email>]
+  >>> map(lambda w: w.identifier, commentWidget.fieldWidgets)
+  ['form.field.comment.field.title',
+   'form.field.comment.field.comment',
+   'form.field.comment.field.email']
+
+
+Extractor
+---------

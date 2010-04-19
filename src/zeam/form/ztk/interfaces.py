@@ -17,9 +17,33 @@ class ICollectionSchemaField(ISchemaField):
     """This is a field for zope schema collection field. It is defined
     in order to be able to have a generic behavior on collections.
     """
-
     collectionType = interface.Attribute(
         u"Python type represented by this collection (like set, list...)")
+
+    def getValueField():
+        """Return a zeam field corresponding to the value type
+        contained in the list.
+        """
+
+class IObjectSchemaField(ISchemaField):
+    """This field is mapped to the zope.schema Object schema field.
+    """
+    objectFactory = interface.Attribute(
+        u"Default factory used to create new objects for the field")
+
+    def getObjectSchema():
+        """Return Zope interface for the described object.
+        """
+
+    def getObjectFields():
+        """Return Zeam form fields for all fields in the described
+        object.
+        """
+
+    def getObjectFactory():
+        """Return the object factory used to create new objects for
+        the field.
+        """
 
 
 class IZeamFormZTKAPI(IZeamFormBaseAPI):
