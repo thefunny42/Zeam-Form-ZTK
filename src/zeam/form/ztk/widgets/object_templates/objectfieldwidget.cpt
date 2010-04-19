@@ -5,7 +5,7 @@
     Label
   </label>
   <span class="field-required"
-        tal:condition="widget.required">(required)</span>
+        tal:condition="widget.required">*</span>
   <br />
   <tal:widget tal:replace="structure widget.render()" />
   <br />

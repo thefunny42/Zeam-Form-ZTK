@@ -10,6 +10,7 @@ from zeam.form.base.widgets import (
 from zeam.form.ztk.fields import SchemaField, registerSchemaField
 from zeam.form.ztk.interfaces import ICollectionSchemaField
 from zeam.form.ztk.widgets.choice import ChoiceSchemaField, ChoiceFieldWidget
+from zeam.form.ztk.widgets.object import ObjectSchemaField
 
 from zope import component
 from zope.interface import Interface
@@ -132,6 +133,14 @@ class MultiGenericFieldWidget(FieldWidget):
         if not int(self.inputValue()):
             self.allowRemove = False
         self.valueWidgets.update()
+
+# For collection of objects, generate a different widget (with a table)
+
+class MultiObjectFieldWidget(MultiGenericFieldWidget):
+    grok.adapts(ICollectionSchemaField, ObjectSchemaField, Interface, Interface)
+
+    def getFields(self):
+        return self.valueField.getObjectFields()
 
 
 class MultiGenericWidgetExtractor(WidgetExtractor):
