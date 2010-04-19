@@ -113,7 +113,7 @@ You can get a generic widget out of your field::
   >>> verifyObject(interfaces.IWidget, listWidget)
   True
 
-The widget create a list of sub widget to edit each value of the list.
+The widget create a list of sub-widget to edit each value of the list.
 But since our list of values was empty in our contant, we have no
 widgets here. An another side effect is that we can't remove values as
 well::
@@ -128,10 +128,10 @@ well::
   False
 
 Let's now create a widget which have values, and we will see that we
-have a widgets for each entry of the collection::
+have a sub-widget for each entry of the collection::
 
   >>> inviteList = ListOfNames()
-  >>> inviteList.names = [u'arthur', u'henri', u'paul']
+  >>> inviteList.names = [u'Arthur', u'Henri', u'Paul']
 
   >>> listInvitation = FormData(inviteList, request)
   >>> listInvitation.ignoreContent = False
@@ -148,12 +148,124 @@ have a widgets for each entry of the collection::
 
   >>> len(invitationWidget.valueWidgets)
   3
-  >>> invitationWidget.allowAdding = True
-  >>> invitationWidget.allowRemove = True
+  >>> invitationWidget.allowAdding
+  True
+  >>> invitationWidget.allowRemove
+  True
   >>> list(invitationWidget.valueWidgets)
   [<TextLineWidget form.field.names.field.0>,
    <TextLineWidget form.field.names.field.1>,
    <TextLineWidget form.field.names.field.2>]
+  >>> map(lambda w:w.value, invitationWidget.valueWidgets)
+  [{'form.field.names.field.0': u'Arthur'},
+   {'form.field.names.field.1': u'Henri'},
+   {'form.field.names.field.2': u'Paul'}]
+
+Getting input from the request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The widget is able to get its data from the request. Sub-widgets will be
+created for each data value found in the request::
+
+  >>> peopleRequest = TestRequest(form={
+  ...     'form.field.names': '2',
+  ...     'form.field.names.present.0': '1',
+  ...     'form.field.names.field.0': 'Nicolas',
+  ...     'form.field.names.present.1': '1',
+  ...     'form.field.names.field.1': 'Jean',})
+
+This request parsed with our widget we will create two sub-widget, one
+with the value ``Nicolas``, the other with the value ``Jean``::
+
+  >>> peopleInvitation = FormData(content, peopleRequest)
+
+  >>> peopleWidgets = Widgets(
+  ...     listFields,
+  ...     form=peopleInvitation,
+  ...     request=peopleRequest)
+
+  >>> peopleWidgets.update()
+  >>> peopleWidget = peopleWidgets['form.field.names']
+  >>> len(peopleWidget.valueWidgets)
+  2
+  >>> peopleWidget.allowAdding
+  True
+  >>> peopleWidget.allowRemove
+  True
+  >>> list(peopleWidget.valueWidgets)
+  [<TextLineWidget form.field.names.field.0>,
+   <TextLineWidget form.field.names.field.1>]
+  >>> map(lambda w:w.value, peopleWidget.valueWidgets)
+  [{'form.field.names.field.0': 'Nicolas'},
+   {'form.field.names.field.1': 'Jean'}]
+
+A request can ask to remove one of the values contained in the request::
+
+  >>> peopleRequest = TestRequest(form={
+  ...     'form.field.names': '2',
+  ...     'form.field.names.remove': 'Remove',
+  ...     'form.field.names.checked.0': 'checked',
+  ...     'form.field.names.present.0': '1',
+  ...     'form.field.names.field.0': 'Nicolas',
+  ...     'form.field.names.present.1': '1',
+  ...     'form.field.names.field.1': 'Jean',})
+
+And if we parse this request, we will have only one sub-widget created
+for the second value, the first will have been ignored (and so removed)::
+
+  >>> peopleInvitation = FormData(content, peopleRequest)
+
+  >>> peopleWidgets = Widgets(
+  ...     listFields,
+  ...     form=peopleInvitation,
+  ...     request=peopleRequest)
+
+  >>> peopleWidgets.update()
+  >>> peopleWidget = peopleWidgets['form.field.names']
+  >>> len(peopleWidget.valueWidgets)
+  1
+  >>> peopleWidget.allowAdding
+  True
+  >>> peopleWidget.allowRemove
+  True
+  >>> list(peopleWidget.valueWidgets)
+  [<TextLineWidget form.field.names.field.1>]
+  >>> map(lambda w:w.value, peopleWidget.valueWidgets)
+  [{'form.field.names.field.1': 'Jean'}]
+
+In the same way, a request can ask to add a new empty sub-widget in
+order to be able to enter a new value::
+
+  >>> peopleRequest = TestRequest(form={
+  ...     'form.field.names': '3',
+  ...     'form.field.names.add': 'Add',
+  ...     'form.field.names.present.1': '1',
+  ...     'form.field.names.field.1': 'Jean',})
+
+With that request the widget will create two widgets, and one (new)
+empty::
+
+  >>> peopleInvitation = FormData(content, peopleRequest)
+
+  >>> peopleWidgets = Widgets(
+  ...     listFields,
+  ...     form=peopleInvitation,
+  ...     request=peopleRequest)
+
+  >>> peopleWidgets.update()
+  >>> peopleWidget = peopleWidgets['form.field.names']
+  >>> len(peopleWidget.valueWidgets)
+  2
+  >>> peopleWidget.allowAdding
+  True
+  >>> peopleWidget.allowRemove
+  True
+  >>> list(peopleWidget.valueWidgets)
+  [<TextLineWidget form.field.names.field.1>,
+   <TextLineWidget form.field.names.field.3>]
+  >>> map(lambda w:w.value, peopleWidget.valueWidgets)
+  [{'form.field.names.field.1': 'Jean'},
+   {'form.field.names.field.3': u''}]
 
 
 Multi choice widget
@@ -184,10 +296,44 @@ You will be to a get list of choice that you can render. The ones
 already selected in the content will already by marked::
 
   >>> list(drinkWidget.renderableChoice())
-  [{'token': 'vodka', 'checked': 'checked', 'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
-   {'token': 'tequila', 'checked': None, 'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
-   {'token': 'cognac', 'checked': None, 'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
-   {'token': 'champagne', 'checked': 'checked', 'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+  [{'token': 'vodka', 'checked': 'checked',
+    'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
+   {'token': 'tequila', 'checked': None,
+    'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
+   {'token': 'cognac', 'checked': None,
+    'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
+   {'token': 'champagne', 'checked': 'checked',
+    'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+
+Getting input from the request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The widget is able to have input from the request only::
+
+  >>> drinksRequest = TestRequest(form={
+  ...     'form.field.drinks': ['vodka', 'tequila']})
+  >>> myChoiceOfDrinks = FormData(drinkableContent, drinksRequest)
+
+  >>> myChoiceOfDrinksWidgets = Widgets(
+  ...     drinkFields,
+  ...     form=myChoiceOfDrinks,
+  ...     request=drinksRequest)
+
+  >>> myChoiceOfDrinksWidgets.update()
+  >>> myChoiceOfDrinksWidget = myChoiceOfDrinksWidgets['form.field.drinks']
+
+And so now you have only Vodka and Tequila of selected::
+
+  >>> list(myChoiceOfDrinksWidget.renderableChoice())
+  [{'token': 'vodka', 'checked': 'checked',
+    'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
+   {'token': 'tequila', 'checked': 'checked',
+    'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
+   {'token': 'cognac', 'checked': None,
+    'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
+   {'token': 'champagne', 'checked': None,
+    'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+
 
 Multi Choice Widget extractor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,8 +341,6 @@ Multi Choice Widget extractor
 You need to be able to get the corresponding extractor with
 multi-choice widgets::
 
-  >>> drinksRequest = TestRequest(form={'form.field.drinks': ['vodka', 'tequila']})
-  >>> myChoiceOfDrinks = FormData(drinkableContent, drinksRequest)
 
   >>> drinksExtractor = getMultiAdapter(
   ...      (drinkField, myChoiceOfDrinks, drinksRequest),

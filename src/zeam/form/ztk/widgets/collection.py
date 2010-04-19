@@ -112,20 +112,19 @@ class MultiGenericFieldWidget(FieldWidget):
 
     def prepareRequestValue(self, values):
         count = int(values.get(self.identifier, '0'))
-        remove_something = self.identifier + '.remove' in self.request.form
+        remove_something = self.identifier + '.remove' in values
         for position in range(0, count):
-            value_present = '%s.field.present.%d' % (
-                self.identifier, position) in self.request.form
+            value_marker = (self.identifier, position,)
+            value_present = '%s.present.%d' % value_marker in values
             if not value_present:
                 continue
-            value_selected = '%s.field.checked.%d' % (
-                self.identifier, position) in self.request.form
+            value_selected = '%s.checked.%d' % value_marker in values
             if remove_something and value_selected:
                 continue
             self.newValueWidget(position, None)
-        if self.identifier + '.add' in self.request.form:
+        if self.identifier + '.add' in values:
             self.newValueWidget(count, None)
-            values[self.identifier] = str(count)
+            values[self.identifier] = str(count + 1)
         return values
 
     def update(self):
