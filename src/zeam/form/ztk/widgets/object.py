@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from zeam.form.base.datamanager import ObjectDataManager, DictDataManager
+from zeam.form.base.datamanager import ObjectDataManager
 from zeam.form.base.fields import Fields
 from zeam.form.base.markers import NO_VALUE, Marker
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
