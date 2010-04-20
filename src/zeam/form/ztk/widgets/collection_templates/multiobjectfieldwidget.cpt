@@ -6,7 +6,7 @@
         <th tal:repeat="field widget.getFields()">
           <span tal:replace="field.title">Title</span>
           <span class="field-required"
-                tal:condition="widget.required">*</span>
+                tal:condition="field.required">*</span>
         </th>
       </tr>
     </thead>
