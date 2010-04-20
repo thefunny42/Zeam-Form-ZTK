@@ -1,8 +1,8 @@
 # Text line widget
 
 from grokcore import component as grok
-from zeam.form.base.widgets import FieldWidget
-from zeam.form.ztk.fields import SchemaField, registerSchemaField
+from zeam.form.ztk.fields import (
+    SchemaField, SchemaFieldWidget, registerSchemaField)
 from zope.schema import interfaces as schema_interfaces
 
 
@@ -13,7 +13,7 @@ class TextLineSchemaField(SchemaField):
 registerSchemaField(TextLineSchemaField, schema_interfaces.ITextLine)
 
 
-class TextLineWidget(FieldWidget):
+class TextLineWidget(SchemaFieldWidget):
     grok.adapts(TextLineSchemaField, None, None)
 
 

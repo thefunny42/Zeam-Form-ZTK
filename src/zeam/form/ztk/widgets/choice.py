@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from zeam.form.base.markers import NO_VALUE
-from zeam.form.base.widgets import FieldWidget, WidgetExtractor
-from zeam.form.ztk.fields import SchemaField, registerSchemaField
+from zeam.form.base.widgets import WidgetExtractor
+from zeam.form.ztk.fields import (
+    SchemaField, registerSchemaField, SchemaFieldWidget)
 
 from zope import component
 from zope.interface import Interface
@@ -39,7 +40,7 @@ class ChoiceSchemaField(SchemaField):
 registerSchemaField(ChoiceSchemaField, schema_interfaces.IChoice)
 
 
-class ChoiceFieldWidget(FieldWidget):
+class ChoiceFieldWidget(SchemaFieldWidget):
     grok.adapts(ChoiceSchemaField, Interface, Interface)
 
     def __init__(self, field, form, request):

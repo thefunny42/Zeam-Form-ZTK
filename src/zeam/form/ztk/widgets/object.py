@@ -3,10 +3,11 @@
 from zeam.form.base.datamanager import ObjectDataManager
 from zeam.form.base.fields import Fields
 from zeam.form.base.markers import NO_VALUE, Marker
-from zeam.form.base.widgets import FieldWidget, WidgetExtractor
+from zeam.form.base.widgets import WidgetExtractor
 from zeam.form.base.widgets import Widgets
 from zeam.form.base.form import cloneFormData
-from zeam.form.ztk.fields import SchemaField, registerSchemaField
+from zeam.form.ztk.fields import (
+    SchemaField, registerSchemaField, SchemaFieldWidget)
 from zeam.form.ztk.interfaces import IObjectSchemaField
 
 from zope.component import getUtility
@@ -45,7 +46,7 @@ class ObjectSchemaField(SchemaField):
 registerSchemaField(ObjectSchemaField, schema_interfaces.IObject)
 
 
-class ObjectFieldWidget(FieldWidget):
+class ObjectFieldWidget(SchemaFieldWidget):
     grok.adapts(ObjectSchemaField, Interface, Interface)
 
     def prepareContentValue(self, value):

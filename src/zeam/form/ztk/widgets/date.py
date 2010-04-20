@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from grokcore import component as grok
-from zeam.form.base.widgets import DisplayFieldWidget, FieldWidget
+from zeam.form.base.widgets import DisplayFieldWidget
 from zeam.form.base.widgets import WidgetExtractor
 from zeam.form.base.markers import NO_VALUE
-from zeam.form.ztk.fields import SchemaField
+from zeam.form.ztk.fields import SchemaField, SchemaFieldWidget
 from zeam.form.ztk.fields import registerSchemaField
 from zope.i18n.format import DateTimeParseError
 from zope.interface import Interface
@@ -25,7 +25,7 @@ class DateSchemaField(SchemaField):
 registerSchemaField(DateSchemaField, schema_interfaces.IDate)
 
 
-class DateFieldWidget(FieldWidget):
+class DateFieldWidget(SchemaFieldWidget):
     grok.adapts(DateSchemaField, Interface, Interface)
 
     valueType = 'date'

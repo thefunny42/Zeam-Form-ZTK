@@ -5,9 +5,9 @@ from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.fields import Fields
-from zeam.form.base.widgets import (
-    FieldWidget, WidgetExtractor, Widgets, createWidget)
-from zeam.form.ztk.fields import SchemaField, registerSchemaField
+from zeam.form.base.widgets import WidgetExtractor, Widgets, createWidget
+from zeam.form.ztk.fields import (
+    SchemaField, registerSchemaField, SchemaFieldWidget)
 from zeam.form.ztk.interfaces import ICollectionSchemaField
 from zeam.form.ztk.widgets.choice import ChoiceSchemaField, ChoiceFieldWidget
 from zeam.form.ztk.widgets.object import ObjectSchemaField
@@ -79,7 +79,7 @@ grok.global_adapter(
     provides=IWidgetExtractor)
 
 
-class MultiGenericFieldWidget(FieldWidget):
+class MultiGenericFieldWidget(SchemaFieldWidget):
     grok.adapts(ICollectionSchemaField, Interface, Interface, Interface)
 
     allowAdding = True

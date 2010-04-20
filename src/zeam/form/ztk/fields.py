@@ -2,7 +2,7 @@
 from zeam.form.base import interfaces
 from zeam.form.base.fields import Field
 from zeam.form.base.markers import NO_VALUE
-from zeam.form.base.widgets import WidgetExtractor
+from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 
 from zeam.form.ztk.interfaces import ISchemaField
 
@@ -112,6 +112,13 @@ def registerSchemaField(factory, schema_field):
 
 
 registerSchemaField(SchemaField, schema_interfaces.IField)
+
+
+class SchemaFieldWidget(FieldWidget):
+    grok.adapts(ISchemaField, Interface, Interface)
+
+    def htmlClass(self):
+        return 'field-%s' % self.component._field.__class__.__name__.lower()
 
 
 class SchemaWidgetExtractor(WidgetExtractor):
