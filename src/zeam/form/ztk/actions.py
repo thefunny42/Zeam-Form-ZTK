@@ -3,7 +3,8 @@ from zope.app.container.interfaces import INameChooser
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 from zope.event import notify
 
-from zeam.form.base import Action, NO_VALUE
+from zeam.form.base import Action
+from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE
 
 
 class CancelAction(Action):
@@ -27,12 +28,13 @@ class EditAction(Action):
     def __call__(self, form):
         data, errors = form.extractData()
         if errors:
-            return
+            return FAILURE
 
         content = form.getContentData()
         self.applyData(form, content, data)
         notify(ObjectModifiedEvent(content.content))
         form.status = u"Modification saved"
+        return SUCCESS
 
 
 class AddAction(EditAction):
@@ -68,9 +70,10 @@ class AddAction(EditAction):
     def __call__(self, form):
         data, errors = form.extractData()
         if errors:
-            return
+            return FAILURE
 
         content = self.create(form, data)
         self.add(form, content, data)
         form.redirect(self.nextURL(form, content))
+        return SUCCESS
 
