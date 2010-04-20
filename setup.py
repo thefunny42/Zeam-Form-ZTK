@@ -3,6 +3,18 @@ import os
 
 version = '1.0'
 
+tests_require = [
+    'zope.app.authentication',
+    'zope.app.security',
+    'zope.app.testing',
+    'zope.app.zcmlfiles',
+    'zope.configuration',
+    'zope.publisher',
+    'zope.securitypolicy',
+    'zope.testbrowser',
+    'zope.testing',
+    ]
+
 setup(name='zeam.form.ztk',
       version=version,
       description="Zope Toolkit support for zeam.form",
@@ -25,19 +37,19 @@ setup(name='zeam.form.ztk',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-        'setuptools',
-        'zope.interface',
-        'zope.component',
         'grokcore.component',
-        'zope.schema',
-        'zeam.form.base',
         'megrok.chameleon',
-        # Test
-        'zope.securitypolicy',
-        'zope.app.authentication',
-        'zope.app.testing',
-        'zope.app.zcmlfiles',
-        'zope.testing',
-        'zope.testbrowser',
+        'setuptools',
+        'zeam.form.base',
+        'zope.app.container',
+        'zope.component',
+        'zope.event',
+        'zope.i18n',
+        'zope.interface',
+        'zope.lifecycleevent',
+        'zope.schema',
+        'zope.traversing',
         ],
+      tests_require = tests_require,
+      extras_require = {'test': tests_require},
       )
