@@ -140,7 +140,7 @@ class MultiObjectFieldWidget(MultiGenericFieldWidget):
     grok.adapts(ICollectionSchemaField, ObjectSchemaField, Interface, Interface)
 
     def getFields(self):
-        return self.valueField.getObjectFields()
+        return self.valueField.objectFields
 
 
 class MultiGenericWidgetExtractor(WidgetExtractor):

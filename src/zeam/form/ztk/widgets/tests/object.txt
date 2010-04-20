@@ -57,10 +57,10 @@ You have an Object field you get out of the interface::
 Now we have a couple more methods on our field to help us with our
 object, to get its schema and fields::
 
-  >>> postField.getObjectSchema()
+  >>> postField.objectSchema
   <InterfaceClass __builtin__.IComment>
 
-  >>> commentFields = postField.getObjectFields()
+  >>> commentFields = postField.objectFields
   >>> commentFields
   <Fields>
   >>> list(commentFields)
@@ -74,7 +74,7 @@ object, or set your factory on the field, as ``objectFactory``. That
 last will be used in priority::
 
   >>> from zope.component import IFactory, provideUtility
-  >>> factoryName = postField.getObjectSchema().__identifier__
+  >>> factoryName = postField.objectSchema.__identifier__
   >>> provideUtility(Comment, IFactory, name=factoryName)
 
   >>> postField.getObjectFactory()

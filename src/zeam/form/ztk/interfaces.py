@@ -30,15 +30,10 @@ class IObjectSchemaField(ISchemaField):
     """
     objectFactory = interface.Attribute(
         u"Default factory used to create new objects for the field")
-
-    def getObjectSchema():
-        """Return Zope interface for the described object.
-        """
-
-    def getObjectFields():
-        """Return Zeam form fields for all fields in the described
-        object.
-        """
+    objectSchema = interface.Attribute(
+        u"Zope Interface that should be implemented by the object")
+    objectFields = interface.Attribute(
+        u"Zeam fields for the object")
 
     def getObjectFactory():
         """Return the object factory used to create new objects for

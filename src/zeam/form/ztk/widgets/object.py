@@ -27,16 +27,18 @@ class ObjectSchemaField(SchemaField):
         super(ObjectSchemaField, self).__init__(field)
         self._object_fields = Fields(field.schema)
 
-    def getObjectSchema(self):
+    @property
+    def objectSchema(self):
         return self._field.schema
 
-    def getObjectFields(self):
+    @property
+    def objectFields(self):
         return self._object_fields
 
     def getObjectFactory(self):
         if self.objectFactory is not None:
             return self.objectFactory
-        schema = self.getObjectSchema()
+        schema = self.objectSchema
         return getUtility(IFactory, name=schema.__identifier__)
 
 
@@ -54,7 +56,7 @@ class ObjectFieldWidget(FieldWidget):
     def update(self):
         super(ObjectFieldWidget, self).update()
         value = self.inputValue()
-        fields = self.component.getObjectFields()
+        fields = self.component.objectFields
         form = cloneFormData(
             self.form, ObjectDataManager(value), self.identifier)
         self.objectWidgets = Widgets(form=form, request=self.request)
@@ -71,7 +73,7 @@ class ObjectFieldExtractor(WidgetExtractor):
             return (NO_VALUE, None)
         value = None
         form = cloneFormData(self.form, None, self.identifier)
-        data, errors = form.extractData(self.component.getObjectFields())
+        data, errors = form.extractData(self.component.objectFields)
         if errors is None:
             factory = self.component.getObjectFactory()
             # Create an object with values
