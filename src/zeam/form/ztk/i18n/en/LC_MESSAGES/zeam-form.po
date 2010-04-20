@@ -1,0 +1,20 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ztk trunk"
+"POT-Creation-Date: Tue Apr 20 12:19:29 2010\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Silva Translators <eric+i18n@infrae.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generated-By: zope/app/translation_files/extract.py\n"
+
+#: /widgets/collection_templates/multigenericfieldwidget.cpt:14
+msgid "Add"
+msgstr ""
+
+#: /widgets/collection_templates/multigenericfieldwidget.cpt:18
+msgid "Remove"
+msgstr ""
+

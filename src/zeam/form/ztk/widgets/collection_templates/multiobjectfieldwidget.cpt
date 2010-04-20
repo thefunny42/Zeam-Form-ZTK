@@ -1,4 +1,4 @@
-<tal:multi>
+<tal:multi i18n:domain="zeam-form">
   <table tal:condition="widget.valueWidgets">
     <thead>
       <tr>
@@ -32,9 +32,11 @@
   <div class="multi-actions">
     <input type="submit" name="#" value="Add"
            tal:attributes="name string:${widget.identifier}.add"
-           tal:condition="widget.allowAdding" />
+           tal:condition="widget.allowAdding"
+           i18n:attributes="value" />
     <input type="submit" name="#" value="Remove"
            tal:attributes="name string:${widget.identifier}.remove"
-           tal:condition="widget.allowRemove" />
+           tal:condition="widget.allowRemove"
+           i18n:attributes="value"/>
   </div>
 </tal:multi>

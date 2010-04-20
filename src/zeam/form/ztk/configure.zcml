@@ -1,8 +1,12 @@
 <configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:i18n="http://namespaces.zope.org/i18n"
            xmlns:grok="http://namespaces.zope.org/grok">
 
   <include package="zeam.form.base" />
   <include package="megrok.chameleon" />
+  <include package="zope.i18n" file="meta.zcml" />
+
+  <i18n:registerTranslations directory="i18n" />
 
   <!-- Grok this package -->
   <grok:grok package="." />
