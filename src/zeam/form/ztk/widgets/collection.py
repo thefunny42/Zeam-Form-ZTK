@@ -25,8 +25,13 @@ class CollectionSchemaField(SchemaField):
     grok.implements(ICollectionSchemaField)
     collectionType = list
 
-    def getValueField(self):
-        return IField(self._field.value_type)
+    def __init__(self, field):
+        super(CollectionSchemaField, self).__init__(field)
+        self.__value_field = IField(self._field.value_type)
+
+    @property
+    def valueField(self):
+        return self.__value_field
 
 
 registerSchemaField(CollectionSchemaField, schema_interfaces.ICollection)
@@ -55,9 +60,8 @@ def newCollectionWidgetFactory(mode=u"", interface=IWidget):
         """A widget of a collection is a bit advanced. We have to adapt
         the sub-type of the field as well.
         """
-        value_field = field.getValueField()
         return component.getMultiAdapter(
-            (field, value_field, form, request), interface, name=mode)
+            (field, field.valueField, form, request), interface, name=mode)
     return collectionWidgetFactory
 
 

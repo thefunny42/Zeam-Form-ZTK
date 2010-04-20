@@ -26,7 +26,7 @@ class ObjectSchemaField(SchemaField):
 
     def __init__(self, field):
         super(ObjectSchemaField, self).__init__(field)
-        self._object_fields = Fields(field.schema)
+        self.__object_fields = Fields(field.schema)
 
     @property
     def objectSchema(self):
@@ -34,7 +34,7 @@ class ObjectSchemaField(SchemaField):
 
     @property
     def objectFields(self):
-        return self._object_fields
+        return self.__object_fields
 
     def getObjectFactory(self):
         if self.objectFactory is not None:
