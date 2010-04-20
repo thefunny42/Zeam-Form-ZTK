@@ -57,19 +57,22 @@ class ObjectFieldWidget(FieldWidget):
         fields = self.component.getObjectFields()
         form = cloneFormData(
             self.form, ObjectDataManager(value), self.identifier)
-        self.fieldWidgets = Widgets(form=form, request=self.request)
-        self.fieldWidgets.extend(fields)
-        self.fieldWidgets.update()
+        self.objectWidgets = Widgets(form=form, request=self.request)
+        self.objectWidgets.extend(fields)
+        self.objectWidgets.update()
 
 
 class ObjectFieldExtractor(WidgetExtractor):
     grok.adapts(ObjectSchemaField, Interface, Interface)
 
     def extract(self):
+        is_present = self.request.form.get(self.identifier, NO_VALUE)
+        if is_present is NO_VALUE:
+            return (NO_VALUE, None)
         value = None
         form = cloneFormData(self.form, None, self.identifier)
         data, errors = form.extractData(self.component.getObjectFields())
-        if not errors:
+        if errors is None:
             factory = self.component.getObjectFactory()
             # Create an object with values
             value = factory(**dict(filter(

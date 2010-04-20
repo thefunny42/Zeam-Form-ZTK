@@ -11,15 +11,17 @@
       </tr>
     </thead>
     <tbody>
-      <tr tal:repeat="objectWidget widget.valueWidgets">
+      <tr tal:repeat="valueWidget widget.valueWidgets">
         <td>
           <input type="checkbox" name="#"
                  tal:attributes="name string:${widget.identifier}.checked.${objectWidget.component.identifier}" />
           <input type="hidden" value="1" name="#"
                  tal:attributes="name string:${widget.identifier}.present.${objectWidget.component.identifier}" />
+          <input type="hidden" value="1" name="#"
+                 tal:attributes="name valueWidget.identifier" />
         </td>
-        <td tal:repeat="fieldWidget objectWidget.fieldWidgets">
-          <tal:widget tal:replace="structure fieldWidget.render()" />
+        <td tal:repeat="objectWidget valueWidget.objectWidgets">
+          <tal:widget tal:replace="structure objectWidget.render()" />
         </td>
       </tr>
     </tbody>

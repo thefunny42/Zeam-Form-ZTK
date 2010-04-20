@@ -1,12 +1,16 @@
-<tal:widgets tal:repeat="widget widget.fieldWidgets">
-  <label class="field-label" for="#"
-         tal:attributes="for widget.htmlId()"
-         tal:content="widget.title">
-    Label
-  </label>
-  <span class="field-required"
-        tal:condition="widget.required">*</span>
-  <br />
-  <tal:widget tal:replace="structure widget.render()" />
-  <br />
-</tal:widgets>
+<tal:object>
+  <tal:widgets tal:repeat="objectWidget widget.objectWidgets">
+    <label class="field-label" for="#"
+           tal:attributes="for objectWidget.htmlId()"
+           tal:content="objectWidget.title">
+      Label
+    </label>
+    <span class="field-required"
+          tal:condition="objectWidget.required">*</span>
+    <br />
+    <tal:widget tal:replace="structure objectWidget.render()" />
+    <br />
+  </tal:widgets>
+  <input type="hidden" name="#" value="1"
+         tal:attributes="name widget.identifier" />
+</tal:object>

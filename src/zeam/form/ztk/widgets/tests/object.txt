@@ -118,25 +118,26 @@ You can now have a widget for your object field::
 You will have on the widget one widget generated per field in the
 object, all of them prefixed by the main widget identifier::
 
-  >>> len(commentWidget.fieldWidgets)
+  >>> len(commentWidget.objectWidgets)
   3
-  >>> list(commentWidget.fieldWidgets)
+  >>> list(commentWidget.objectWidgets)
   [<TextLineWidget Title>,
    <TextFieldWidget Comment>,
    <TextLineWidget Email>]
-  >>> map(lambda w: w.identifier, commentWidget.fieldWidgets)
+  >>> map(lambda w: w.identifier, commentWidget.objectWidgets)
   ['form.field.comment.field.title',
    'form.field.comment.field.comment',
    'form.field.comment.field.email']
 
 
-Extractor
----------
+Widget Extractor
+----------------
 
 You can extract from a request values to create an object by getting
 an extractor for the widget::
 
   >>> commentRequest = TestRequest(form={
+  ...     'form.field.comment': '1',
   ...     'form.field.comment.field.title': 'Super cool',
   ...     'form.field.comment.field.comment': 'Everything is working alright.',
   ...     'form.field.comment.field.email': ''})
@@ -173,3 +174,4 @@ If nothing is in the request, you have no value::
   ...      interfaces.IWidgetExtractor)
 
   >>> commentExtractor.extract()
+  (<Marker NO_VALUE>, None)
