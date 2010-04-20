@@ -23,7 +23,10 @@ class CollectionSchemaField(SchemaField):
     """A collection field.
     """
     grok.implements(ICollectionSchemaField)
+
     collectionType = list
+    allowAdding = True
+    allowRemove = True
 
     def __init__(self, field):
         super(CollectionSchemaField, self).__init__(field)
@@ -60,8 +63,11 @@ def newCollectionWidgetFactory(mode=u"", interface=IWidget):
         """A widget of a collection is a bit advanced. We have to adapt
         the sub-type of the field as well.
         """
-        return component.getMultiAdapter(
+        widget = component.getMultiAdapter(
             (field, field.valueField, form, request), interface, name=mode)
+        widget.allowAdding = field.allowAdding
+        widget.allowRemove = field.allowRemove
+        return widget
     return collectionWidgetFactory
 
 
