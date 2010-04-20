@@ -68,6 +68,7 @@ class SchemaField(Field):
 
     def clone(self, new_identifier=None):
         copy = self.__class__(self._field)
+        copy.__dict__.update(self.__dict__)
         if new_identifier is not None:
             copy.identifier = new_identifier
         return copy
