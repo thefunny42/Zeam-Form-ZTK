@@ -5,6 +5,7 @@
     <input type="hidden" value="1" name="#"
            tal:attributes="name string:${widget.identifier}.present.${valueWidget.component.identifier}" />
     <tal:widget tal:replace="structure valueWidget.render()" />
+    <br />
   </tal:values>
 
   <input type="hidden" name="#" value="#"
