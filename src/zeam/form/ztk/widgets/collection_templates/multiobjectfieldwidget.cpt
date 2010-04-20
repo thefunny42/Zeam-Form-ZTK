@@ -14,9 +14,9 @@
       <tr tal:repeat="valueWidget widget.valueWidgets">
         <td>
           <input type="checkbox" name="#"
-                 tal:attributes="name string:${widget.identifier}.checked.${objectWidget.component.identifier}" />
+                 tal:attributes="name string:${widget.identifier}.checked.${valueWidget.component.identifier}" />
           <input type="hidden" value="1" name="#"
-                 tal:attributes="name string:${widget.identifier}.present.${objectWidget.component.identifier}" />
+                 tal:attributes="name string:${widget.identifier}.present.${valueWidget.component.identifier}" />
           <input type="hidden" value="1" name="#"
                  tal:attributes="name valueWidget.identifier" />
         </td>
