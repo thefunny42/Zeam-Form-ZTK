@@ -19,11 +19,8 @@ class ICollectionSchemaField(ISchemaField):
     """
     collectionType = interface.Attribute(
         u"Python type represented by this collection (like set, list...)")
-
-    def getValueField():
-        """Return a zeam field corresponding to the value type
-        contained in the list.
-        """
+    valueField = interface.Attribute(
+        u"Field corresponding to the value type contained in the collection")
 
 class IObjectSchemaField(ISchemaField):
     """This field is mapped to the zope.schema Object schema field.

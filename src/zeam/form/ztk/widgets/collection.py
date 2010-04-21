@@ -217,11 +217,19 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
 
     def extract(self):
         value, errors = super(MultiChoiceWidgetExtractor, self).extract()
-        if value is not NO_VALUE and errors is None:
+        if errors is None:
+            is_present = self.request.form.get(
+                self.identifier + '.present', NO_VALUE)
+            if is_present is NO_VALUE:
+                # Not in the request
+                return (NO_VALUE, None)
+            if value is NO_VALUE:
+                # Nothing selected
+                return (self.component.collectionType(), None)
             choices = self.source.getChoices(self.form.context)
             try:
                 value = self.component.collectionType(
                     [choices.getTermByToken(t).value for t in value])
             except LookupError:
-                return (None, u'Invalid value')
+                return (None, u'Invalid value not choosable')
         return (value, errors)

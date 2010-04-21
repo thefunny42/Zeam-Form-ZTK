@@ -66,7 +66,7 @@ This field works on list, and contains text lines::
 
   >>> listField.collectionType
   <type 'list'>
-  >>> valueField = listField.getValueField()
+  >>> valueField = listField.valueField
   >>> valueField
   <TextLineSchemaField >
   >>> verifyObject(interfaces.IField, valueField)
@@ -84,7 +84,7 @@ And like the list collection::
 
   >>> drinkField.collectionType
   <type 'set'>
-  >>> valueField = drinkField.getValueField()
+  >>> valueField = drinkField.valueField
   >>> valueField
   <ChoiceSchemaField >
   >>> verifyObject(interfaces.IField, drinkField)
@@ -360,10 +360,14 @@ ones already selected in the content will already by marked::
 Getting input from the request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The widget is able to have input from the request only::
+The widget is able to have input from the request only. The present
+marker is used in case the user select nothing, because in that case
+the browser will send nothing and it would sounds like nothing was in
+the request::
 
   >>> drinksRequest = TestRequest(form={
-  ...     'form.field.drinks': ['vodka', 'tequila']})
+  ...     'form.field.drinks': ['vodka', 'tequila'],
+  ...     'form.field.drinks.present' : '1'})
   >>> myChoiceOfDrinks = FormData(drinkableContent, drinksRequest)
 
   >>> myChoiceOfDrinksWidgets = Widgets(
@@ -386,13 +390,36 @@ And so now you have only Vodka and Tequila of selected by the widget::
    {'token': 'champagne', 'checked': None,
     'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
 
+However the user can uncheck all available choices::
+
+  >>> noMoreDrinksRequest = TestRequest(form={
+  ...     'form.field.drinks.present' : '1'})
+  >>> noMoreDrinks = FormData(drinkableContent, noMoreDrinksRequest)
+
+  >>> noMoreDrinksWidgets = Widgets(
+  ...     drinkFields,
+  ...     form=noMoreDrinks,
+  ...     request=noMoreDrinksRequest)
+
+  >>> noMoreDrinksWidgets.update()
+  >>> noMoreDrinksWidget = noMoreDrinksWidgets['form.field.drinks']
+
+  >>> list(noMoreDrinksWidget.renderableChoice())
+  [{'token': 'vodka', 'checked': None,
+    'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
+   {'token': 'tequila', 'checked': None,
+    'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
+   {'token': 'cognac', 'checked': None,
+    'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
+   {'token': 'champagne', 'checked': None,
+    'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+
 
 Multi Choice Widget extractor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You need to be able to get the corresponding extractor with
 multi-choice widgets::
-
 
   >>> drinksExtractor = getMultiAdapter(
   ...      (drinkField, myChoiceOfDrinks, drinksRequest),
@@ -408,6 +435,16 @@ And you can get your values out of it::
   >>> drinksExtractor.extract()
   (set(['vodka', 'tequila']), None)
 
+If you selected nothing, you will get an empty selection:
+
+  >>> noMoreDrinksExtractor = getMultiAdapter(
+  ...      (drinkField, noMoreDrinks, noMoreDrinksRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, noMoreDrinksExtractor)
+  True
+  >>> noMoreDrinksExtractor.extract()
+  (set([]), None)
 
 If you have nothing in your request, you will get nothing::
 
@@ -417,6 +454,5 @@ If you have nothing in your request, you will get nothing::
 
   >>> verifyObject(interfaces.IWidgetExtractor, noDrinksExtractor)
   True
-
   >>> noDrinksExtractor.extract()
   (<Marker NO_VALUE>, None)
