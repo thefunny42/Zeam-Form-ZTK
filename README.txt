@@ -8,8 +8,13 @@ Zope Tool Kit. It provides:
 - Form fields generation out of zope.schema fields, and zope.schema
   fields listed in a Zope interface,
 
+- Widgets for those fields,
+
 - Default action to Add, Edit a content, Cancel a current action by
   returning on the default view of a content.
+
+Like ``zeam.form.base`` the focus is to have an API usable by the
+developer, not a support of theorical use-cases that you don't need.
 
 .. contents::
 
@@ -48,17 +53,17 @@ Add form
 
 You can add a new Person in a clan like this::
 
-  import zeam.form.ztk as zeamform
+  import zeam.form.ztk as form
 
-  class Add(zeamform.Form):
+  class Add(form.Form):
 
-      zeamform.context(IClan)
+      form.context(IClan)
 
       label = u"New person"
-      fields = zeamform.Fields(IPerson)
-      actions =  zeamform.Actions(
-           zeamform.AddAction("Add", factory=Person),
-           zeamform.CancelAction("Cancel"))
+      fields = form.Fields(IPerson)
+      actions =  form.Actions(
+           form.AddAction("Add", factory=Person),
+           form.CancelAction("Cancel"))
       actions['add'].fieldName = 'last_name'
 
 
@@ -67,15 +72,15 @@ Edit form
 
 You can edit a Person like this::
 
-  class Edit(zeamform.Form):
+  class Edit(form.Form):
 
-      zeamform.context(IPerson)
- 
+      form.context(IPerson)
+
       label = u"Change person details"
-      fields = zeamform.Fields(IPerson)
-      actions =  zeamform.Actions(
-           zeamform.EditAction("Update"),
-           zeamform.CancelAction("Cancel"))
+      fields = form.Fields(IPerson)
+      actions =  form.Actions(
+           form.EditAction("Update"),
+           form.CancelAction("Cancel"))
 
       ignoreContent = False
 
@@ -106,3 +111,29 @@ Actions
   validating the form submission.
 
 
+Fields
+------
+
+Currently supported fields:
+
+- Date, Datetime: generate a text line input and parse/display the
+  date using the locale,
+
+- TextLine, Text, and numbers (Int, Float ...),
+
+- Password,
+
+- Choice: generate a select,
+
+- Object,
+
+- Collections: List, Set, Tuple:
+
+  - Collection of choices: generate a widget with a list of checkboxes,
+
+  - Collection of objects: generate a table to edit multiple objects,
+
+  - Other collection: generate a widget with generic add an remove actions.
+
+
+For more documentation, please report to the doctests included in the code.
