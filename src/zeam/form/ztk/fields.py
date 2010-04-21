@@ -73,18 +73,14 @@ class SchemaField(Field):
             copy.identifier = new_identifier
         return copy
 
-    def validate(self, value):
+    def validate(self, value, context=None):
         error = super(SchemaField, self).validate(value)
         if error is not None:
             return error
 
         if value is not NO_VALUE:
             try:
-                # It's required to call bind on the field before
-                # validate because of choice fields. We put None for
-                # the time being as object (don't have them, make no
-                # sense)
-                binded_field  = self._field.bind(None)
+                binded_field  = self._field.bind(context)
                 binded_field.validate(value)
             except schema_interfaces.ValidationError, error:
                 return error.doc()
