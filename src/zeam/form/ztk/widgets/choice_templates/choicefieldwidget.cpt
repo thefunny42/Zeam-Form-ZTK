@@ -1,7 +1,8 @@
-<select id="#" name="#"
+<select id="#" name="#" class="#"
         tal:define="value widget.inputValue()"
         tal:attributes="name widget.identifier;
-                        id widget.htmlId()">
+                        id widget.htmlId();
+                        class widget.htmlClass()">
   <option value="#"
           tal:repeat="choice widget.choices()"
           tal:attributes="value choice.token;

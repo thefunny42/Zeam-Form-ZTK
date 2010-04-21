@@ -1,5 +1,6 @@
-<input id="#" name="#" checked="" value="True" type="checkbox"
+<input id="#" name="#" class="#" checked="" value="True" type="checkbox"
        tal:define="checked widget.inputValue() == 'True'"
        tal:attributes="name widget.identifier;
                        id widget.htmlId();
+                       class widget.htmlClass();
                        checked checked and 'checked' or None" />
