@@ -115,6 +115,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
     def prepareContentValue(self, values):
         if values is NO_VALUE:
+            self.allowRemove = False
             return {self.identifier: '0'}
         for position, value in enumerate(values):
             # Create new widgets for each value
