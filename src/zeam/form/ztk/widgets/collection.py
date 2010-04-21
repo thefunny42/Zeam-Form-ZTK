@@ -234,6 +234,8 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
                 return (self.component.collectionType(), None)
             choices = self.source.getChoices(self.form.context)
             try:
+                if not isinstance(value, list):
+                    value = [value]
                 value = self.component.collectionType(
                     [choices.getTermByToken(t).value for t in value])
             except LookupError:
