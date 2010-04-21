@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ztk trunk"
-"POT-Creation-Date: Tue Apr 20 12:19:29 2010\n"
+"POT-Creation-Date: Wed Apr 21 11:05:29 2010\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Silva Translators <eric+i18n@infrae.com>\n"
@@ -10,11 +10,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generated-By: zope/app/translation_files/extract.py\n"
 
-#: /widgets/collection_templates/multigenericfieldwidget.cpt:14
+#: /widgets/collection_templates/multigenericfieldwidget.cpt:15
+#: /widgets/collection_templates/multiobjectfieldwidget.cpt:37
 msgid "Add"
 msgstr ""
 
-#: /widgets/collection_templates/multigenericfieldwidget.cpt:18
+#: /widgets/collection_templates/multigenericfieldwidget.cpt:19
+#: /widgets/collection_templates/multiobjectfieldwidget.cpt:41
 msgid "Remove"
+msgstr ""
+
+#: /widgets/collection_templates/multiobjectfieldwidget.cpt:29
+msgid "There are no values"
 msgstr ""
 
