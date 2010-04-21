@@ -119,12 +119,16 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         for position, value in enumerate(values):
             # Create new widgets for each value
             self.newValueWidget(position, value)
-        return {self.identifier: str(len(values))}
+        value_count = len(values)
+        if not value_count:
+            self.allowRemove = False
+        return {self.identifier: str(value_count)}
 
     def prepareRequestValue(self, values):
-        count = int(values.get(self.identifier, '0'))
+        value_count = 0
+        identifier_count = int(values.get(self.identifier, '0'))
         remove_something = self.identifier + '.remove' in values
-        for position in range(0, count):
+        for position in range(0, identifier_count):
             value_marker = (self.identifier, position,)
             value_present = '%s.present.%d' % value_marker in values
             if not value_present:
@@ -133,15 +137,17 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             if remove_something and value_selected:
                 continue
             self.newValueWidget(position, None)
+            value_count += 1
         if self.identifier + '.add' in values:
-            self.newValueWidget(count, None)
-            values[self.identifier] = str(count + 1)
+            self.newValueWidget(identifier_count, None)
+            value_count += 1
+            values[self.identifier] = str(identifier_count + 1)
+        if not value_count:
+            self.allowRemove = False
         return values
 
     def update(self):
         super(MultiGenericFieldWidget, self).update()
-        if not int(self.inputValue()):
-            self.allowRemove = False
         self.valueWidgets.update()
 
 # For collection of objects, generate a different widget (with a table)
