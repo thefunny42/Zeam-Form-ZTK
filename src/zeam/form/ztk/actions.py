@@ -1,10 +1,13 @@
 
 from zope.app.container.interfaces import INameChooser
-from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 from zope.event import notify
+from zope.i18nmessageid import MessageFactory
+from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 
 from zeam.form.base import Action
 from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE
+
+_ = MessageFactory("zeam-form")
 
 
 class CancelAction(Action):
@@ -33,7 +36,7 @@ class EditAction(Action):
         content = form.getContentData()
         self.applyData(form, content, data)
         notify(ObjectModifiedEvent(content.content))
-        form.status = u"Modification saved"
+        form.status = _(u"Modification saved")
         return SUCCESS
 
 

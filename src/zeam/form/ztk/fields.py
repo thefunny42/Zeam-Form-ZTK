@@ -3,15 +3,16 @@ from zeam.form.base import interfaces
 from zeam.form.base.fields import Field
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
-
 from zeam.form.ztk.interfaces import ISchemaField
 
+from grokcore import component as grok
+from zope import schema, component
+from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
-from zope import schema, component
 import zope.interface.interfaces
 
-from grokcore import component as grok
+_ = MessageFactory("zeam-form")
 
 
 class SchemaFieldFactory(object):
@@ -130,7 +131,7 @@ class SchemaWidgetExtractor(WidgetExtractor):
             except schema_interfaces.ValidationError, e:
                 return None, e.doc()
             except ValueError, e:
-                return None, u"Invalid value"
+                return None, _(u"Invalid value")
 
         return value, None
 

@@ -240,5 +240,5 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
                 value = self.component.collectionType(
                     [choices.getTermByToken(t).value for t in value])
             except LookupError:
-                return (None, u'Invalid value not choosable')
+                return (None, u'Value not available')
         return (value, errors)

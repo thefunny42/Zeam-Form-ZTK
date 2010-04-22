@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from grokcore import component as grok
+from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import DisplayFieldWidget
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.base.markers import NO_VALUE
 from zeam.form.ztk.fields import SchemaField, SchemaFieldWidget
 from zeam.form.ztk.fields import registerSchemaField
 from zope.i18n.format import DateTimeParseError
+from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
+
+_ = MessageFactory("zeam-form")
 
 
 class DatetimeSchemaField(SchemaField):
@@ -48,9 +51,9 @@ class DateWidgetExtractor(WidgetExtractor):
             formatter = locale.dates.getFormatter(self.valueType, 'short')
             try:
                 value = formatter.parse(value)
-            except DateTimeParseError:
-                return (None, u'Invalid value')
-        return (value, error)
+            except (ValueError, DateTimeParseError), error:
+                return None, str(error)
+        return value, error
 
 
 class DatetimeFieldWidget(DateFieldWidget):
