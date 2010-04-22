@@ -1,3 +1,4 @@
+=============
 zeam.form.ztk
 =============
 
@@ -6,97 +7,116 @@ Fields can be generated from zope.schema.
 Creation from a Zope interface
 ------------------------------
 
-You can create a full set of fields from a Zope interface:
+You can create a full set of fields from a Zope interface::
 
-   >>> from zope import schema, interface
+  >>> from zope import schema, interface
 
-   >>> class IPlanet(interface.Interface):
-   ...     name = schema.TextLine(title=u"Name")
-   ...     size = schema.Int(title=u"Size",
-   ...                       description=u"Size in Km")
+  >>> class IPlanet(interface.Interface):
+  ...     name = schema.TextLine(title=u"Name")
+  ...     size = schema.Int(title=u"Size",
+  ...                       description=u"Size in Km")
 
-   >>> from zeam.form.base import Fields
-   >>> s2 = Fields(IPlanet)
-   >>> list(s2)
-   [<TextLineSchemaField Name>, <SchemaField Size>]
+  >>> from zeam.form.base import Fields
+  >>> s2 = Fields(IPlanet)
+  >>> list(s2)
+  [<TextLineSchemaField Name>, <SchemaField Size>]
 
 Those are correct fields, filled with the interface definition
-information:
+information::
 
-   >>> f2, f3 = list(s2)
-   >>> f2
-   <TextLineSchemaField Name>
-   >>> f2.title
-   u'Name'
-   >>> f2.identifier
-   'name'
-   >>> f2.description
-   u''
-   >>> f3
-   <SchemaField Size>
-   >>> f3.description
-   u'Size in Km'
+  >>> f2, f3 = list(s2)
+  >>> f2
+  <TextLineSchemaField Name>
+  >>> f2.title
+  u'Name'
+  >>> f2.identifier
+  'name'
+  >>> f2.description
+  u''
+  >>> f3
+  <SchemaField Size>
+  >>> f3.description
+  u'Size in Km'
 
-   >>> from zope.interface.verify import verifyObject
-   >>> from zeam.form.base import interfaces
-   >>> verifyObject(interfaces.IField, f2, f3)
-   True
+  >>> from zope.interface.verify import verifyObject
+  >>> from zeam.form.base import interfaces
+  >>> verifyObject(interfaces.IField, f2, f3)
+  True
 
-You can add fields via an interface after:
+You can add fields via an interface after::
 
-   >>> class IHabitationSupport(interface.Interface):
-   ...     city = schema.TextLine(title=u"City name")
-   ...     people = schema.Int(title=u"Number of people",
-   ...                         required=False,
-   ...                         description=u"Or population size")
+  >>> class IHabitationSupport(interface.Interface):
+  ...     city = schema.TextLine(title=u"City name")
+  ...     people = schema.Int(title=u"Number of people",
+  ...                         required=False,
+  ...                         description=u"Or population size")
 
-   >>> s2.extend(IHabitationSupport)
-   >>> list(s2)
-   [<TextLineSchemaField Name>, <SchemaField Size>,
-    <TextLineSchemaField City name>, <SchemaField Number of people>]
+  >>> s2.extend(IHabitationSupport)
+  >>> list(s2)
+  [<TextLineSchemaField Name>, <SchemaField Size>,
+   <TextLineSchemaField City name>, <SchemaField Number of people>]
 
-You can add a field from an interface alone:
+You can add a field from an interface alone::
 
-   >>> class IFoodSupport(interface.Interface):
-   ...      vegetables = schema.TextLine(title=u"Vegetables kind")
-   ...      meat = schema.TextLine(title=u"Meat kind")
+  >>> class IFoodSupport(interface.Interface):
+  ...      vegetables = schema.TextLine(title=u"Vegetables kind")
+  ...      meat = schema.TextLine(title=u"Meat kind")
 
-   >>> s2.extend(IFoodSupport['vegetables'])
-   >>> list(s2.select('vegetables'))
-   [<TextLineSchemaField Vegetables kind>]
+  >>> s2.extend(IFoodSupport['vegetables'])
+  >>> list(s2.select('vegetables'))
+  [<TextLineSchemaField Vegetables kind>]
 
-   >>> list(Fields(IFoodSupport['meat']))
-   [<TextLineSchemaField Meat kind>]
+  >>> list(Fields(IFoodSupport['meat']))
+  [<TextLineSchemaField Meat kind>]
 
-But it need to belong to an interface:
+But it need to belong to an interface::
 
-   >>> Fields(schema.TextLine(title=u"Quality of McDo restaurant"))
-   Traceback (most recent call last):
-      ...
-   ValueError: Field has no interface
-   >>> s2.extend(schema.TextLine(title=u"Quality of McDo restaurant"))
-   Traceback (most recent call last):
-      ...
-   ValueError: Field has no interface
+  >>> Fields(schema.TextLine(title=u"Quality of McDo restaurant"))
+  Traceback (most recent call last):
+     ...
+  ValueError: Field has no interface
+  >>> s2.extend(schema.TextLine(title=u"Quality of McDo restaurant"))
+  Traceback (most recent call last):
+     ...
+  ValueError: Field has no interface
 
 
 Description and required
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Those values are correctly collected from the schema field:
+Those values are correctly collected from the schema field::
 
-   >>> s2['city'].description
-   u''
-   >>> s2['city'].required
-   True
+  >>> s2['city'].description
+  u''
+  >>> s2['city'].required
+  True
 
-   >>> s2['people'].description
-   u'Or population size'
-   >>> s2['people'].required
-   False
+  >>> s2['people'].description
+  u'Or population size'
+  >>> s2['people'].required
+  False
 
-   >>> s2['size'].description
-   u'Size in Km'
-   >>> s2['size'].required
-   True
+  >>> s2['size'].description
+  u'Size in Km'
+  >>> s2['size'].required
+  True
 
+
+Cloning a field
+~~~~~~~~~~~~~~~
+
+You can clone a field and keep all settings::
+
+  >>> s2['size'].mode = 'my-special-rendering-mode'
+  >>> clone = s2['size'].clone(new_identifier='myclone')
+
+  >>> clone
+  <SchemaField Size>
+  >>> clone.identifier
+  'myclone'
+  >>> clone.description
+  u'Size in Km'
+  >>> clone.required
+  True
+  >>> clone.mode
+  'my-special-rendering-mode'

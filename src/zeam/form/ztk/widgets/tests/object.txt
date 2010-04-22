@@ -137,10 +137,10 @@ You can extract from a request values to create an object by getting
 an extractor for the widget::
 
   >>> commentRequest = TestRequest(form={
-  ...     'form.field.comment': '1',
-  ...     'form.field.comment.field.title': 'Super cool',
-  ...     'form.field.comment.field.comment': 'Everything is working alright.',
-  ...     'form.field.comment.field.email': ''})
+  ...     'form.field.comment': u'1',
+  ...     'form.field.comment.field.title': u'Super cool',
+  ...     'form.field.comment.field.comment': u'Everything is working alright.',
+  ...     'form.field.comment.field.email': u''})
   >>> commentData = FormData(content, commentRequest)
 
   >>> commentExtractor = getMultiAdapter(

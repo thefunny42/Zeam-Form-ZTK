@@ -168,11 +168,11 @@ The widget is able to get its data from the request. Sub-widgets will be
 created for each data value found in the request::
 
   >>> peopleRequest = TestRequest(form={
-  ...     'form.field.names': '2',
-  ...     'form.field.names.present.0': '1',
-  ...     'form.field.names.field.0': 'Nicolas',
-  ...     'form.field.names.present.1': '1',
-  ...     'form.field.names.field.1': 'Jean',})
+  ...     'form.field.names': u'2',
+  ...     'form.field.names.present.0': u'1',
+  ...     'form.field.names.field.0': u'Nicolas',
+  ...     'form.field.names.present.1': u'1',
+  ...     'form.field.names.field.1': u'Jean',})
 
 This request parsed with our widget we will create two sub-widget, one
 with the value ``Nicolas``, the other with the value ``Jean``::
@@ -196,19 +196,19 @@ with the value ``Nicolas``, the other with the value ``Jean``::
   [<TextLineWidget form.field.names.field.0>,
    <TextLineWidget form.field.names.field.1>]
   >>> map(lambda w:w.value, peopleWidget.valueWidgets)
-  [{'form.field.names.field.0': 'Nicolas'},
-   {'form.field.names.field.1': 'Jean'}]
+  [{'form.field.names.field.0': u'Nicolas'},
+   {'form.field.names.field.1': u'Jean'}]
 
 A request can ask to remove one of the values contained in the request::
 
   >>> peopleRequest = TestRequest(form={
-  ...     'form.field.names': '2',
-  ...     'form.field.names.remove': 'Remove',
-  ...     'form.field.names.checked.0': 'checked',
-  ...     'form.field.names.present.0': '1',
-  ...     'form.field.names.field.0': 'Nicolas',
-  ...     'form.field.names.present.1': '1',
-  ...     'form.field.names.field.1': 'Jean',})
+  ...     'form.field.names': u'2',
+  ...     'form.field.names.remove': u'Remove',
+  ...     'form.field.names.checked.0': u'checked',
+  ...     'form.field.names.present.0': u'1',
+  ...     'form.field.names.field.0': u'Nicolas',
+  ...     'form.field.names.present.1': u'1',
+  ...     'form.field.names.field.1': u'Jean',})
 
 And if we parse this request, we will have only one sub-widget created
 for the second value, the first will have been ignored (and so removed)::
@@ -231,16 +231,16 @@ for the second value, the first will have been ignored (and so removed)::
   >>> list(peopleWidget.valueWidgets)
   [<TextLineWidget form.field.names.field.1>]
   >>> map(lambda w:w.value, peopleWidget.valueWidgets)
-  [{'form.field.names.field.1': 'Jean'}]
+  [{'form.field.names.field.1': u'Jean'}]
 
 In the same way, a request can ask to add a new empty sub-widget in
 order to be able to enter a new value::
 
   >>> peopleRequest = TestRequest(form={
-  ...     'form.field.names': '3',
-  ...     'form.field.names.add': 'Add',
-  ...     'form.field.names.present.1': '1',
-  ...     'form.field.names.field.1': 'Jean',})
+  ...     'form.field.names': u'3',
+  ...     'form.field.names.add': u'Add',
+  ...     'form.field.names.present.1': u'1',
+  ...     'form.field.names.field.1': u'Jean',})
 
 With that request the widget will create two widgets, and one (new)
 empty::
@@ -264,9 +264,47 @@ empty::
   [<TextLineWidget form.field.names.field.1>,
    <TextLineWidget form.field.names.field.3>]
   >>> map(lambda w:w.value, peopleWidget.valueWidgets)
-  [{'form.field.names.field.1': 'Jean'},
+  [{'form.field.names.field.1': u'Jean'},
    {'form.field.names.field.3': u''}]
 
+With an empty request, you will have no values, and won't be able to
+remove values::
+
+  >>> peopleInvitation = FormData(content, request)
+
+  >>> peopleWidgets = Widgets(
+  ...     listFields,
+  ...     form=peopleInvitation,
+  ...     request=request)
+
+  >>> peopleWidgets.update()
+  >>> peopleWidget = peopleWidgets['form.field.names']
+  >>> len(peopleWidget.valueWidgets)
+  0
+  >>> peopleWidget.allowAdding
+  True
+  >>> peopleWidget.allowRemove
+  False
+
+And you have the same with a request containing just the marker::
+
+  >>> zeroPeopleRequest = TestRequest(form={
+  ...     'form.field.names': u'4'})
+  >>> peopleInvitation = FormData(content, request)
+
+  >>> peopleWidgets = Widgets(
+  ...     listFields,
+  ...     form=peopleInvitation,
+  ...     request=zeroPeopleRequest)
+
+  >>> peopleWidgets.update()
+  >>> peopleWidget = peopleWidgets['form.field.names']
+  >>> len(peopleWidget.valueWidgets)
+  0
+  >>> peopleWidget.allowAdding
+  True
+  >>> peopleWidget.allowRemove
+  False
 
 Generic Widget extractor
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -275,11 +313,11 @@ You are able to extract values from the request using the
 corresponding widget extractor::
 
   >>> peopleRequest = TestRequest(form={
-  ...     'form.field.names': '4',
-  ...     'form.field.names.present.0': '1',
-  ...     'form.field.names.field.0': 'Nicolas',
-  ...     'form.field.names.present.2': '1',
-  ...     'form.field.names.field.2': 'Jean',})
+  ...     'form.field.names': u'4',
+  ...     'form.field.names.present.0': u'1',
+  ...     'form.field.names.field.0': u'Nicolas',
+  ...     'form.field.names.present.2': u'1',
+  ...     'form.field.names.field.2': u'Jean',})
 
   >>> peopleInvitation = FormData(content, peopleRequest)
 
@@ -300,7 +338,7 @@ And you are able to get back your values:
 It will work as well if you have no values in your request::
 
   >>> noPeopleRequest = TestRequest(form={
-  ...     'form.field.names': '0'})
+  ...     'form.field.names': u'0'})
   >>> noPeopleInvitation = FormData(content, noPeopleRequest)
 
   >>> noPeopleExtractor = getMultiAdapter(
@@ -366,8 +404,8 @@ the browser will send nothing and it would sounds like nothing was in
 the request::
 
   >>> drinksRequest = TestRequest(form={
-  ...     'form.field.drinks': ['vodka', 'tequila'],
-  ...     'form.field.drinks.present' : '1'})
+  ...     'form.field.drinks': [u'vodka', u'tequila'],
+  ...     'form.field.drinks.present' : u'1'})
   >>> myChoiceOfDrinks = FormData(drinkableContent, drinksRequest)
 
   >>> myChoiceOfDrinksWidgets = Widgets(
@@ -393,7 +431,7 @@ And so now you have only Vodka and Tequila of selected by the widget::
 However the user can uncheck all available choices::
 
   >>> noMoreDrinksRequest = TestRequest(form={
-  ...     'form.field.drinks.present' : '1'})
+  ...     'form.field.drinks.present' : u'1'})
   >>> noMoreDrinks = FormData(drinkableContent, noMoreDrinksRequest)
 
   >>> noMoreDrinksWidgets = Widgets(
