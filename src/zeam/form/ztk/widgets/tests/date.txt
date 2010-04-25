@@ -1,0 +1,122 @@
+==========================
+zeam.form.ztk date widgets
+==========================
+
+Let's create some interface using dates::
+
+  >>> from zope import schema, interface
+  >>> from zope.interface.verify import verifyObject
+  >>> from zope.component import getMultiAdapter
+  >>> import datetime
+
+  >>> class IDayInfo(interface.Interface):
+  ...     date = schema.Date(title=u'Current date')
+
+  >>> class IAppointment(interface.Interface):
+  ...     when = schema.Datetime(title=u'When')
+
+And some content for them::
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class DayInfo(object):
+  ...    interface.implements(IDayInfo)
+  ...    date = None
+  >>> day = DayInfo()
+  >>> day.date = datetime.date(1983, 4, 25)
+
+  >>> class Appointment(object):
+  ...    interface.implements(IAppointment)
+  ...    when = None
+  >>> appointment = Appointment()
+
+
+Field
+-----
+
+You can get a field for a date::
+
+  >>> from zeam.form.base import Fields
+  >>> from zeam.form.base import interfaces
+
+  >>> dayFields = Fields(IDayInfo)
+  >>> dateField = dayFields['date']
+  >>> dateField
+  <DateSchemaField Current date>
+  >>> verifyObject(interfaces.IField, dateField)
+  True
+
+And one for datetime as well::
+
+  >>> appointmentFields = Fields(IAppointment)
+  >>> whenField = appointmentFields['when']
+  >>> whenField
+  <DatetimeSchemaField When>
+  >>> verifyObject(interfaces.IField, whenField)
+  True
+
+
+Widget
+------
+
+You can have a widget for a day. The input value is a formated version
+of the date, based on the locale of the request::
+
+  >>> from zeam.form.ztk import Widgets, FormData
+
+  >>> dailyForm = FormData(day, request)
+  >>> dailyForm.ignoreContent = False
+
+  >>> dailyWidgets = Widgets(
+  ...     dayFields,
+  ...     form=dailyForm,
+  ...     request=request)
+  >>> dailyWidgets.update()
+  >>> len(dailyWidgets)
+  1
+
+  >>> dailyWidget = dailyWidgets['form.field.date']
+  >>> dailyWidget
+  <DateFieldWidget Current date>
+
+  >>> verifyObject(interfaces.IFieldWidget, dailyWidget)
+  True
+
+  >>> dailyWidget.inputValue()
+  u'83/04/25'
+
+
+Widget extractor
+----------------
+
+You can extract a value from the request. It is a bit more difficult
+here because the parsing is a bit more advanced::
+
+  >>> dateRequest = TestRequest(form={
+  ...     'form.field.date': u'82/06/10'})
+  >>> niceDayData = FormData(day, dateRequest)
+
+  >>> niceDayExtractor = getMultiAdapter(
+  ...      (dateField, niceDayData, dateRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, niceDayExtractor)
+  True
+  >>> niceDayExtractor.extract()
+  (datetime.date(1982, 6, 10), None)
+
+Now if you give an invalid date you will have an error::
+
+  >>> invalidDateRequest = TestRequest(form={
+  ...     'form.field.date': u'the best day ever'})
+  >>> invalidDayData = FormData(day, invalidDateRequest)
+
+  >>> invalidDayExtractor = getMultiAdapter(
+  ...      (dateField, invalidDayData, invalidDateRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, invalidDayExtractor)
+  True
+  >>> invalidDayExtractor.extract()
+  (None, "The datetime string did not match the pattern u'yy/MM/dd'.")

@@ -110,7 +110,7 @@ You can get a generic widget out of your field::
   >>> listWidget = listWidgets['form.field.names']
   >>> listWidget
   <MultiGenericFieldWidget People Names>
-  >>> verifyObject(interfaces.IWidget, listWidget)
+  >>> verifyObject(interfaces.IFieldWidget, listWidget)
   True
 
 The widget create a list of sub-widget to edit each value of the list.
@@ -379,7 +379,7 @@ choice, you will get a multi-choice widget by default::
   >>> drinkWidget = drinkWidgets['form.field.drinks']
   >>> drinkWidget
   <MultiChoiceFieldWidget My beverages>
-  >>> verifyObject(interfaces.IWidget, drinkWidget)
+  >>> verifyObject(interfaces.IFieldWidget, drinkWidget)
   True
 
 The widget will provides a list of choice that you can render. The

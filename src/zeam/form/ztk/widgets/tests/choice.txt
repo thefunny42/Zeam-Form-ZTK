@@ -5,20 +5,21 @@ zeam.form.ztk choice widget
 Simple case
 ===========
 
-First we need a choice:
+First we need a choice::
 
   >>> from zope import interface, schema
   >>> from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+  >>> from zope.interface.verify import verifyObject
 
-  >>> firstVocabulary = SimpleVocabulary([
+  >>> letterVocabulary = SimpleVocabulary([
   ...     SimpleTerm(value='A', token='a1', title='Letter A'),
   ...     SimpleTerm(value='B', token='b1', title='Letter B'),
   ...     SimpleTerm(value='C', token='c1', title='Letter C')])
 
   >>> class IFirstChoice(interface.Interface):
   ...     choice = schema.Choice(
-  ...         title=u"My Choice",
-  ...         source=firstVocabulary)
+  ...         title=u"My favorite letter",
+  ...         source=letterVocabulary)
 
 
 And we will need a content and a request to test:
@@ -36,41 +37,46 @@ And we will need a content and a request to test:
 Field
 -----
 
-So now you can create a field, and get a choice field:
+So now you can create a field, and get a choice field::
 
-  >>> from zeam.form.ztk import Fields
+  >>> from zeam.form.base import Fields
+  >>> from zeam.form.base import interfaces
 
   >>> firstChoiceFields = Fields(IFirstChoice)
   >>> firstField = firstChoiceFields['choice']
   >>> firstField
-  <ChoiceSchemaField My Choice>
-  >>> firstField.source is firstVocabulary
+  <ChoiceSchemaField My favorite letter>
+
+  >>> firstField.source is letterVocabulary
   True
+
   >>> firstField.validate('A')
   >>> firstField.validate('foo')
   u'Constraint not satisfied'
 
+  >>> verifyObject(interfaces.IField, firstField)
+  True
 
 Widget
 ------
 
-You have an associated widget:
+You have an associated widget::
 
   >>> from zeam.form.ztk import Widgets, FormData
 
-  >>> firstSub = FormData(content, request)
-  >>> firstSub.ignoreContent = False
+  >>> firstForm = FormData(content, request)
+  >>> firstForm.ignoreContent = False
 
   >>> firstWidgets = Widgets(
   ...     firstChoiceFields,
-  ...     form=firstSub,
+  ...     form=firstForm,
   ...     request=request)
 
   >>> firstWidgets.update()
 
   >>> firstWidget = firstWidgets['form.field.choice']
   >>> firstWidget
-  <ChoiceFieldWidget My Choice>
+  <ChoiceFieldWidget My favorite letter>
 
   >>> firstWidget.inputValue()
   'b1'
@@ -87,26 +93,26 @@ Extractor
 ---------
 
 We need a custom extractor as the token value used in the form can be
-different than the real value:
+different than the real value::
 
   >>> from zope import component
   >>> from zeam.form.base import interfaces
 
   >>> firstExtractor = component.getMultiAdapter(
-  ...      (firstField, firstSub, request), interfaces.IWidgetExtractor)
+  ...      (firstField, firstForm, request), interfaces.IWidgetExtractor)
 
   >>> firstExtractor
   <zeam.form.ztk.widgets.choice.ChoiceWidgetExtractor object at ...>
   >>> firstExtractor.extract()
   (<Marker NO_VALUE>, None)
 
-Let's now do it with a value:
+Let's now do it with a value::
 
   >>> firstRequest = TestRequest(
   ...         form={firstWidget.identifier: u'a1', })
 
   >>> firstExtractor = component.getMultiAdapter(
-  ...      (firstField, firstSub, firstRequest), interfaces.IWidgetExtractor)
+  ...      (firstField, firstForm, firstRequest), interfaces.IWidgetExtractor)
 
   >>> firstExtractor.extract()
   ('A', None)
@@ -116,14 +122,14 @@ Context binded source
 =====================
 
 Let's define a source which need the context to produce its values,
-and an interface for it:
+and an interface for it::
 
   >>> from grokcore import component
   >>> from zope.schema.interfaces import IContextSourceBinder
 
   >>> @component.provider(IContextSourceBinder)
   ... def secondVocabulary(context):
-  ...     return firstVocabulary
+  ...     return letterVocabulary
 
   >>> class ISecondChoice(interface.Interface):
   ...     choice = schema.Choice(
@@ -140,7 +146,7 @@ and an interface for it:
 Field
 -----
 
-So now you can create a field, and get a choice field:
+So now you can create a field, and get a choice field::
 
   >>> from zeam.form.ztk import Fields
 
@@ -158,7 +164,7 @@ So now you can create a field, and get a choice field:
 Widget
 ------
 
-You have an associated widget:
+You have an associated widget::
 
   >>> from zeam.form.ztk import Widgets, FormData
 
