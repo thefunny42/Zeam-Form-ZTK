@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0'
+version = '1.0b1'
 
 tests_require = [
     'zope.app.authentication',
@@ -30,7 +30,7 @@ setup(name='zeam.form.ztk',
       keywords='zeam form zope schema edit content',
       author='Sylvain Viollon',
       author_email='thefunny@gmail.com',
-      url='',
+      url='http://pypi.python.org/pypi/zeam.form.ztk',
       license='BSD',
       package_dir={'': 'src'},
       packages=find_packages('src'),

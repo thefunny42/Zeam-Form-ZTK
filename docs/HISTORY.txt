@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.0 - Unreleased
-----------------
+1.0b1 (2010/05/03)
+------------------
 
-* Initial release
+* Initial release, with not all the widgets.
 

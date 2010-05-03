@@ -2,7 +2,7 @@
 zeam.form.ztk
 =============
 
-``zeam.form.ztk`` help you to integrate ``zeam.form.base`` with the
+``zeam.form.ztk`` help you to integrate `zeam.form.base`_ with the
 Zope Tool Kit. It provides:
 
 - Form fields generation out of zope.schema fields, and zope.schema
@@ -13,7 +13,7 @@ Zope Tool Kit. It provides:
 - Default action to Add, Edit a content, Cancel a current action by
   returning on the default view of a content.
 
-Like ``zeam.form.base`` the focus is to have an API usable by the
+Like `zeam.form.base`_ the focus is to have an API usable by the
 developer, not a support of theorical use-cases that you don't need.
 
 .. contents::
@@ -137,3 +137,6 @@ Currently supported fields:
 
 
 For more documentation, please report to the doctests included in the code.
+
+
+.. _zeam.form.base: http://pypi.python.org/pypi/zeam.form.base
