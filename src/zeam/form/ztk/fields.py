@@ -5,12 +5,13 @@ from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.ztk.interfaces import ISchemaField
 
-from martian.scan import module_info_from_dotted_name
 from grokcore import component as grok
+from martian.scan import module_info_from_dotted_name
 from zope import schema, component
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
+from zope.testing import cleanup
 import zope.interface.interfaces
 
 _ = MessageFactory("zeam-form")
@@ -31,22 +32,6 @@ class SchemaFieldFactory(object):
         yield interfaces.IField(self.context)
 
 
-# We register it by hand to have the adapter available when loading ZCML.
-component.provideAdapter(
-    SchemaFieldFactory,
-    (zope.schema.interfaces.IField,))
-
-
-def initialize_widgets():
-    """Load all widgets to register them.
-    """
-    # This will load widgets modules to register them.
-    widgets_module = module_info_from_dotted_name('zeam.form.ztk.widgets')
-    for widget_module in widgets_module.getSubModuleInfos():
-        # This load this widget module
-        widget_module.getModule()
-
-
 class InterfaceSchemaFieldFactory(object):
     """Create a set of form fields from a zope.interface by looking
     each zope.schema fields defined on it and adapting them.
@@ -59,12 +44,6 @@ class InterfaceSchemaFieldFactory(object):
     def produce(self):
         for name, field in schema.getFieldsInOrder(self.context):
             yield interfaces.IField(field)
-
-
-# We register it by hand to have the adapter available when loading ZCML.
-component.provideAdapter(
-    InterfaceSchemaFieldFactory,
-    (zope.interface.interfaces.IInterface,))
 
 
 class SchemaField(Field):
@@ -118,9 +97,6 @@ def registerSchemaField(factory, schema_field):
     component.provideAdapter(factory, (schema_field,), interfaces.IField)
 
 
-registerSchemaField(SchemaField, schema_interfaces.IField)
-
-
 class SchemaFieldWidget(FieldWidget):
     grok.adapts(ISchemaField, Interface, Interface)
 
@@ -146,3 +122,30 @@ class SchemaWidgetExtractor(WidgetExtractor):
 
         return value, None
 
+
+def initialize_fields():
+    # Register default fields factories.
+    component.provideAdapter(
+        SchemaFieldFactory,
+        (zope.schema.interfaces.IField,))
+    component.provideAdapter(
+        InterfaceSchemaFieldFactory,
+        (zope.interface.interfaces.IInterface,))
+    registerSchemaField(SchemaField, schema_interfaces.IField)
+
+
+initialize_fields()
+
+
+def initialize_widgets():
+    """Load all widgets to register them.
+    """
+    # This will load widgets modules to register them.
+    widgets_module = module_info_from_dotted_name('zeam.form.ztk.widgets')
+    for widget_module in widgets_module.getSubModuleInfos():
+        # This load this widget module
+        widget_module.getModule()
+
+# Reload fields and widgets after test cleanup
+cleanup.addCleanUp(initialize_fields)
+cleanup.addCleanUp(initialize_widgets)
