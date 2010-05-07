@@ -124,7 +124,8 @@ class SchemaWidgetExtractor(WidgetExtractor):
 
 
 def initialize_fields():
-    # Register default fields factories.
+    """Register default fields factories.
+    """
     component.provideAdapter(
         SchemaFieldFactory,
         (zope.schema.interfaces.IField,))
@@ -138,7 +139,8 @@ initialize_fields()
 
 
 def initialize_widgets():
-    """Load all widgets to register them.
+    """Load all widgets to register them. This should be called in
+    your tests/python code if you have adaptation issues.
     """
     # This will load widgets modules to register them.
     widgets_module = module_info_from_dotted_name('zeam.form.ztk.widgets')
