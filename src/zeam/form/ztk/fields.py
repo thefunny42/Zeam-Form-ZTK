@@ -5,6 +5,7 @@ from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.ztk.interfaces import ISchemaField
 
+from martian.scan import module_info_from_dotted_name
 from grokcore import component as grok
 from zope import schema, component
 from zope.i18nmessageid import MessageFactory
@@ -34,6 +35,16 @@ class SchemaFieldFactory(object):
 component.provideAdapter(
     SchemaFieldFactory,
     (zope.schema.interfaces.IField,))
+
+
+def initialize_widgets():
+    """Load all widgets to register them.
+    """
+    # This will load widgets modules to register them.
+    widgets_module = module_info_from_dotted_name('zeam.form.ztk.widgets')
+    for widget_module in widgets_module.getSubModuleInfos():
+        # This load this widget module
+        widget_module.getModule()
 
 
 class InterfaceSchemaFieldFactory(object):
