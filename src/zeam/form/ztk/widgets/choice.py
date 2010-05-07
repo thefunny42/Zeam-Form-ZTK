@@ -18,18 +18,25 @@ class ChoiceSchemaField(SchemaField):
 
     def __init__(self, field):
         super(ChoiceSchemaField, self).__init__(field)
+        self.__source = None
+        self.__source_name = None
         if field.source is not None:
             self.__source = field.source
-        elif isinstance(field.vocabulary, str):
-            self.__source = component.getUtility(
-                schema_interfaces.IVocabulary, name=field.vocabulary)
+        elif isinstance(field.vocabularyName, str):
+            # We delay the lookup of the vocabulary, to be sure it
+            # have been registered.
+            self.__source = None
+            self.__source_name = field.vocabularyName
 
     @property
     def source(self):
+        if self.__source is None:
+            self.__source = component.getUtility(
+                schema_interfaces.IVocabularyFactory, name=self.__source_name)
         return self.__source
 
     def getChoices(self, context):
-        source = self.__source
+        source = self.source
         if (schema_interfaces.IContextSourceBinder.providedBy(source) or
             schema_interfaces.IVocabularyFactory.providedBy(source)):
             source = source(context)
