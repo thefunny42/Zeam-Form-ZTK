@@ -7,7 +7,7 @@
           tal:repeat="choice widget.choices()"
           tal:attributes="value choice.token;
                           selected choice.token == value and 'selected' or None"
-          tal:content="choice.title">
+          tal:content="choice.title or choice.value">
     Option
   </option>
 </select>
