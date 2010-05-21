@@ -57,6 +57,9 @@ class SchemaField(Field):
         self.required = field.required
         self._field = field
 
+    def get_field(self):
+        return self._field
+
     def clone(self, new_identifier=None):
         copy = self.__class__(self._field)
         copy.__dict__.update(self.__dict__)
