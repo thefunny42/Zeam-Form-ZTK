@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from zope.interface import alsoProvides
 from zeam.form.base.datamanager import ObjectDataManager
 
 
@@ -9,15 +10,15 @@ def makeGenericAdaptiveDataManager(*fields):
         """A data manager that adapt its content to an interface
         before doing anything.
         """
-        fields = {}
-        adapters = {}
-
         def __init__(self, content):
+            self.fields = {}
+            self.adapters = {}
             for field in fields:
                 interface = field._field.interface
                 self.fields[field.identifier] = interface
                 if (not interface.providedBy(content) and
                     not interface in self.adapters):
+                    alsoProvides(self, interface)
                     self.adapters[interface] = interface(content)
             self.content = content
 

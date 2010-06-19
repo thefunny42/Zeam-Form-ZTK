@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 
 from zope import interface
-
 from zeam.form.base.interfaces import IField, IZeamFormBaseAPI
 
 
@@ -21,6 +21,7 @@ class ICollectionSchemaField(ISchemaField):
         u"Python type represented by this collection (like set, list...)")
     valueField = interface.Attribute(
         u"Field corresponding to the value type contained in the collection")
+
 
 class IObjectSchemaField(ISchemaField):
     """This field is mapped to the zope.schema Object schema field.

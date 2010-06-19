@@ -120,3 +120,132 @@ You can clone a field and keep all settings::
   True
   >>> clone.mode
   'my-special-rendering-mode'
+
+
+Data managers
+-------------
+
+The adapters-aware data manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes, it's necessary, while edition or adding an object, to work
+with fields that are provided through more than one adapter. For these
+special usecases, a special datamanager is used: the
+`GenericAdaptiveDataManager`.
+
+First, we define some interfaces, with at least one fields::
+
+  >>> from zope.schema import TextLine
+  >>> from zope.interface import Interface
+
+  >>> class ITitledItem(Interface):
+  ...     title = TextLine(title=u"A title")
+
+  >>> class IDescriptiveItem(Interface):
+  ...     description = TextLine(title=u"Some description")
+
+Then, we create a `Fields` collection out of it::
+
+  >>> fields = Fields(ITitledItem, IDescriptiveItem)
+
+Now, we need an object that will be used as a context::
+
+  >>> class Item(object):
+  ...     pass
+
+  >>> item = Item()
+
+At this point, calling the GenericAdaptiveDataManager will provoke an
+error, since no adapters are registered, yet::
+
+  >>> from zeam.form.ztk.datamanagers import makeGenericAdaptiveDataManager
+  >>> factory = makeGenericAdaptiveDataManager(*fields)
+  >>> print factory
+  <class 'zeam.form.ztk.datamanagers.GenericAdaptiveDataManager'>
+
+  >>> gadm = factory(item)
+  Traceback (most recent call last):
+  ...
+  TypeError: ('Could not adapt', <Item object at ...>,
+              <InterfaceClass __builtin__.ITitledItem>)
+
+
+Now, if we provide the correct adapters, we can build the data
+manager::
+
+  >>> import grokcore.component as grok
+
+  >>> class TitleProvider(grok.Adapter):
+  ...     grok.context(Item)
+  ...     grok.implements(ITitledItem)
+  ...
+  ...     def get_title(self):
+  ...         return getattr(self.context, '_title', None)
+  ...
+  ...     def set_title(self, value):
+  ...         return setattr(self.context, '_title', value)
+  ...
+  ...     title = property(get_title, set_title)
+
+  >>> class DescProvider(grok.Adapter):
+  ...     grok.context(Item)
+  ...     grok.implements(IDescriptiveItem)
+  ...
+  ...     def get_description(self):
+  ...         return getattr(self.context, '_description', None)
+  ...
+  ...     def set_description(self, value):
+  ...         return setattr(self.context, '_description', value)
+  ...
+  ...     description = property(get_description, set_description)
+
+  >>> grok.testing.grok_component('title', TitleProvider)
+  True
+  >>> grok.testing.grok_component('desc', DescProvider)
+  True
+
+  >>> gadm = factory(item)
+  >>> print gadm
+  <GenericAdaptiveDataManager used for <Item object at ...>>
+
+The data manager should provide all the necessary interfaces::
+
+  >>> ITitledItem.providedBy(gadm), IDescriptiveItem.providedBy(gadm)
+  (True, True)
+
+We can, now, simply get and set our attributes:: 
+
+  >>> print gadm.get("title")
+  None
+
+  >>> print gadm.get("description")
+  None
+
+  >>> print gadm.get("nothing")
+  Traceback (most recent call last):
+  ...
+  AttributeError: 'Item' object has no attribute 'nothing'
+
+  >>> gadm.set('title', u'My title')
+  >>> title = gadm.get('title')
+  >>> print title
+  My title
+  >>> title is item._title
+  True
+
+  >>> gadm.set('description', u'My description')
+  >>> description = gadm.get('description')
+  >>> print description
+  My description
+  >>> description is item._description
+  True
+
+To be thorough, we display the inner attributes that are created
+during the data manager initialisation::
+
+  >>> gadm.fields
+  {'description': <InterfaceClass __builtin__.IDescriptiveItem>,
+   'title': <InterfaceClass __builtin__.ITitledItem>}
+  >>> gadm.adapters
+  {<InterfaceClass __builtin__.ITitledItem>: <TitleProvider object at ...>,
+   <InterfaceClass __builtin__.IDescriptiveItem>: <DescProvider object at ...>}
