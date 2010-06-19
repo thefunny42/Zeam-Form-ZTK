@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
 
+from zeam.form.base import Action
+from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE
 from zope.app.container.interfaces import INameChooser
 from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
-
-from zeam.form.base import Action
-from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE
 
 _ = MessageFactory("zeam-form")
 
@@ -44,7 +44,6 @@ class AddAction(EditAction):
     """Add a new content in the form content, saving the form fields
     on the newly created content.
     """
-
     fieldName = 'title'
 
     def __init__(self, title, factory):
@@ -79,4 +78,3 @@ class AddAction(EditAction):
         self.add(form, content, data)
         form.redirect(self.nextURL(form, content))
         return SUCCESS
-

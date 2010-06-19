@@ -74,7 +74,7 @@ class SchemaField(Field):
 
         if value is not NO_VALUE:
             try:
-                binded_field  = self._field.bind(context)
+                binded_field = self._field.bind(context)
                 binded_field.validate(value)
             except schema_interfaces.ValidationError, error:
                 return error.doc()

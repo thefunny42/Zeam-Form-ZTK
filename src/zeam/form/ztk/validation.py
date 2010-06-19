@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from zeam.form.base.errors import Error
 from zope.interface.interfaces import IMethod
 from zope.interface import directlyProvides, Invalid
 
@@ -16,7 +15,7 @@ class Data(object):
         self.interface = interface
         self.data = data
         directlyProvides(self, interface)
- 
+
     def __getattr__(self, name):
         try:
             field = self.interface[name]
@@ -28,7 +27,7 @@ class Data(object):
 
         data = self.data
         value = data.get(name, UNAVAILABLE)
-        
+
         if value is UNAVAILABLE:
             raise AttributeError(name)
 
@@ -44,7 +43,7 @@ class InvariantsValidation(object):
             interface = field._field.interface
             if interface not in self.interfaces:
                 self.interfaces.append(interface)
-                
+
     def validate(self, data):
         errors = []
         for interface in self.interfaces:
@@ -52,5 +51,5 @@ class InvariantsValidation(object):
             try:
                 interface.validateInvariants(obj, errors)
             except Invalid:
-                pass # We continue to get a complete errors log.
+                pass  # We continue to get a complete errors log.
         return errors
