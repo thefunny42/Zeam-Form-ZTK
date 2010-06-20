@@ -18,6 +18,10 @@ from zope.schema import interfaces as schema_interfaces
 from grokcore import component as grok
 
 
+def register():
+    registerSchemaField(ObjectSchemaField, schema_interfaces.IObject)
+
+
 class ObjectSchemaField(SchemaField):
     """A collection field.
     """
@@ -43,7 +47,6 @@ class ObjectSchemaField(SchemaField):
         return getUtility(IFactory, name=schema.__identifier__)
 
 
-registerSchemaField(ObjectSchemaField, schema_interfaces.IObject)
 
 
 class ObjectFieldWidget(SchemaFieldWidget):
@@ -82,6 +85,3 @@ class ObjectFieldExtractor(WidgetExtractor):
                         lambda (k, v): not isinstance(v, Marker),
                         data.items())))
         return (value, errors)
-
-
-

@@ -54,4 +54,17 @@ setup(name='zeam.form.ztk',
         ],
       tests_require = tests_require,
       extras_require = {'test': tests_require},
+      entry_points="""
+      # -*- Entry points: -*-
+      [zeam.form.ztk.fields]
+      bool = zeam.form.ztk.widgets.bool:register
+      choice = zeam.form.ztk.widgets.choice:register
+      collection = zeam.form.ztk.widgets.collection:register
+      date = zeam.form.ztk.widgets.date:register
+      number = zeam.form.ztk.widgets.number:register
+      object = zeam.form.ztk.widgets.object:register
+      password = zeam.form.ztk.widgets.password:register
+      text = zeam.form.ztk.widgets.text:register
+      textline = zeam.form.ztk.widgets.textline:register
+      """,
       )

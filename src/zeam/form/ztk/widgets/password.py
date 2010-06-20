@@ -6,6 +6,10 @@ from zope.schema import interfaces as schema_interfaces
 from zeam.form.ztk.fields import registerSchemaField
 
 
+def register():
+    registerSchemaField(PasswordField, schema_interfaces.IPassword)
+
+
 class PasswordField(SchemaField):
     """A password field.
     """
@@ -13,6 +17,3 @@ class PasswordField(SchemaField):
 
 class PasswordWidget(SchemaFieldWidget):
     grok.adapts(PasswordField, None, None)
-
-
-registerSchemaField(PasswordField, schema_interfaces.IPassword)

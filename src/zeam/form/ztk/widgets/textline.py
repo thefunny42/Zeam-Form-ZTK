@@ -6,11 +6,13 @@ from zeam.form.ztk.fields import (
 from zope.schema import interfaces as schema_interfaces
 
 
+def register():
+    registerSchemaField(TextLineSchemaField, schema_interfaces.ITextLine)
+
+
 class TextLineSchemaField(SchemaField):
     """A text line field.
     """
-
-registerSchemaField(TextLineSchemaField, schema_interfaces.ITextLine)
 
 
 class TextLineWidget(SchemaFieldWidget):

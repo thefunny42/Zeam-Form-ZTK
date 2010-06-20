@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from zeam.form.base import interfaces
 from zeam.form.base.fields import Field
@@ -12,6 +13,7 @@ from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
 from zope.testing import cleanup
+from pkg_resources import iter_entry_points
 import zope.interface.interfaces
 
 _ = MessageFactory("zeam-form")
@@ -137,6 +139,13 @@ def initialize_fields():
         (zope.interface.interfaces.IInterface,))
     registerSchemaField(SchemaField, schema_interfaces.IField)
 
+    for field_entry in iter_entry_points('zeam.form.ztk.fields'):
+        register = field_entry.load()
+        if not callable(register):
+            raise TypeError(
+                'Zeam ZTK field entry point %r should be a callable'
+                % field_entry.name)
+        register()
 
 initialize_fields()
 

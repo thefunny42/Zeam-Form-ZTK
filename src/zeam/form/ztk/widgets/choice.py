@@ -12,6 +12,10 @@ from zope.schema import interfaces as schema_interfaces
 from grokcore import component as grok
 
 
+def register():
+    registerSchemaField(ChoiceSchemaField, schema_interfaces.IChoice)
+
+
 class ChoiceSchemaField(SchemaField):
     """A choice field.
     """
@@ -42,9 +46,6 @@ class ChoiceSchemaField(SchemaField):
             source = source(context)
         assert schema_interfaces.IVocabularyTokenized.providedBy(source)
         return source
-
-
-registerSchemaField(ChoiceSchemaField, schema_interfaces.IChoice)
 
 
 class ChoiceFieldWidget(SchemaFieldWidget):

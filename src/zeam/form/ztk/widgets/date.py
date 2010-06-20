@@ -14,18 +14,19 @@ from zope.schema import interfaces as schema_interfaces
 _ = MessageFactory("zeam-form")
 
 
+def register():
+    registerSchemaField(DatetimeSchemaField, schema_interfaces.IDatetime)
+    registerSchemaField(DateSchemaField, schema_interfaces.IDate)
+
+
 class DatetimeSchemaField(SchemaField):
     """A datetime field.
     """
-
-registerSchemaField(DatetimeSchemaField, schema_interfaces.IDatetime)
 
 
 class DateSchemaField(SchemaField):
     """A date field.
     """
-
-registerSchemaField(DateSchemaField, schema_interfaces.IDate)
 
 
 class DateFieldWidget(SchemaFieldWidget):
@@ -82,5 +83,3 @@ class DatetimeFieldDisplayWidget(DateFieldDisplayWidget):
     grok.adapts(DatetimeSchemaField, Interface, Interface)
 
     valueType = 'dateTime'
-
-

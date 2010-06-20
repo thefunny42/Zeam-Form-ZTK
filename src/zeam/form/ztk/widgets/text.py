@@ -7,14 +7,14 @@ from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
 
 
+def register():
+    registerSchemaField(TextSchemaField, schema_interfaces.IText)
+
+
 class TextSchemaField(SchemaField):
     """A text field.
     """
 
-registerSchemaField(TextSchemaField, schema_interfaces.IText)
-
 
 class TextFieldWidget(SchemaFieldWidget):
     grok.adapts(TextSchemaField, Interface, Interface)
-
-

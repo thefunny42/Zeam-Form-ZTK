@@ -19,6 +19,12 @@ from zope.schema import interfaces as schema_interfaces
 from grokcore import component as grok
 
 
+def register():
+    registerSchemaField(CollectionSchemaField, schema_interfaces.ICollection)
+    registerSchemaField(SetSchemaField, schema_interfaces.ISet)
+    registerSchemaField(TupleSchemaField, schema_interfaces.ITuple)
+
+
 class CollectionSchemaField(SchemaField):
     """A collection field.
     """
@@ -37,25 +43,16 @@ class CollectionSchemaField(SchemaField):
         return self.__value_field
 
 
-registerSchemaField(CollectionSchemaField, schema_interfaces.ICollection)
-
-
 class SetSchemaField(CollectionSchemaField):
     """A set field
     """
     collectionType = set
 
 
-registerSchemaField(SetSchemaField, schema_interfaces.ISet)
-
-
 class TupleSchemaField(CollectionSchemaField):
     """A tuple field.
     """
     collectionType = tuple
-
-
-registerSchemaField(TupleSchemaField, schema_interfaces.ITuple)
 
 
 def newCollectionWidgetFactory(mode=u"", interface=IWidget):
