@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0b2'
+version = '1.0b3'
 
 tests_require = [
     'zope.app.authentication',
@@ -38,19 +38,21 @@ setup(name='zeam.form.ztk',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-        'grokcore.component',
-        'megrok.chameleon',
-        'setuptools',
-        'zeam.form.base',
-        'zope.app.container',
-        'zope.component',
-        'zope.event',
-        'zope.i18n',
-        'zope.i18nmessageid',
-        'zope.interface',
-        'zope.lifecycleevent',
-        'zope.schema',
-        'zope.traversing',
+          'martian',
+          'grokcore.component',
+          'megrok.chameleon',
+          'setuptools',
+          'zeam.form.base',
+          'zope.app.container',
+          'zope.component',
+          'zope.event',
+          'zope.i18n',
+          'zope.i18nmessageid',
+          'zope.interface',
+          'zope.lifecycleevent',
+          'zope.schema',
+          'zope.traversing',
+          'zope.testing',
         ],
       tests_require = tests_require,
       extras_require = {'test': tests_require},
