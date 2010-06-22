@@ -1,0 +1,60 @@
+=============
+zeam.form.ztk
+=============
+
+Interfaces can be validated, if they contain invariants. Invariants
+are explicit contacts defining constraints on the data.
+
+Defining invariants
+===================
+
+  >>> from zope.schema import Password
+  >>> from zope.interface import invariant, Interface
+  >>> from zope.interface.exceptions import Invalid
+
+  >>> class IPasswords(Interface):
+  ...     passwd = Password(
+  ...         title=u"Password",
+  ...         description=u"Type the password.",
+  ...         required=True)
+  ...
+  ...     verify = Password(
+  ...         title=u"Password checking",
+  ...         description=u"Retype the password.",
+  ...         required=True)
+  ...
+  ...     @invariant
+  ...     def check_pass(data):
+  ...         if data.passwd != data.verify:
+  ...             raise Invalid(u"Mismatching passwords!")
+
+
+Validating
+==========
+
+Instanciating the validator
+---------------------------
+
+  >>> from zeam.form.base import Fields
+  >>> fields = Fields(IPasswords)
+
+  >>> from zeam.form.ztk import InvariantsValidation
+  >>> validator = InvariantsValidation(fields)
+
+  >>> print validator
+  <zeam.form.ztk.validation.InvariantsValidation object at ...>
+
+  >>> print validator.interfaces
+  [<InterfaceClass __builtin__.IPasswords>]
+
+
+Providing some data
+-------------------
+
+  >>> data = {'passwd': 'test', 'verify': 'nopass'}
+  >>> print validator.validate(data)
+  [Invalid(u'Mismatching passwords!',)]
+
+  >>> data = {'passwd': 'test', 'verify': 'test'}
+  >>> print validator.validate(data)
+  []
