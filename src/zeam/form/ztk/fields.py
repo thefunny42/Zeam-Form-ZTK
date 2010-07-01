@@ -7,13 +7,10 @@ from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.ztk.interfaces import ISchemaField
 
 from grokcore import component as grok
-from martian.scan import module_info_from_dotted_name
 from zope import schema, component
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
-from zope.testing import cleanup
-from pkg_resources import iter_entry_points
 import zope.interface.interfaces
 
 _ = MessageFactory("zeam-form")
@@ -128,7 +125,7 @@ class SchemaWidgetExtractor(WidgetExtractor):
         return value, None
 
 
-def initialize_fields():
+def registerDefault():
     """Register default fields factories.
     """
     component.provideAdapter(
@@ -138,28 +135,3 @@ def initialize_fields():
         InterfaceSchemaFieldFactory,
         (zope.interface.interfaces.IInterface,))
     registerSchemaField(SchemaField, schema_interfaces.IField)
-
-    for field_entry in iter_entry_points('zeam.form.ztk.fields'):
-        register = field_entry.load()
-        if not callable(register):
-            raise TypeError(
-                'Zeam ZTK field entry point %r should be a callable'
-                % field_entry.name)
-        register()
-
-initialize_fields()
-
-
-def initialize_widgets():
-    """Load all widgets to register them. This should be called in
-    your tests/python code if you have adaptation issues.
-    """
-    # This will load widgets modules to register them.
-    widgets_module = module_info_from_dotted_name('zeam.form.ztk.widgets')
-    for widget_module in widgets_module.getSubModuleInfos():
-        # This load this widget module
-        widget_module.getModule()
-
-# Reload fields and widgets after test cleanup
-cleanup.addCleanUp(initialize_fields)
-cleanup.addCleanUp(initialize_widgets)

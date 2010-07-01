@@ -38,7 +38,6 @@ setup(name='zeam.form.ztk',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'martian',
           'grokcore.component',
           'megrok.chameleon',
           'setuptools',
@@ -52,13 +51,13 @@ setup(name='zeam.form.ztk',
           'zope.lifecycleevent',
           'zope.schema',
           'zope.traversing',
-          'zope.testing',
         ],
       tests_require = tests_require,
       extras_require = {'test': tests_require},
       entry_points="""
       # -*- Entry points: -*-
-      [zeam.form.ztk.fields]
+      [zeam.form.components]
+      default = zeam.form.ztk.fields:registerDefault
       bool = zeam.form.ztk.widgets.bool:register
       choice = zeam.form.ztk.widgets.choice:register
       collection = zeam.form.ztk.widgets.collection:register
