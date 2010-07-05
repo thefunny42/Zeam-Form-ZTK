@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0b4 (unreleased)
+------------------
+
+* Update entry points to be compatible with lastest zeam.form.base.
+
+
 1.0b3 (2010/06/22)
 ------------------
 
