@@ -1,11 +1,11 @@
 Changelog
 =========
 
-1.0b4 (unreleased)
-------------------
+1.0rc1 (2010/07/05)
+-------------------
 
-* Update entry points to be compatible with lastest zeam.form.base.
-
+* Updated entry points registrations to be compatible with latest
+  ``zeam.form.base``.
 
 1.0b3 (2010/06/22)
 ------------------
@@ -25,4 +25,3 @@ Changelog
 ------------------
 
 * Initial release, with not all the widgets.
-
