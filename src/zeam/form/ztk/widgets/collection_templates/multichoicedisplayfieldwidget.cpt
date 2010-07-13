@@ -1,0 +1,7 @@
+<ul>
+  <li id="#"
+      tal:repeat="choice widget.renderableChoice()"
+      tal:content="choice.title"
+      tal:attributes="id choice.id">
+  </li>
+</ul>

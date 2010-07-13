@@ -212,6 +212,18 @@ class MultiChoiceFieldWidget(ChoiceFieldWidget):
                    'id': base_id + '-' + choice.token.replace('.', '-')}
 
 
+class MultiChoiceDisplayFieldWidget(MultiChoiceFieldWidget):
+    grok.name('display')
+
+    def renderableChoice(self):
+        current = self.inputValue()
+        base_id = self.htmlId()
+        for choice in self.choices():
+            if choice.token in current:
+                yield {'title': choice.title,
+                       'id': base_id + '-' + choice.token.replace('.', '-')}
+
+
 class MultiChoiceWidgetExtractor(WidgetExtractor):
     grok.adapts(ICollectionSchemaField, ChoiceSchemaField, Interface, Interface)
 
