@@ -95,5 +95,5 @@ class RadioFieldWidget(ChoiceFieldWidget):
         for choice in self.choices(): 
             yield {'token': choice.token, 
                    'title': choice.title or choice.token, 
-                   'checked': choice.token is current and 'checked' or None, 
+                   'checked': choice.token == current and 'checked' or None, 
                    'id': base_id + '-' + choice.token.replace('.', '-')} 
