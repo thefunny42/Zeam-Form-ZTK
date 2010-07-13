@@ -1,0 +1,218 @@
+===========================
+zeam.form.ztk radio widget
+===========================
+
+Simple case
+===========
+
+First we need a choice::
+
+  >>> from zope import interface, schema
+  >>> from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+  >>> from zope.interface.verify import verifyObject
+
+  >>> def displayVocabulary(values):
+  ...     for value in values:
+  ...         print "%r %r %r" % (value.value, value.token, value.title)
+
+  >>> letterVocabulary = SimpleVocabulary([
+  ...     SimpleTerm(value='A', token='a1', title='Letter A'),
+  ...     SimpleTerm(value='B', token='b1', title='Letter B'),
+  ...     SimpleTerm(value='C', token='c1', title='Letter C')])
+
+  >>> class IFirstChoice(interface.Interface):
+  ...     choice = schema.Choice(
+  ...         title=u"My favorite letter",
+  ...         source=letterVocabulary)
+
+
+And we will need a content and a request to test:
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class FirstContent(object):
+  ...    interface.implements(IFirstChoice)
+  ...    choice = None
+  >>> content = FirstContent()
+  >>> content.choice = 'B'
+
+
+Field
+-----
+
+So now you can create a field, and get a choice field::
+
+  >>> from zeam.form.base import Fields
+  >>> from zeam.form.base import interfaces
+
+  >>> firstChoiceFields = Fields(IFirstChoice)
+  >>> firstField = firstChoiceFields['choice']
+  >>> firstField
+  <ChoiceSchemaField My favorite letter>
+
+  >>> firstField.source is letterVocabulary
+  True
+
+  >>> firstField.validate('A')
+  >>> firstField.validate('foo')
+  u'Constraint not satisfied'
+
+  >>> verifyObject(interfaces.IField, firstField)
+  True
+
+If we want to use a radio widget instead of the default selection widget
+we have to change the default mode for our field to radio::
+You can do this easily in the update method of your form.
+
+  >>> firstField.mode
+  <Marker DEFAULT>
+
+  >>> firstField.mode = 'radio'
+
+
+Widget
+------
+
+You have an associated widget::
+
+  >>> from zeam.form.ztk import Widgets, FormData
+
+  >>> firstForm = FormData(content, request)
+  >>> firstForm.ignoreContent = False
+
+  >>> firstWidgets = Widgets(
+  ...     firstChoiceFields,
+  ...     form=firstForm,
+  ...     request=request)
+
+  >>> firstWidgets.update()
+
+  >>> firstWidget = firstWidgets['form.field.choice']
+  >>> firstWidget
+  <RadioFieldWidget My favorite letter>
+
+  >>> firstWidget.inputValue()
+  'b1'
+
+  >>> print firstWidget.render()
+  <input type="radio" id="form-field-choice-a1" name="form.field.choice" value="a1" class="#" />
+    <label for="form-field-choice-a1">Letter A</label>
+  <input type="radio" id="form-field-choice-b1" name="form.field.choice" value="b1" checked="checked" class="#" />
+    <label for="form-field-choice-b1">Letter B</label>
+  <input type="radio" id="form-field-choice-c1" name="form.field.choice" value="c1" class="#" />
+    <label for="form-field-choice-c1">Letter C</label>
+
+
+Extractor
+---------
+
+We need a custom extractor as the token value used in the form can be
+different than the real value::
+
+  >>> from zope import component
+  >>> from zeam.form.base import interfaces
+
+  >>> firstExtractor = component.getMultiAdapter(
+  ...      (firstField, firstForm, request), interfaces.IWidgetExtractor)
+
+  >>> firstExtractor
+  <zeam.form.ztk.widgets.choice.ChoiceWidgetExtractor object at ...>
+  >>> firstExtractor.extract()
+  (<Marker NO_VALUE>, None)
+
+Let's now do it with a value::
+
+  >>> firstRequest = TestRequest(
+  ...         form={firstWidget.identifier: u'a1', })
+
+  >>> firstExtractor = component.getMultiAdapter(
+  ...      (firstField, firstForm, firstRequest), interfaces.IWidgetExtractor)
+
+  >>> firstExtractor.extract()
+  ('A', None)
+
+
+Context binded source
+=====================
+
+Let's define a source which need the context to produce its values,
+and an interface for it::
+
+  >>> from grokcore import component
+  >>> from zope.schema.interfaces import IContextSourceBinder
+
+  >>> @component.provider(IContextSourceBinder)
+  ... def secondVocabulary(context):
+  ...     return letterVocabulary
+
+  >>> class ISecondChoice(interface.Interface):
+  ...     choice = schema.Choice(
+  ...         title=u"My Choice",
+  ...         source=secondVocabulary)
+
+  >>> class SecondContent(object):
+  ...    interface.implements(ISecondChoice)
+  ...    choice = None
+
+  >>> content = SecondContent()
+  >>> content.choice = 'C'
+
+
+Field
+-----
+
+So now you can create a field, and get a choice field::
+
+  >>> from zeam.form.ztk import Fields
+
+  >>> secondChoiceFields = Fields(ISecondChoice)
+  >>> secondField = secondChoiceFields['choice']
+  >>> secondField
+  <ChoiceSchemaField My Choice>
+  >>> secondField.source is secondVocabulary
+  True
+
+  >>> choices = secondField.getChoices(None)
+  >>> choices
+  <zope.schema.vocabulary.SimpleVocabulary object at ...>
+  >>> displayVocabulary(choices)
+  'A' 'a1' 'Letter A'
+  'B' 'b1' 'Letter B'
+  'C' 'c1' 'Letter C'
+
+  >>> secondField.validate('A')
+  >>> secondField.validate(42)
+  u'Constraint not satisfied'
+
+
+Widget
+------
+
+You have an associated widget::
+
+  >>> from zeam.form.ztk import Widgets, FormData
+
+  >>> secondSub = FormData(content, request)
+  >>> secondSub.ignoreContent = False
+
+  >>> secondWidgets = Widgets(
+  ...     secondChoiceFields,
+  ...     form=secondSub,
+  ...     request=request)
+
+  >>> secondWidgets.update()
+
+  >>> secondWidget = secondWidgets['form.field.choice']
+  >>> secondWidget
+  <ChoiceFieldWidget My Choice>
+
+  >>> secondWidget.inputValue()
+  'c1'
+
+  >>> print secondWidget.render()
+  <select id="form-field-choice" name="form.field.choice" class="field-choice">
+    <option value="a1">Letter A</option>
+    <option value="b1">Letter B</option>
+    <option value="c1" selected="selected">Letter C</option>
+  </select>

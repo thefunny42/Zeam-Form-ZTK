@@ -1,0 +1,13 @@
+<tal:widget tal:define="value widget.inputValue()">
+  <tal:radio tal:repeat="choice widget.renderableChoices()">
+    <input type="radio" id="#" name="#" value="#" checked="#" class="#"
+           tal:attributes="name widget.identifier;
+                           value choice.token;
+                           id choice.id;
+                           checked choice.checked;"
+                           />
+    <label for="#"
+           tal:attributes="for choice.id"
+           tal:content="choice.title"></label>
+  </tal:radio>
+</tal:widget>
