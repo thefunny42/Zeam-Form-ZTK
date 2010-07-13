@@ -15,10 +15,10 @@ First we need some test interfaces that uses collections::
   ...         value_type=schema.TextLine())
 
   >>> drinks = SimpleVocabulary([
-  ...     SimpleTerm('vodka', title=u'Vodka'),
-  ...     SimpleTerm('tequila', title=u'Tequila'),
-  ...     SimpleTerm('cognac', title=u'Cognac'),
-  ...     SimpleTerm('champagne', title=u'Champagne')])
+  ...     SimpleTerm(token='vodka', title=u'Vodka', value='42%'),
+  ...     SimpleTerm(token='tequila', title=u'Tequila', value='30%'),
+  ...     SimpleTerm(token='cognac', title=u'Cognac', value='51%'),
+  ...     SimpleTerm(token='champagne', title=u'Champagne', value='12%')])
 
   >>> class ISetOfDrinks(interface.Interface):
   ...     drinks = schema.Set(
@@ -365,7 +365,7 @@ Collection fields can get by default a widget and extractor picked
 differently dependently of the value type. When the value type is a
 choice, you will get a multi-choice widget by default::
 
-  >>> drinkableContent.drinks = set(['vodka', 'champagne'])
+  >>> drinkableContent.drinks = set(['42%', '12%'])
 
   >>> someDrinks = FormData(drinkableContent, request)
   >>> someDrinks.ignoreContent = False
@@ -471,7 +471,7 @@ multi-choice widgets::
 And you can get your values out of it::
 
   >>> drinksExtractor.extract()
-  (set(['vodka', 'tequila']), None)
+  (set(['42%', '30%']), None)
 
 If you selected nothing, you will get an empty selection:
 

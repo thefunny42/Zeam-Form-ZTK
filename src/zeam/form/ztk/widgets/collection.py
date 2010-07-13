@@ -198,9 +198,13 @@ class MultiChoiceFieldWidget(ChoiceFieldWidget):
         self.source = value_field
 
     def prepareContentValue(self, value):
+        form_value = []
         if value is NO_VALUE:
-            return {self.identifier: []}
-        return {self.identifier: value}
+            return {self.identifier: form_value}
+        choice = self.choices()
+        for entry in value:
+            form_value.append(choice.by_value[entry].token)
+        return {self.identifier: form_value}
 
     def renderableChoice(self):
         current = self.inputValue()
