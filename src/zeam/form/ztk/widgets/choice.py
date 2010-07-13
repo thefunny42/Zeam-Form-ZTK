@@ -81,3 +81,19 @@ class ChoiceWidgetExtractor(WidgetExtractor):
             except LookupError:
                 return (None, u'Invalid value')
         return (value, error)
+
+
+# Radio Widget 
+ 
+class RadioFieldWidget(ChoiceFieldWidget): 
+    grok.adapts(ChoiceSchemaField, Interface, Interface) 
+    grok.name('radio') 
+ 
+    def renderableChoices(self): 
+        current = self.inputValue() 
+        base_id = self.htmlId() 
+        for choice in self.choices(): 
+            yield {'token': choice.token, 
+                   'title': choice.title or choice.token, 
+                   'checked': choice.token in current and 'checked' or None, 
+                   'id': base_id + '-' + choice.token.replace('.', '-')} 
