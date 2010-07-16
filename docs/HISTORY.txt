@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.0rc2 (2010/07/16)
+-------------------
+
+* Add radio widget for choices.
+
+* Add a display widgets for multiple choices.
+
+* All fields have the ``field`` CSS class.
+
+* Multiple choices widgets now properly respect the value of a vocabulary term.
+
 1.0rc1 (2010/07/05)
 -------------------
 
