@@ -59,7 +59,7 @@ You have an associated widget:
   True
 
   >>> print booleanWidget.render()
-  <input id="form-field-answer" name="form.field.answer" class="field-bool"
+  <input id="form-field-answer" name="form.field.answer" class="field field-bool"
          checked="checked" value="True" type="checkbox" />
 
 

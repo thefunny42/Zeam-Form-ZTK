@@ -86,7 +86,7 @@ You have an associated widget::
   'b1'
 
   >>> print firstWidget.render()
-  <select id="form-field-choice" name="form.field.choice" class="field-choice">
+  <select id="form-field-choice" name="form.field.choice" class="field field-choice">
     <option value="a1">Letter A</option>
     <option value="b1" selected="selected">Letter B</option>
     <option value="c1">Letter C</option>
@@ -200,7 +200,7 @@ You have an associated widget::
   'c1'
 
   >>> print secondWidget.render()
-  <select id="form-field-choice" name="form.field.choice" class="field-choice">
+  <select id="form-field-choice" name="form.field.choice" class="field field-choice">
     <option value="a1">Letter A</option>
     <option value="b1">Letter B</option>
     <option value="c1" selected="selected">Letter C</option>
