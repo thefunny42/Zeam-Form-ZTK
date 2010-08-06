@@ -54,6 +54,7 @@ class SchemaField(Field):
         super(SchemaField, self).__init__(field.title, field.__name__)
         self.description = field.description
         self.required = field.required
+        self.readonly = field.readonly
         self._field = field
 
     def get_field(self):

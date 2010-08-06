@@ -14,7 +14,8 @@ You can create a full set of fields from a Zope interface::
   >>> class IPlanet(interface.Interface):
   ...     name = schema.TextLine(title=u"Name")
   ...     size = schema.Int(title=u"Size",
-  ...                       description=u"Size in Km")
+  ...                       description=u"Size in Km",
+  ...                       readonly=True)
 
   >>> from zeam.form.base import Fields
   >>> s2 = Fields(IPlanet)
@@ -81,8 +82,8 @@ But it need to belong to an interface::
   ValueError: Field has no interface
 
 
-Description and required
-~~~~~~~~~~~~~~~~~~~~~~~~
+Description, required and readonly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Those values are correctly collected from the schema field::
 
@@ -101,6 +102,10 @@ Those values are correctly collected from the schema field::
   >>> s2['size'].required
   True
 
+  >>> s2['size'].readonly
+  True
+  >>> s2['people'].readonly
+  False
 
 Cloning a field
 ~~~~~~~~~~~~~~~
