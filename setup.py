@@ -67,5 +67,6 @@ setup(name='zeam.form.ztk',
       password = zeam.form.ztk.widgets.password:register
       text = zeam.form.ztk.widgets.text:register
       textline = zeam.form.ztk.widgets.textline:register
+      uri = zeam.form.ztk.widgets.uri:register
       """,
       )

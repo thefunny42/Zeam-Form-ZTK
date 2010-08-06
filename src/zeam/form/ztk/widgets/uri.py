@@ -1,19 +1,19 @@
-# Text line widget
+# URI widget
 
 from grokcore import component as grok
 from zeam.form.ztk.fields import (
     SchemaField, SchemaFieldWidget, registerSchemaField)
 from zope.schema import interfaces as schema_interfaces
+from zope.interface import Interface
 
 
 def register():
-    registerSchemaField(TextLineSchemaField, schema_interfaces.ITextLine)
+    registerSchemaField(URISchemaField, schema_interfaces.IURI)
 
 
-class TextLineSchemaField(SchemaField):
+class URISchemaField(SchemaField):
     """A text line field.
     """
 
-
-class TextLineWidget(SchemaFieldWidget):
-    grok.adapts(TextLineSchemaField, None, None)
+class URIWidget(SchemaFieldWidget):
+    grok.adapts(URISchemaField, Interface, Interface)
