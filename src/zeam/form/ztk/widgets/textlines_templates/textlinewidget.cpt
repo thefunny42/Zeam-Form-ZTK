@@ -1,5 +1,0 @@
-<input type="text" value="#" id="#" class="#"
-       tal:attributes="name widget.identifier;
-		               value widget.inputValue();
-		               id widget.htmlId();
-                       class widget.htmlClass()" />
