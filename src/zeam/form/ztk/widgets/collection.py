@@ -117,10 +117,10 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         for position, value in enumerate(values):
             # Create new widgets for each value
             self.newValueWidget(position, value)
-        value_count = len(values)
-        if not value_count:
+        count = len(values)
+        if not count:
             self.allowRemove = False
-        return {self.identifier: str(value_count)}
+        return {self.identifier: str(count)}
 
     def prepareRequestValue(self, values):
         value_count = 0
@@ -147,6 +147,12 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
     def update(self):
         super(MultiGenericFieldWidget, self).update()
         self.valueWidgets.update()
+
+
+
+class MultiGenericDisplayFieldWidget(MultiGenericFieldWidget):
+    grok.name('display')
+
 
 # For collection of objects, generate a different widget (with a table)
 

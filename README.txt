@@ -119,15 +119,15 @@ Currently supported fields:
 - Date, Datetime: generate a text line input and parse/display the
   date using the locale,
 
-- TextLine, Text, and numbers (Int, Float ...),
+- TextLine, Text, Boolean, URI, and numbers (Int, Float ...),
 
 - Password,
 
-- Choice: generate a select,
+- Choice: generate a select or a radio boxes (widget mode ``radio``),
 
 - Object,
 
-- Collections: List, Set, Tuple:
+- Collections: List, Set, Tuple in input and display mode:
 
   - Collection of choices: generate a widget with a list of checkboxes,
 
