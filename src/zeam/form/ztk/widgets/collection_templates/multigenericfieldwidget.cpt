@@ -7,9 +7,8 @@
     <tal:widget tal:replace="structure valueWidget.render()" />
     <br />
   </tal:values>
-  <p tal:condition="not:widget.valueWidgets"
-     i18n:translate="">
-    There are no values
+  <p tal:condition="not:widget.valueWidgets">
+    -
   </p>
 
   <input type="hidden" name="#" value="#"
