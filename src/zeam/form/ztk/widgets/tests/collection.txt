@@ -387,13 +387,13 @@ ones already selected in the content will already by marked::
 
   >>> list(drinkWidget.renderableChoice())
   [{'token': 'vodka', 'checked': 'checked',
-    'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
+    'id': 'form-field-drinks-0', 'title': u'Vodka'},
    {'token': 'tequila', 'checked': None,
-    'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
+    'id': 'form-field-drinks-1', 'title': u'Tequila'},
    {'token': 'cognac', 'checked': None,
-    'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
+    'id': 'form-field-drinks-2', 'title': u'Cognac'},
    {'token': 'champagne', 'checked': 'checked',
-    'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+    'id': 'form-field-drinks-3', 'title': u'Champagne'}]
 
 Getting input from the request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -420,13 +420,13 @@ And so now you have only Vodka and Tequila of selected by the widget::
 
   >>> list(myChoiceOfDrinksWidget.renderableChoice())
   [{'token': 'vodka', 'checked': 'checked',
-    'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
+    'id': 'form-field-drinks-0', 'title': u'Vodka'},
    {'token': 'tequila', 'checked': 'checked',
-    'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
+    'id': 'form-field-drinks-1', 'title': u'Tequila'},
    {'token': 'cognac', 'checked': None,
-    'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
+    'id': 'form-field-drinks-2', 'title': u'Cognac'},
    {'token': 'champagne', 'checked': None,
-    'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+    'id': 'form-field-drinks-3', 'title': u'Champagne'}]
 
 However the user can uncheck all available choices::
 
@@ -444,13 +444,13 @@ However the user can uncheck all available choices::
 
   >>> list(noMoreDrinksWidget.renderableChoice())
   [{'token': 'vodka', 'checked': None,
-    'id': 'form-field-drinks-vodka', 'title': u'Vodka'},
+    'id': 'form-field-drinks-0', 'title': u'Vodka'},
    {'token': 'tequila', 'checked': None,
-    'id': 'form-field-drinks-tequila', 'title': u'Tequila'},
+    'id': 'form-field-drinks-1', 'title': u'Tequila'},
    {'token': 'cognac', 'checked': None,
-    'id': 'form-field-drinks-cognac', 'title': u'Cognac'},
+    'id': 'form-field-drinks-2', 'title': u'Cognac'},
    {'token': 'champagne', 'checked': None,
-    'id': 'form-field-drinks-champagne', 'title': u'Champagne'}]
+    'id': 'form-field-drinks-3', 'title': u'Champagne'}]
 
 
 Multi Choice Widget extractor

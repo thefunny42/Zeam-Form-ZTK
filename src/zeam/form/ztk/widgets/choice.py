@@ -92,8 +92,8 @@ class RadioFieldWidget(ChoiceFieldWidget):
     def renderableChoices(self):
         current = self.inputValue()
         base_id = self.htmlId()
-        for choice in self.choices():
+        for i, choice in enumerate(self.choices()):
             yield {'token': choice.token,
                    'title': choice.title or choice.token,
                    'checked': choice.token == current and 'checked' or None,
-                   'id': base_id + '-' + choice.token.replace('.', '-')}
+                   'id': base_id + '-' + str(i)}

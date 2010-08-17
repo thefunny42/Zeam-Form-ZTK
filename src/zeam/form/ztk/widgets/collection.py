@@ -215,11 +215,11 @@ class MultiChoiceFieldWidget(ChoiceFieldWidget):
     def renderableChoice(self):
         current = self.inputValue()
         base_id = self.htmlId()
-        for choice in self.choices():
+        for i, choice in enumerate(self.choices()):
             yield {'token': choice.token,
                    'title': choice.title,
                    'checked': choice.token in current and 'checked' or None,
-                   'id': base_id + '-' + choice.token.replace('.', '-')}
+                   'id': base_id + '-' + str(i)}
 
 
 class MultiChoiceDisplayFieldWidget(MultiChoiceFieldWidget):
@@ -228,10 +228,10 @@ class MultiChoiceDisplayFieldWidget(MultiChoiceFieldWidget):
     def renderableChoice(self):
         current = self.inputValue()
         base_id = self.htmlId()
-        for choice in self.choices():
+        for i, choice in enumerate(self.choices()):
             if choice.token in current:
                 yield {'title': choice.title,
-                       'id': base_id + '-' + choice.token.replace('.', '-')}
+                       'id': base_id + '-' + str(i)}
 
 
 class MultiChoiceWidgetExtractor(WidgetExtractor):
