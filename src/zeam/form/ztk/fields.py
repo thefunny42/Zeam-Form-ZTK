@@ -51,7 +51,8 @@ class SchemaField(Field):
     grok.implements(ISchemaField)
 
     def __init__(self, field):
-        super(SchemaField, self).__init__(field.title, field.__name__)
+        super(SchemaField, self).__init__(
+            field.title or None, field.__name__)
         self.description = field.description
         self.required = field.required
         self.readonly = field.readonly
