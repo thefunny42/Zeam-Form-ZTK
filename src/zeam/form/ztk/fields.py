@@ -105,8 +105,12 @@ class SchemaFieldWidget(FieldWidget):
     grok.adapts(ISchemaField, Interface, Interface)
 
     def htmlClass(self):
-        return 'field field-%s' % (
-            self.component._field.__class__.__name__.lower())
+        css_class = ['field']
+        css_class.append('field-%s' % (
+                self.component._field.__class__.__name__.lower()))
+        if self.required:
+            css_class.append('field-required')
+        return ' '.join(css_class)
 
 
 class SchemaWidgetExtractor(WidgetExtractor):
