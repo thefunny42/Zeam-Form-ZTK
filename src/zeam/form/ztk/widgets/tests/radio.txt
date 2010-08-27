@@ -96,11 +96,11 @@ You have an associated widget::
   'b1'
 
   >>> print firstWidget.render()
-  <input type="radio" id="form-field-choice-0" name="form.field.choice" value="a1" class="field field-choice" />
+  <input type="radio" id="form-field-choice-0" name="form.field.choice" value="a1" class="field field-choice field-required" />
     <label for="form-field-choice-0">Letter A</label>
-  <input type="radio" id="form-field-choice-1" name="form.field.choice" value="b1" checked="checked" class="field field-choice" />
+  <input type="radio" id="form-field-choice-1" name="form.field.choice" value="b1" checked="checked" class="field field-choice field-required" />
     <label for="form-field-choice-1">Letter B</label>
-  <input type="radio" id="form-field-choice-2" name="form.field.choice" value="c1" class="field field-choice" />
+  <input type="radio" id="form-field-choice-2" name="form.field.choice" value="c1" class="field field-choice field-required" />
     <label for="form-field-choice-2">Letter C</label>
 
 
@@ -211,7 +211,7 @@ You have an associated widget::
   'c1'
 
   >>> print secondWidget.render()
-  <select id="form-field-choice" name="form.field.choice" class="field field-choice">
+  <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required">
     <option value="a1">Letter A</option>
     <option value="b1">Letter B</option>
     <option value="c1" selected="selected">Letter C</option>

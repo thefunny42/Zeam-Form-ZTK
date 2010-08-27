@@ -61,4 +61,4 @@ You have an associated widget::
   <URIWidget uri>
 
   >>> print URIWidget.render()
-  <input type="url" value="" id="form-field-uri" class="field field-uri" name="form.field.uri" />
+  <input type="url" value="" id="form-field-uri" class="field field-uri field-required" name="form.field.uri" />

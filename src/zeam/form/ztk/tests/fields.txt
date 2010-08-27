@@ -20,7 +20,7 @@ You can create a full set of fields from a Zope interface::
   >>> from zeam.form.base import Fields
   >>> s2 = Fields(IPlanet)
   >>> list(s2)
-  [<TextLineSchemaField Name>, <SchemaField Size>]
+  [<TextLineSchemaField Name>, <IntSchemaField Size>]
 
 Those are correct fields, filled with the interface definition
 information::
@@ -35,7 +35,7 @@ information::
   >>> f2.description
   u''
   >>> f3
-  <SchemaField Size>
+  <IntSchemaField Size>
   >>> f3.description
   u'Size in Km'
 
@@ -54,8 +54,8 @@ You can add fields via an interface after::
 
   >>> s2.extend(IHabitationSupport)
   >>> list(s2)
-  [<TextLineSchemaField Name>, <SchemaField Size>,
-   <TextLineSchemaField City name>, <SchemaField Number of people>]
+  [<TextLineSchemaField Name>, <IntSchemaField Size>,
+   <TextLineSchemaField City name>, <IntSchemaField Number of people>]
 
 You can add a field from an interface alone::
 
@@ -116,7 +116,7 @@ You can clone a field and keep all settings::
   >>> clone = s2['size'].clone(new_identifier='myclone')
 
   >>> clone
-  <SchemaField Size>
+  <IntSchemaField Size>
   >>> clone.identifier
   'myclone'
   >>> clone.description
