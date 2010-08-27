@@ -18,14 +18,18 @@ class CancelAction(Action):
         form.redirect(form.url())
 
 
+_marker = object()
+
 class EditAction(Action):
     """Edit the form content using the form fields.
     """
 
     def applyData(self, form, content, data):
         for field in form.fields:
-            value = data.get(field.identifier, NO_VALUE)
-            if value is not NO_VALUE:
+            value = data.get(field.identifier, _marker)
+            if value is NO_VALUE and not field.required:
+                value = data.getDefault(field, _marker)
+            if value is not _marker:
                 content.set(field.identifier, value)
 
     def __call__(self, form):
