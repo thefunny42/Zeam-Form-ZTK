@@ -69,6 +69,14 @@ class ChoiceFieldWidget(SchemaFieldWidget):
         return self.__choices
 
 
+class ChoiceDisplayWidget(ChoiceFieldWidget):
+    grok.name('display')
+
+    def valueToUnicode(self, value):
+        term = self.choices().getTerm(value)
+        return term.title
+
+
 class ChoiceWidgetExtractor(WidgetExtractor):
     grok.adapts(ChoiceSchemaField, Interface, Interface)
 
