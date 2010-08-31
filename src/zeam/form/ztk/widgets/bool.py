@@ -2,10 +2,13 @@
 
 from grokcore import component as grok
 from zeam.form.base.markers import NO_VALUE
-from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.ztk.fields import (
-    SchemaField, SchemaFieldWidget, registerSchemaField)
+from zeam.form.base.widgets import WidgetExtractor, DisplayFieldWidget
+from zeam.form.ztk.fields import SchemaField, SchemaFieldWidget
+from zeam.form.ztk.fields import registerSchemaField
+from zope.i18nmessageid import MessageFactory
 from zope.schema import interfaces as schema_interfaces
+
+_ = MessageFactory("zeam-form")
 
 
 class BooleanSchemaField(SchemaField):
@@ -15,6 +18,15 @@ class BooleanSchemaField(SchemaField):
 
 class CheckBoxWidget(SchemaFieldWidget):
     grok.adapts(BooleanSchemaField, None, None)
+
+
+class CheckBoxDisplayWidget(DisplayFieldWidget):
+    grok.adapts(BooleanSchemaField, None, None)
+
+    def valueToUnicode(self, value):
+        if bool(value):
+            return _(u'Yes')
+        return _(u'No')
 
 
 class CheckBoxWidgetExtractor(WidgetExtractor):
