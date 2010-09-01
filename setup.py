@@ -68,5 +68,6 @@ setup(name='zeam.form.ztk',
       text = zeam.form.ztk.widgets.text:register
       textline = zeam.form.ztk.widgets.textline:register
       uri = zeam.form.ztk.widgets.uri:register
+      time = zeam.form.ztk.widgets.time:register
       """,
       )
