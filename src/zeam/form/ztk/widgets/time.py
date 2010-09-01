@@ -15,13 +15,7 @@ _ = MessageFactory("zeam-form")
 
 
 def register():
-    registerSchemaField(TimedeltaSchemaField, schema_interfaces.ITimedelta)
     registerSchemaField(TimeSchemaField, schema_interfaces.ITime)
-
-
-class TimedeltaSchemaField(SchemaField):
-    """A timedelta field.
-    """
 
 
 class TimeSchemaField(SchemaField):
@@ -57,18 +51,6 @@ class TimeWidgetExtractor(WidgetExtractor):
         return value, error
 
 
-#class DatetimeFieldWidget(DateFieldWidget):
-#    grok.adapts(DatetimeSchemaField, Interface, Interface)
-#
-#    valueType = 'dateTime'
-#
-#
-#class DatetimeWidgetExtractor(DateWidgetExtractor):
-#    grok.adapts(DatetimeSchemaField, Interface, Interface)
-#
-#    valueType = 'dateTime'
-#
-
 class TimeFieldDisplayWidget(DisplayFieldWidget):
     grok.adapts(TimeSchemaField, Interface, Interface)
 
@@ -77,9 +59,3 @@ class TimeFieldDisplayWidget(DisplayFieldWidget):
     def valueToUnicode(self, value):
         formatter = self.request.locale.dates.getFormatter(self.valueType)
         return formatter.format(value)
-
-
-#class DatetimeFieldDisplayWidget(DateFieldDisplayWidget):
-#    grok.adapts(DatetimeSchemaField, Interface, Interface)
-#
-#    valueType = 'dateTime'
