@@ -1,0 +1,122 @@
+==========================
+zeam.form.ztk time widgets
+==========================
+
+Let's create some interface using times::
+
+  >>> from zope import schema, interface
+  >>> from zope.interface.verify import verifyObject
+  >>> from zope.component import getMultiAdapter
+  >>> import datetime
+
+  >>> class ITimeInfo(interface.Interface):
+  ...     time = schema.Time(title=u'Current time')
+
+  >>> class ICourse(interface.Interface):
+  ...     when = schema.Timedelta(title=u'When')
+
+And some content for them::
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class TimeInfo(object):
+  ...    interface.implements(ITimeInfo)
+  ...    time = None
+  >>> timeinfo = TimeInfo()
+  >>> timeinfo.time = datetime.time(12, 00, 00)
+
+  >>> class Course(object):
+  ...    interface.implements(ICourse)
+  ...    when = None
+  >>> course = Course()
+
+
+Field
+-----
+
+You can get a field for a time::
+
+  >>> from zeam.form.base import Fields
+  >>> from zeam.form.base import interfaces
+
+  >>> timeFields = Fields(ITimeInfo)
+  >>> timeField = timeFields['time']
+  >>> timeField
+  <TimeSchemaField Current time>
+  >>> verifyObject(interfaces.IField, timeField)
+  True
+
+And one for timedelta as well::
+
+  >>> courseFields = Fields(ICourse)
+  >>> whenField = courseFields['when']
+  >>> whenField
+  <TimedeltaSchemaField When>
+  >>> verifyObject(interfaces.IField, whenField)
+  True
+
+
+Widget
+------
+
+You can have a widget for a timeinfo. The input value is a formated version
+of the time, based on the locale of the request::
+
+  >>> from zeam.form.ztk import Widgets, FormData
+
+  >>> timeForm = FormData(timeinfo, request)
+  >>> timeForm.ignoreContent = False
+
+  >>> timeWidgets = Widgets(
+  ...     timeFields,
+  ...     form=timeForm,
+  ...     request=request)
+  >>> timeWidgets.update()
+  >>> len(timeWidgets)
+  1
+
+  >>> timeWidget = timeWidgets['form.field.time']
+  >>> timeWidget
+  <TimeFieldWidget Current time>
+
+  >>> verifyObject(interfaces.IFieldWidget, timeWidget)
+  True
+
+  >>> timeWidget.inputValue()
+  u'12:00'
+
+
+Widget extractor
+----------------
+
+You can extract a value from the request. It is a bit more difficult
+here because the parsing is a bit more advanced::
+
+  >>> timeRequest = TestRequest(form={
+  ...     'form.field.time': u'12:21'})
+  >>> niceTimeData = FormData(timeinfo, timeRequest)
+
+  >>> niceTimeExtractor = getMultiAdapter(
+  ...      (timeField, niceTimeData, timeRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, niceTimeExtractor)
+  True
+  >>> niceTimeExtractor.extract()
+  (datetime.time(12, 21), None)
+
+Now if you give an invalid date you will have an error::
+
+  >>> invalidTimeRequest = TestRequest(form={
+  ...     'form.field.time': u'the best time ever'})
+  >>> invalidTimeData = FormData(timeinfo, invalidTimeRequest)
+
+  >>> invalidTimeExtractor = getMultiAdapter(
+  ...      (timeField, invalidTimeData, invalidTimeRequest),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, invalidTimeExtractor)
+  True
+  >>> invalidTimeExtractor.extract()
+  (None, "The datetime string did not match the pattern u'HH:mm'.")
