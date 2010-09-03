@@ -56,9 +56,22 @@ class ChoiceFieldWidget(SchemaFieldWidget):
         self.source = field
         self.__choices = None
 
+    def lookupTerm(self, value):
+        choices = self.choices()
+        try:
+            return choices.getTerm(value)
+        except schema_interfaces.LookupError:
+            # the stored value is invalid. fallback on the default one.
+            default = self.component.getDefaultValue()
+            if default is not NO_VALUE:
+                return choices.getTerm(default)
+        return None
+
     def valueToUnicode(self, value):
-        term = self.choices().getTerm(value)
-        return term.token
+        term = self.lookupTerm(value)
+        if term is not None:
+            return term.token
+        return u''
 
     def choices(self):
         if self.__choices is not None:
@@ -73,8 +86,10 @@ class ChoiceDisplayWidget(ChoiceFieldWidget):
     grok.name('display')
 
     def valueToUnicode(self, value):
-        term = self.choices().getTerm(value)
-        return term.title
+        term = self.lookupTerm(value)
+        if term is not None:
+            return term.title
+        return u''
 
 
 class ChoiceWidgetExtractor(WidgetExtractor):
