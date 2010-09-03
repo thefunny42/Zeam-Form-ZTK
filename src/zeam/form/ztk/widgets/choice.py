@@ -101,7 +101,7 @@ class ChoiceWidgetExtractor(WidgetExtractor):
             choices = self.component.getChoices(self.form.context)
             try:
                 value = choices.getTermByToken(value).value
-            except LookupError:
+            except schema_interfaces.LookupError:
                 return (None, u'Invalid value')
         return (value, error)
 
