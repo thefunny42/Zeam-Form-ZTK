@@ -60,7 +60,7 @@ class ChoiceFieldWidget(SchemaFieldWidget):
         choices = self.choices()
         try:
             return choices.getTerm(value)
-        except schema_interfaces.LookupError:
+        except LookupError:
             # the stored value is invalid. fallback on the default one.
             default = self.component.getDefaultValue()
             if default is not NO_VALUE:
@@ -101,7 +101,7 @@ class ChoiceWidgetExtractor(WidgetExtractor):
             choices = self.component.getChoices(self.form.context)
             try:
                 value = choices.getTermByToken(value).value
-            except schema_interfaces.LookupError:
+            except LookupError:
                 return (None, u'Invalid value')
         return (value, error)
 
