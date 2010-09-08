@@ -207,9 +207,13 @@ class MultiChoiceFieldWidget(ChoiceFieldWidget):
         form_value = []
         if value is NO_VALUE:
             return {self.identifier: form_value}
-        choice = self.choices()
+        choices = self.choices()
         for entry in value:
-            form_value.append(choice.by_value[entry].token)
+            try:
+                term = choices.getTerm(entry)
+                form_value.append(term.token)
+            except LookupError:
+                pass
         return {self.identifier: form_value}
 
     def renderableChoice(self):
