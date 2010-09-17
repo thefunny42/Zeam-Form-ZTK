@@ -23,7 +23,14 @@ First we need some test interfaces that uses collections::
   >>> class ISetOfDrinks(interface.Interface):
   ...     drinks = schema.Set(
   ...         title=u"My beverages",
-  ...         value_type=schema.Choice(source=drinks))
+  ...         value_type=schema.Choice(source=drinks),
+  ...         required=False)
+
+  >>> class IRequiredSetOfDrinks(interface.Interface):
+  ...     drinks = schema.Set(
+  ...         title=u"My required beverages",
+  ...         value_type=schema.Choice(source=drinks),
+  ...         required=True)
 
 And we will need a content and a request to test::
 
@@ -38,11 +45,17 @@ And we will need a content and a request to test::
   ...    interface.implements(ISetOfDrinks)
   ...    drinks = None
 
+  >>> class RequiredSetOfDrinks(object):
+  ...    interface.implements(IRequiredSetOfDrinks)
+  ...    drinks = None
+
   >>> content = ListOfNames()
   >>> content.names = list()
 
-  >>> drinkableContent = SetOfDrinks()
-  >>> drinkableContent.drinks = set()
+  >>> drinkable_content = SetOfDrinks()
+  >>> drinkable_content.drinks = set()
+  >>> required_drink_content = RequiredSetOfDrinks()
+  >>> required_drink_content.drinks = set()
 
 Field
 -----
@@ -53,43 +66,53 @@ So now you can create a field, and get a collection field::
   >>> from zeam.form.base import interfaces
   >>> from zeam.form.ztk.interfaces import ICollectionSchemaField
 
-  >>> listFields = Fields(IListOfNames)
-  >>> listField = listFields['names']
-  >>> listField
+  >>> list_fields = Fields(IListOfNames)
+  >>> list_field = list_fields['names']
+  >>> list_field
   <CollectionSchemaField People Names>
-  >>> verifyObject(ICollectionSchemaField, listField)
+  >>> verifyObject(ICollectionSchemaField, list_field)
   True
   >>> ICollectionSchemaField.extends(interfaces.IField)
   True
 
 This field works on list, and contains text lines::
 
-  >>> listField.collectionType
+  >>> list_field.collectionType
   <type 'list'>
-  >>> valueField = listField.valueField
-  >>> valueField
+  >>> value_field = list_field.valueField
+  >>> value_field
   <TextLineSchemaField >
-  >>> verifyObject(interfaces.IField, valueField)
+  >>> verifyObject(interfaces.IField, value_field)
   True
 
 However you can have different type of collection, like this is a set
 of choice::
 
-  >>> drinkFields = Fields(ISetOfDrinks)
-  >>> drinkField = drinkFields['drinks']
-  >>> drinkField
+  >>> drink_fields = Fields(ISetOfDrinks)
+  >>> drink_field = drink_fields['drinks']
+  >>> drink_field
   <SetSchemaField My beverages>
+  >>> drink_field.required
+  False
 
 And like the list collection::
 
-  >>> drinkField.collectionType
+  >>> drink_field.collectionType
   <type 'set'>
-  >>> valueField = drinkField.valueField
-  >>> valueField
+  >>> value_field = drink_field.valueField
+  >>> value_field
   <ChoiceSchemaField >
-  >>> verifyObject(interfaces.IField, drinkField)
+  >>> verifyObject(interfaces.IField, drink_field)
   True
 
+It can be required:
+
+  >>> required_drink_fields = Fields(IRequiredSetOfDrinks)
+  >>> required_drink_field = required_drink_fields['drinks']
+  >>> required_drink_field
+  <SetSchemaField My required beverages>
+  >>> required_drink_field.required
+  True
 
 Generic Widget
 --------------
@@ -102,7 +125,7 @@ You can get a generic widget out of your field::
   >>> emptyList.ignoreContent = False
 
   >>> listWidgets = Widgets(
-  ...     listFields,
+  ...     list_fields,
   ...     form=emptyList,
   ...     request=request)
 
@@ -137,7 +160,7 @@ have a sub-widget for each entry of the collection::
   >>> listInvitation.ignoreContent = False
 
   >>> invitationWidgets = Widgets(
-  ...     listFields,
+  ...     list_fields,
   ...     form=listInvitation,
   ...     request=request)
 
@@ -180,7 +203,7 @@ with the value ``Nicolas``, the other with the value ``Jean``::
   >>> peopleInvitation = FormData(content, peopleRequest)
 
   >>> peopleWidgets = Widgets(
-  ...     listFields,
+  ...     list_fields,
   ...     form=peopleInvitation,
   ...     request=peopleRequest)
 
@@ -216,7 +239,7 @@ for the second value, the first will have been ignored (and so removed)::
   >>> peopleInvitation = FormData(content, peopleRequest)
 
   >>> peopleWidgets = Widgets(
-  ...     listFields,
+  ...     list_fields,
   ...     form=peopleInvitation,
   ...     request=peopleRequest)
 
@@ -248,7 +271,7 @@ empty::
   >>> peopleInvitation = FormData(content, peopleRequest)
 
   >>> peopleWidgets = Widgets(
-  ...     listFields,
+  ...     list_fields,
   ...     form=peopleInvitation,
   ...     request=peopleRequest)
 
@@ -273,7 +296,7 @@ remove values::
   >>> peopleInvitation = FormData(content, request)
 
   >>> peopleWidgets = Widgets(
-  ...     listFields,
+  ...     list_fields,
   ...     form=peopleInvitation,
   ...     request=request)
 
@@ -293,7 +316,7 @@ And you have the same with a request containing just the marker::
   >>> peopleInvitation = FormData(content, request)
 
   >>> peopleWidgets = Widgets(
-  ...     listFields,
+  ...     list_fields,
   ...     form=peopleInvitation,
   ...     request=zeroPeopleRequest)
 
@@ -322,7 +345,7 @@ corresponding widget extractor::
   >>> peopleInvitation = FormData(content, peopleRequest)
 
   >>> peopleExtractor = getMultiAdapter(
-  ...      (listField, peopleInvitation, peopleRequest),
+  ...      (list_field, peopleInvitation, peopleRequest),
   ...      interfaces.IWidgetExtractor)
 
   >>> peopleExtractor
@@ -342,7 +365,7 @@ It will work as well if you have no values in your request::
   >>> noPeopleInvitation = FormData(content, noPeopleRequest)
 
   >>> noPeopleExtractor = getMultiAdapter(
-  ...      (listField, noPeopleInvitation, noPeopleRequest),
+  ...      (list_field, noPeopleInvitation, noPeopleRequest),
   ...      interfaces.IWidgetExtractor)
   >>> noPeopleExtractor.extract()
   ([], None)
@@ -352,7 +375,7 @@ If you have a fully empty request::
   >>> noPeopleInvitation = FormData(content, request)
 
   >>> noPeopleExtractor = getMultiAdapter(
-  ...      (listField, noPeopleInvitation, request),
+  ...      (list_field, noPeopleInvitation, request),
   ...      interfaces.IWidgetExtractor)
   >>> noPeopleExtractor.extract()
   (<Marker NO_VALUE>, None)
@@ -365,27 +388,27 @@ Collection fields can get by default a widget and extractor picked
 differently dependently of the value type. When the value type is a
 choice, you will get a multi-choice widget by default::
 
-  >>> drinkableContent.drinks = set(['42%', '12%'])
+  >>> drinkable_content.drinks = set(['42%', '12%'])
 
-  >>> someDrinks = FormData(drinkableContent, request)
-  >>> someDrinks.ignoreContent = False
+  >>> drinkable_forms = FormData(drinkable_content, request)
+  >>> drinkable_forms.ignoreContent = False
 
-  >>> drinkWidgets = Widgets(
-  ...     drinkFields,
-  ...     form=someDrinks,
+  >>> drink_widgets = Widgets(
+  ...     drink_fields,
+  ...     form=drinkable_forms,
   ...     request=request)
 
-  >>> drinkWidgets.update()
-  >>> drinkWidget = drinkWidgets['form.field.drinks']
-  >>> drinkWidget
+  >>> drink_widgets.update()
+  >>> drink_widget = drink_widgets['form.field.drinks']
+  >>> drink_widget
   <MultiChoiceFieldWidget My beverages>
-  >>> verifyObject(interfaces.IFieldWidget, drinkWidget)
+  >>> verifyObject(interfaces.IFieldWidget, drink_widget)
   True
 
 The widget will provides a list of choice that you can render. The
 ones already selected in the content will already by marked::
 
-  >>> list(drinkWidget.renderableChoice())
+  >>> list(drink_widget.renderableChoice())
   [{'token': 'vodka', 'checked': 'checked',
     'id': 'form-field-drinks-0', 'title': u'Vodka'},
    {'token': 'tequila', 'checked': None,
@@ -403,22 +426,22 @@ marker is used in case the user select nothing, because in that case
 the browser will send nothing and it would sounds like nothing was in
 the request::
 
-  >>> drinksRequest = TestRequest(form={
+  >>> drinks_request = TestRequest(form={
   ...     'form.field.drinks': [u'vodka', u'tequila'],
   ...     'form.field.drinks.present' : u'1'})
-  >>> myChoiceOfDrinks = FormData(drinkableContent, drinksRequest)
+  >>> drinks_form = FormData(drinkable_content, drinks_request)
 
-  >>> myChoiceOfDrinksWidgets = Widgets(
-  ...     drinkFields,
-  ...     form=myChoiceOfDrinks,
-  ...     request=drinksRequest)
+  >>> drinks_widgets = Widgets(
+  ...     drink_fields,
+  ...     form=drinks_form,
+  ...     request=drinks_request)
 
-  >>> myChoiceOfDrinksWidgets.update()
-  >>> myChoiceOfDrinksWidget = myChoiceOfDrinksWidgets['form.field.drinks']
+  >>> drinks_widgets.update()
+  >>> drinks_widget = drinks_widgets['form.field.drinks']
 
 And so now you have only Vodka and Tequila of selected by the widget::
 
-  >>> list(myChoiceOfDrinksWidget.renderableChoice())
+  >>> list(drinks_widget.renderableChoice())
   [{'token': 'vodka', 'checked': 'checked',
     'id': 'form-field-drinks-0', 'title': u'Vodka'},
    {'token': 'tequila', 'checked': 'checked',
@@ -430,19 +453,19 @@ And so now you have only Vodka and Tequila of selected by the widget::
 
 However the user can uncheck all available choices::
 
-  >>> noMoreDrinksRequest = TestRequest(form={
+  >>> no_more_drinks_request = TestRequest(form={
   ...     'form.field.drinks.present' : u'1'})
-  >>> noMoreDrinks = FormData(drinkableContent, noMoreDrinksRequest)
+  >>> no_more_drinks = FormData(drinkable_content, no_more_drinks_request)
 
-  >>> noMoreDrinksWidgets = Widgets(
-  ...     drinkFields,
-  ...     form=noMoreDrinks,
-  ...     request=noMoreDrinksRequest)
+  >>> no_more_drinks_widgets = Widgets(
+  ...     drink_fields,
+  ...     form=no_more_drinks,
+  ...     request=no_more_drinks_request)
 
-  >>> noMoreDrinksWidgets.update()
-  >>> noMoreDrinksWidget = noMoreDrinksWidgets['form.field.drinks']
+  >>> no_more_drinks_widgets.update()
+  >>> no_more_drinks_widget = no_more_drinks_widgets['form.field.drinks']
 
-  >>> list(noMoreDrinksWidget.renderableChoice())
+  >>> list(no_more_drinks_widget.renderableChoice())
   [{'token': 'vodka', 'checked': None,
     'id': 'form-field-drinks-0', 'title': u'Vodka'},
    {'token': 'tequila', 'checked': None,
@@ -459,38 +482,38 @@ Multi Choice Widget extractor
 You need to be able to get the corresponding extractor with
 multi-choice widgets::
 
-  >>> drinksExtractor = getMultiAdapter(
-  ...      (drinkField, myChoiceOfDrinks, drinksRequest),
+  >>> drinks_extractor = getMultiAdapter(
+  ...      (drink_field, drinks_form, drinks_request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> drinksExtractor
+  >>> drinks_extractor
   <zeam.form.ztk.widgets.collection.MultiChoiceWidgetExtractor object at ...>
-  >>> verifyObject(interfaces.IWidgetExtractor, drinksExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, drinks_extractor)
   True
 
 And you can get your values out of it::
 
-  >>> drinksExtractor.extract()
+  >>> drinks_extractor.extract()
   (set(['42%', '30%']), None)
 
 If you selected nothing, you will get an empty selection:
 
-  >>> noMoreDrinksExtractor = getMultiAdapter(
-  ...      (drinkField, noMoreDrinks, noMoreDrinksRequest),
+  >>> no_more_drinks_extractor = getMultiAdapter(
+  ...      (drink_field, no_more_drinks, no_more_drinks_request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> verifyObject(interfaces.IWidgetExtractor, noMoreDrinksExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, no_more_drinks_extractor)
   True
-  >>> noMoreDrinksExtractor.extract()
+  >>> no_more_drinks_extractor.extract()
   (set([]), None)
 
 If you have nothing in your request, you will get nothing::
 
-  >>> noDrinksExtractor = getMultiAdapter(
-  ...      (drinkField, someDrinks, request),
+  >>> no_drinks_extractor = getMultiAdapter(
+  ...      (drink_field, drinkable_forms, request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> verifyObject(interfaces.IWidgetExtractor, noDrinksExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, no_drinks_extractor)
   True
-  >>> noDrinksExtractor.extract()
+  >>> no_drinks_extractor.extract()
   (<Marker NO_VALUE>, None)

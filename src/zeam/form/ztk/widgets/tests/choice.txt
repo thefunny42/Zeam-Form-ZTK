@@ -74,21 +74,21 @@ You have an associated widget:
   >>> simple_form = FormData(content, request)
   >>> simple_form.ignoreContent = False
 
-  >>> firstWidgets = Widgets(
+  >>> simple_widgets = Widgets(
   ...     simple_choice_fields,
   ...     form=simple_form,
   ...     request=request)
 
-  >>> firstWidgets.update()
+  >>> simple_widgets.update()
 
-  >>> firstWidget = firstWidgets['form.field.choice']
-  >>> firstWidget
+  >>> simple_widget = simple_widgets['form.field.choice']
+  >>> simple_widget
   <ChoiceFieldWidget My favorite letter>
 
-  >>> firstWidget.inputValue()
+  >>> simple_widget.inputValue()
   'b1'
 
-  >>> print firstWidget.render()
+  >>> print simple_widget.render()
   <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required">
     <option value="a1">Letter A</option>
     <option value="b1" selected="selected">Letter B</option>
@@ -163,7 +163,7 @@ different than the real value:
 Let's now do it with a value:
 
   >>> simple_request = TestRequest(
-  ...    form={firstWidget.identifier: u'a1', })
+  ...    form={simple_widget.identifier: u'a1', })
 
   >>> simple_extractor = component.getMultiAdapter(
   ...    (simple_field, simple_form, simple_request),
@@ -175,7 +175,7 @@ Let's now do it with a value:
 And a value which is not in the vocabulary:
 
   >>> broken_request = TestRequest(
-  ...    form={firstWidget.identifier: u'z42', })
+  ...    form={simple_widget.identifier: u'z42', })
 
   >>> broken_extractor = component.getMultiAdapter(
   ...    (simple_field, simple_form, broken_request),
