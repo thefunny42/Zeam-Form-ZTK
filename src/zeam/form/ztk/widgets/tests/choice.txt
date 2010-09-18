@@ -40,7 +40,6 @@ And we will need a content and a request to test:
   >>> broken_content = SimpleContent()
   >>> broken_content.choice = 'Z'
 
-
 Field
 -----
 
@@ -95,7 +94,6 @@ You have an associated widget:
     <option value="c1">Letter C</option>
   </select>
 
-
 Display Widget
 --------------
 
@@ -142,7 +140,6 @@ vocabulary. Nothing will be displayed:
   >>> print broken_display_widget.render()
   <BLANKLINE>
 
-
 Extractor
 ---------
 
@@ -184,7 +181,6 @@ And a value which is not in the vocabulary:
   >>> broken_extractor.extract()
   (None, u'Invalid value')
 
-
 Context binded source
 =====================
 
@@ -209,7 +205,6 @@ and an interface for it:
 
   >>> content = SecondContent()
   >>> content.choice = 'C'
-
 
 Field
 -----
@@ -236,7 +231,6 @@ So now you can create a field, and get a choice field:
   >>> secondField.validate('A')
   >>> secondField.validate(42)
   u'Constraint not satisfied'
-
 
 Widget
 ------
@@ -269,7 +263,6 @@ You have an associated widget:
     <option value="c1" selected="selected">Letter C</option>
   </select>
 
-
 Registered vocabulary
 =====================
 
@@ -284,8 +277,8 @@ a schema:
   ...     return letter_vocabulary
 
   >>> provideUtility(vocabulary_factory, IVocabularyFactory, name="Third letter")
-  >>> thirdLetter = queryUtility(IVocabularyFactory, name="Third letter")
-  >>> thirdLetter
+  >>> vocabulary = queryUtility(IVocabularyFactory, name="Third letter")
+  >>> vocabulary
   <function vocabulary_factory at ...>
 
   >>> class IThirdChoice(interface.Interface):
@@ -293,29 +286,19 @@ a schema:
   ...         title=u"The third letter",
   ...         vocabulary="Third letter")
 
-  >>> class ThirdContent(object):
-  ...    interface.implements(IThirdChoice)
-  ...    choice = None
-
-  >>> content = ThirdContent()
-  >>> content.choice = 'B'
-
-
 Field
 -----
 
 So now you can create a field, and get a choice field:
 
-  >>> from zeam.form.ztk import Fields
-
-  >>> thirdChoiceFields = Fields(IThirdChoice)
-  >>> thirdField = thirdChoiceFields['choice']
-  >>> thirdField
+  >>> vocabulary_fields = Fields(IThirdChoice)
+  >>> vocabulary_field = vocabulary_fields['choice']
+  >>> vocabulary_field
   <ChoiceSchemaField The third letter>
-  >>> thirdField.source is vocabulary_factory
+  >>> vocabulary_field.source is vocabulary_factory
   True
 
-  >>> choices = thirdField.getChoices(None)
+  >>> choices = vocabulary_field.getChoices(None)
   >>> choices
   <zope.schema.vocabulary.SimpleVocabulary object at ...>
   >>> display_vocabulary(choices)
@@ -323,4 +306,4 @@ So now you can create a field, and get a choice field:
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> thirdField.validate('C')
+  >>> vocabulary_field.validate('C')

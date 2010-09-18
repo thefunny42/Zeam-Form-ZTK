@@ -42,6 +42,9 @@ class CollectionSchemaField(SchemaField):
     def valueField(self):
         return self.__value_field
 
+    def isEmpty(self, value):
+        return value is NO_VALUE or not len(value)
+
 
 class SetSchemaField(CollectionSchemaField):
     """A set field
