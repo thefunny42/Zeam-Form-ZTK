@@ -86,8 +86,8 @@ class SchemaField(Field):
             return self._field.fromUnicode(value)
         return value
 
-    def getDefaultValue(self):
-        default = super(SchemaField, self).getDefaultValue()
+    def getDefaultValue(self, form):
+        default = super(SchemaField, self).getDefaultValue(form)
         if default is not NO_VALUE:
             return default
         default = self._field.default
