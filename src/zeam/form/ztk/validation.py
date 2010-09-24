@@ -2,8 +2,7 @@
 
 from zope.interface.interfaces import IMethod
 from zope.interface import directlyProvides, Invalid
-
-UNAVAILABLE = object()
+from zeam.form.base.markers import NO_VALUE
 
 
 class Data(object):
@@ -24,10 +23,9 @@ class Data(object):
         if IMethod.providedBy(field):
             raise RuntimeError("Data value is not a schema field", name)
 
-        data = self.data
-        value = data.get(name, UNAVAILABLE)
+        value = self.data.getWithDefault(name)
 
-        if value is UNAVAILABLE:
+        if value is NO_VALUE:
             raise AttributeError(name)
 
         return value
