@@ -3,6 +3,7 @@
 from zope.interface.interfaces import IMethod
 from zope.interface import directlyProvides, Invalid
 from zeam.form.base.markers import NO_VALUE
+from zeam.form.ztk.interfaces import ISchemaField
 
 
 class Data(object):
@@ -37,9 +38,10 @@ class InvariantsValidation(object):
     def __init__(self, fields):
         self.interfaces = []
         for field in fields:
-            interface = field._field.interface
-            if interface not in self.interfaces:
-                self.interfaces.append(interface)
+            if ISchemaField.providedBy(field):
+                interface = field._field.interface
+                if interface not in self.interfaces:
+                    self.interfaces.append(interface)
 
     def validate(self, data):
         errors = []
