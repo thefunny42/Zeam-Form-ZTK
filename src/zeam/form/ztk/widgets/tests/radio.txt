@@ -98,10 +98,13 @@ You have an associated widget::
   >>> print firstWidget.render()
   <input type="radio" id="form-field-choice-0" name="form.field.choice" value="a1" class="field field-choice field-required" />
     <label for="form-field-choice-0">Letter A</label>
+    <br />
   <input type="radio" id="form-field-choice-1" name="form.field.choice" value="b1" checked="checked" class="field field-choice field-required" />
     <label for="form-field-choice-1">Letter B</label>
+    <br />
   <input type="radio" id="form-field-choice-2" name="form.field.choice" value="c1" class="field field-choice field-required" />
     <label for="form-field-choice-2">Letter C</label>
+    <br />
 
 
 Extractor

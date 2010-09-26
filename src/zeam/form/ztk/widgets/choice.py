@@ -62,7 +62,7 @@ class ChoiceFieldWidget(SchemaFieldWidget):
             return choices.getTerm(value)
         except LookupError:
             # the stored value is invalid. fallback on the default one.
-            default = self.component.getDefaultValue()
+            default = self.component.getDefaultValue(self.form)
             if default is not NO_VALUE:
                 return choices.getTerm(default)
         return None

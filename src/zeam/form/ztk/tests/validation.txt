@@ -35,7 +35,9 @@ Validating
 Instanciating the validator
 ---------------------------
 
-  >>> from zeam.form.base import Fields
+  >>> from zeam.form.base import Fields, FormData
+  >>> from zope.publisher.browser import TestRequest
+  >>> form = FormData(object(), TestRequest())
   >>> fields = Fields(IPasswords)
 
   >>> from zeam.form.ztk import InvariantsValidation
@@ -51,10 +53,14 @@ Instanciating the validator
 Providing some data
 -------------------
 
-  >>> data = {'passwd': 'test', 'verify': 'nopass'}
+  >>> from zeam.form.base.form import FieldsValues
+
+  >>> data = FieldsValues(form, fields)
+  >>> data.update({'passwd': 'test', 'verify': 'nopass'})
   >>> print validator.validate(data)
   [Invalid(u'Mismatching passwords!',)]
 
-  >>> data = {'passwd': 'test', 'verify': 'test'}
+  >>> data = FieldsValues(form, fields)
+  >>> data.update({'passwd': 'test', 'verify': 'test'})
   >>> print validator.validate(data)
   []
