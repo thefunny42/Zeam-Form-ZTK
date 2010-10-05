@@ -1,4 +1,4 @@
-<tal:multi i18n:domain="zeam-form">
+<tal:multi i18n:domain="zeam.form.base">
   <table tal:condition="widget.valueWidgets">
     <thead>
       <tr>

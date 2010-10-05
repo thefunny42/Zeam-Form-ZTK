@@ -7,7 +7,7 @@ from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 
-_ = MessageFactory("zeam-form")
+_ = MessageFactory("zeam.form.base")
 
 
 class CancelAction(Action):
@@ -40,7 +40,7 @@ class EditAction(Action):
         content = form.getContentData()
         self.applyData(form, content, data)
         notify(ObjectModifiedEvent(content.content))
-        form.status = _(u"Modification saved")
+        form.status = _(u"Modification saved.")
         return SUCCESS
 
 

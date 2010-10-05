@@ -8,7 +8,7 @@ from zeam.form.ztk.fields import registerSchemaField
 from zope.i18nmessageid import MessageFactory
 from zope.schema import interfaces as schema_interfaces
 
-_ = MessageFactory("zeam-form")
+_ = MessageFactory("zeam.form.base")
 
 
 class BooleanSchemaField(SchemaField):

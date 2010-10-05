@@ -13,7 +13,7 @@ from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
 import zope.interface.interfaces
 
-_ = MessageFactory("zeam-form")
+_ = MessageFactory("zeam.form.base")
 
 
 class SchemaFieldFactory(object):
@@ -127,7 +127,7 @@ class SchemaWidgetExtractor(WidgetExtractor):
             except schema_interfaces.ValidationError, e:
                 return None, e.doc()
             except ValueError, e:
-                return None, _(u"Invalid value")
+                return None, _(u"Invalid value.")
 
         return value, None
 

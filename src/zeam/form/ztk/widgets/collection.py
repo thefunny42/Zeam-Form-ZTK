@@ -13,10 +13,13 @@ from zeam.form.ztk.widgets.choice import ChoiceSchemaField, ChoiceFieldWidget
 from zeam.form.ztk.widgets.object import ObjectSchemaField
 
 from zope import component
+from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
 
 from grokcore import component as grok
+
+_ = MessageFactory("zeam.form.base")
 
 
 def register():
@@ -266,5 +269,5 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
                 value = self.component.collectionType(
                     [choices.getTermByToken(t).value for t in value])
             except LookupError:
-                return (None, u'Value not available')
+                return (None, _(u'The selected value is not available.'))
         return (value, errors)
