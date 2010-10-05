@@ -99,9 +99,9 @@ And fail in other conditions:
 If the field is required you cannot provide empty lists:
 
   >>> required_field.validate(NO_VALUE)
-  u'Missing required value'
+  u'Missing required value.'
   >>> required_field.validate([])
-  u'Missing required value'
+  u'Missing required value.'
   >>> required_field.validate([True, False, True])
 
 Generic Widget
@@ -328,20 +328,20 @@ corresponding widget extractor::
   ...     'form.field.names.present.2': u'1',
   ...     'form.field.names.field.2': u'Jean',})
 
-  >>> peopleInvitation = FormData(content, list_request)
+  >>> list_form = FormData(content, list_request)
 
-  >>> peopleExtractor = getMultiAdapter(
-  ...      (field, peopleInvitation, list_request),
+  >>> list_extractor = getMultiAdapter(
+  ...      (field, list_form, list_request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> peopleExtractor
+  >>> list_extractor
   <zeam.form.ztk.widgets.collection.MultiGenericWidgetExtractor object at ...>
-  >>> verifyObject(interfaces.IWidgetExtractor, peopleExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, list_extractor)
   True
 
 And you are able to get back your values:
 
-  >>> peopleExtractor.extract()
+  >>> list_extractor.extract()
   ([u'Nicolas', u'Jean'], None)
 
 It will work as well if you have no values in your request::

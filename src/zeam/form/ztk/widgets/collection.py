@@ -193,7 +193,7 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
                 field = self.valueField.clone(new_identifier=str(position))
                 form = cloneFormData(self.form, prefix=self.identifier)
                 data, errors = form.extractData(Fields(field))
-                if errors is not None:
+                if errors:
                     return (None, errors)
                 collectedValues.append(data[field.identifier])
             value = self.component.collectionType(collectedValues)

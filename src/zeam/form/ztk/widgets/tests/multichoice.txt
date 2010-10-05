@@ -100,9 +100,9 @@ fail:
 If the field is required, an empty collection will not validate:
 
   >>> required_field.validate(NO_VALUE)
-  u'Missing required value'
+  u'Missing required value.'
   >>> required_field.validate(set())
-  u'Missing required value'
+  u'Missing required value.'
   >>> required_field.validate(set(['42%', '51%']))
 
 Multi choice widget

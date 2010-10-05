@@ -78,10 +78,11 @@ class ObjectFieldExtractor(WidgetExtractor):
         value = None
         form = cloneFormData(self.form, None, self.identifier)
         data, errors = form.extractData(self.component.objectFields)
-        if errors is None:
+        if not errors:
             factory = self.component.getObjectFactory()
             # Create an object with values
             value = factory(**dict(filter(
                         lambda (k, v): not isinstance(v, Marker),
                         data.items())))
+            return (value, None)
         return (value, errors)
