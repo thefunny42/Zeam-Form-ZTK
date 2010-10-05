@@ -134,14 +134,36 @@ The widget will provides a list of choice that you can render. The
 ones already selected in the content will already by marked::
 
   >>> list(widget.renderableChoice())
-  [{'token': 'vodka', 'checked': 'checked',
+  [{'token': 'vodka', 'checked': True,
     'id': 'form-field-choices-0', 'title': u'Vodka'},
-   {'token': 'tequila', 'checked': None,
+   {'token': 'tequila', 'checked': False,
     'id': 'form-field-choices-1', 'title': u'Tequila'},
-   {'token': 'cognac', 'checked': None,
+   {'token': 'cognac', 'checked': False,
     'id': 'form-field-choices-2', 'title': u'Cognac'},
-   {'token': 'champagne', 'checked': 'checked',
+   {'token': 'champagne', 'checked': True,
     'id': 'form-field-choices-3', 'title': u'Champagne'}]
+
+And we can render this widget:
+
+  >>> print widget.render()
+  <input type="checkbox" id="form-field-choices-0" name="form.field.choices"
+   value="vodka" checked="checked" class="field field-set" />
+  <label for="form-field-choices-0">Vodka</label>
+  <br />
+  <input type="checkbox" id="form-field-choices-1" name="form.field.choices"
+   value="tequila" class="field field-set" />
+  <label for="form-field-choices-1">Tequila</label>
+  <br />
+  <input type="checkbox" id="form-field-choices-2" name="form.field.choices"
+   value="cognac" class="field field-set" />
+  <label for="form-field-choices-2">Cognac</label>
+  <br />
+  <input type="checkbox" id="form-field-choices-3" name="form.field.choices"
+   value="champagne" checked="checked" class="field field-set" />
+  <label for="form-field-choices-3">Champagne</label>
+  <br />
+  <input type="hidden" name="form.field.choices.present" value="1" />
+
 
 Getting input from the request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -164,13 +186,13 @@ the request::
 And so now you have only Vodka and Tequila of selected by the widget::
 
   >>> list(choice_widget.renderableChoice())
-  [{'token': 'vodka', 'checked': 'checked',
+  [{'token': 'vodka', 'checked': True,
     'id': 'form-field-choices-0', 'title': u'Vodka'},
-   {'token': 'tequila', 'checked': 'checked',
+   {'token': 'tequila', 'checked': True,
     'id': 'form-field-choices-1', 'title': u'Tequila'},
-   {'token': 'cognac', 'checked': None,
+   {'token': 'cognac', 'checked': False,
     'id': 'form-field-choices-2', 'title': u'Cognac'},
-   {'token': 'champagne', 'checked': None,
+   {'token': 'champagne', 'checked': False,
     'id': 'form-field-choices-3', 'title': u'Champagne'}]
 
 However the user can uncheck all available choices::
@@ -186,13 +208,13 @@ However the user can uncheck all available choices::
   >>> empty_widget = empty_widgets['form.field.choices']
 
   >>> list(empty_widget.renderableChoice())
-  [{'token': 'vodka', 'checked': None,
+  [{'token': 'vodka', 'checked': False,
     'id': 'form-field-choices-0', 'title': u'Vodka'},
-   {'token': 'tequila', 'checked': None,
+   {'token': 'tequila', 'checked': False,
     'id': 'form-field-choices-1', 'title': u'Tequila'},
-   {'token': 'cognac', 'checked': None,
+   {'token': 'cognac', 'checked': False,
     'id': 'form-field-choices-2', 'title': u'Cognac'},
-   {'token': 'champagne', 'checked': None,
+   {'token': 'champagne', 'checked': False,
     'id': 'form-field-choices-3', 'title': u'Champagne'}]
 
 Multi Choice Widget extractor
@@ -234,3 +256,35 @@ If you have nothing in your request, you will get nothing::
   >>> empty_extractor.extract()
   (<Marker NO_VALUE>, None)
 
+Multi select widget
+-------------------
+
+You can use a multi select widget as well:
+
+  >>> request = TestRequest()
+  >>> content.choices = set(['42%', '12%'])
+
+  >>> select_form = FormData(content, request)
+  >>> select_form.ignoreContent = False
+  >>> select_form.mode = 'multiselect'
+
+  >>> select_widgets = Widgets(fields, form=select_form, request=request)
+
+  >>> select_widgets.update()
+  >>> select_widget = select_widgets['form.field.choices']
+  >>> select_widget
+  <MultiSelectFieldWidget My choices>
+  >>> verifyObject(interfaces.IFieldWidget, select_widget)
+  True
+
+And we can render this widget:
+
+  >>> print select_widget.render()
+  <select id="form-field-choices" name="form.field.choices"
+   class="field field-set" multiple="multiple">
+    <option value="vodka" selected="selected">Vodka</option>
+    <option value="tequila">Tequila</option>
+    <option value="cognac">Cognac</option>
+    <option value="champagne" selected="selected">Champagne</option>
+  </select>
+  <input type="hidden" name="form.field.choices.present" value="1" />

@@ -4,7 +4,7 @@
            tal:attributes="name widget.identifier;
                            value choice.token;
                            id choice.id;
-                           checked choice.checked;
+                           checked choice.checked and 'checked' or None;
                            class widget.htmlClass()" />
     <label for="#"
            tal:attributes="for choice.id"

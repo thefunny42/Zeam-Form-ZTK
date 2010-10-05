@@ -228,8 +228,19 @@ class MultiChoiceFieldWidget(ChoiceFieldWidget):
         for i, choice in enumerate(self.choices()):
             yield {'token': choice.token,
                    'title': choice.title,
-                   'checked': choice.token in current and 'checked' or None,
+                   'checked': choice.token in current,
                    'id': base_id + '-' + str(i)}
+
+
+grok.global_adapter(
+    newCollectionWidgetFactory(mode='multiselect'),
+    adapts=(ICollectionSchemaField, Interface, Interface),
+    provides=IWidget,
+    name='multiselect')
+
+
+class MultiSelectFieldWidget(MultiChoiceFieldWidget):
+    grok.name('multiselect')
 
 
 class MultiChoiceDisplayFieldWidget(MultiChoiceFieldWidget):
