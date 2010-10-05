@@ -81,6 +81,15 @@ But it need to belong to an interface::
      ...
   ValueError: Field has no interface
 
+Or to specify at least a __name__:
+
+  >>> fields_created_with_name = Fields(schema.TextLine(
+  ...     __name__="quality",
+  ...     title=u"Quality of McDo restaurant"))
+  >>> list(fields_created_with_name)
+  [<TextLineSchemaField Quality of McDo restaurant>]
+  >>> fields_created_with_name['quality']
+  <TextLineSchemaField Quality of McDo restaurant>
 
 Description, required and readonly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
