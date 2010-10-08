@@ -1,10 +1,29 @@
 Changelog
 =========
 
+1.0 (unreleased)
+----------------
+
+* Add a ``multiselect`` widget for multiple choices.
+
+* Add a ``readonly`` widget.
+
+* Add a ``display`` widget for booleans and collections.
+
+* Add HTML5 widgets for URIs.
+
+* Schema field can be adapted now, even if they don't have a interface
+  (if they provide an attribute __name__).
+
+* Add more tests, fix issues in collection widgets, and invariant
+  validator.
+
+* Update to use the last version of ``zeam.form.base``.
+
 1.0rc2 (2010/07/16)
 -------------------
 
-* Add radio widget for choices.
+* Add ``radio`` widget for choices.
 
 * Add a display widgets for multiple choices.
 
