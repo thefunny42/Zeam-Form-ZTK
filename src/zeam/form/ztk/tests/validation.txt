@@ -5,8 +5,12 @@ zeam.form.ztk
 Interfaces can be validated, if they contain invariants. Invariants
 are explicit contacts defining constraints on the data.
 
-Defining invariants
-===================
+
+Single invariant
+================
+
+Definition
+----------
 
   >>> from zope.schema import Password
   >>> from zope.interface import invariant, Interface
@@ -29,11 +33,8 @@ Defining invariants
   ...             raise Invalid(u"Mismatching passwords!")
 
 
-Validating
-==========
-
-Instanciating the validator
----------------------------
+Instanciation
+-------------
 
   >>> from zeam.form.base import Fields, FormData
   >>> from zope.publisher.browser import TestRequest
@@ -64,3 +65,99 @@ Providing some data
   >>> data.update({'passwd': 'test', 'verify': 'test'})
   >>> print validator.validate(data)
   []
+
+
+Multiple invariants
+===================
+
+Definition
+----------
+
+  >>> from zope.schema import Int, Choice
+
+  >>> class IAgeAndLegals(Interface):
+  ...    age = Int(
+  ...        title=u"Enter your age.",
+  ...        required=True)
+  ...        
+  ...    accept = Choice(
+  ...        title=u"I accept the conditions of use.",
+  ...        required=True,
+  ...        values=[u"I accept", u"I disapprove"])
+  ...
+  ...    @invariant
+  ...    def check_age(data):
+  ...        if data.age < 18:
+  ...            raise Invalid(u"You must be at least 18 to proceed.")
+  ...
+  ...    @invariant
+  ...    def check_legals(data):
+  ...        if data.accept != u"I accept":
+  ...            raise Invalid(u"You can not proceed if you disagree.")
+
+
+Instanciation
+-------------
+
+  >>> form = FormData(object(), TestRequest())
+  >>> fields = Fields(IAgeAndLegals)
+  >>> validator = InvariantsValidation(fields)
+
+  >>> print validator
+  <zeam.form.ztk.validation.InvariantsValidation object at ...>
+
+  >>> print validator.interfaces
+  [<InterfaceClass __builtin__.IAgeAndLegals>]
+
+
+Providing some data
+-------------------
+
+  >>> data = FieldsValues(form, fields)
+  >>> data.update({'age': 17, 'accept': u"I disapprove"})
+  >>> print validator.validate(data)
+  [Invalid(u'You must be at least 18 to proceed.',),
+   Invalid(u'You can not proceed if you disagree.',)]
+
+  >>> data = FieldsValues(form, fields)
+  >>> data.update({'age': 17, 'accept': u"I accept"})
+  >>> print validator.validate(data)
+  [Invalid(u'You must be at least 18 to proceed.',)]
+
+  >>> data = FieldsValues(form, fields)
+  >>> data.update({'age': 19, 'accept': u"I accept"})
+  >>> print validator.validate(data)
+  []
+
+
+Form integration
+================
+
+Integration environment
+-----------------------
+
+  >>> from grokcore.component import context, Context
+  >>> from zeam.form.base import Form, Fields
+
+  >>> class SomeContent(Context):
+  ...     pass
+
+  >>> class MyLegalPage(Form):
+  ...     context(SomeContent)
+  ...     fields = Fields(IAgeAndLegals)
+  ...     dataValidators = [InvariantsValidation]
+  ...     ignoreRequest = False
+  ...     ignoreContent = True
+
+  >>> content = SomeContent()
+
+
+Erroneous submissions
+---------------------
+
+  >>> request = TestRequest(form={'age': 10})
+  >>> form = MyLegalPage(content, request)
+  >>> form.update()
+
+  >>> errors, data = form.extractData()
+  >>> print errors
