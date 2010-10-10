@@ -155,9 +155,25 @@ Integration environment
 Erroneous submissions
 ---------------------
 
+Let's try an empty request. There is two invariants, so that generate
+two errors for the form itself:
+
   >>> request = TestRequest(form={'age': 10})
   >>> form = MyLegalPage(content, request)
   >>> form.update()
 
-  >>> errors, data = form.extractData()
-  >>> print errors
+  >>> data, errors = form.extractData()
+  >>> data
+  {'age': <Marker NO_VALUE>, 'accept': <Marker NO_VALUE>}
+  >>> list(errors)
+  [<Error Missing required value.>,
+   <Error Missing required value.>,
+   <Errors for 'form'>]
+
+  >>> list(errors['form'])
+  [<Error You must be at least 18 to proceed.>,
+   <Error You can not proceed if you disagree.>]
+
+  >>> list(form.formErrors)
+  [<Error You must be at least 18 to proceed.>,
+   <Error You can not proceed if you disagree.>]
