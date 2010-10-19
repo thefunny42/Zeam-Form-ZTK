@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0 (unreleased)
+1.0 (2010/10/19)
 ----------------
 
 * Add a ``multiselect`` widget for multiple choices.
@@ -17,6 +17,8 @@ Changelog
 
 * Add more tests, fix issues in collection widgets, and invariant
   validator.
+
+* Translations are all located in ``zeam.form.base``.
 
 * Update to use the last version of ``zeam.form.base``.
 
