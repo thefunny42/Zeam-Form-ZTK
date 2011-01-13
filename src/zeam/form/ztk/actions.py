@@ -3,7 +3,7 @@
 from zeam.form.base import Action
 from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE
 from zeam.form.base.datamanager import ObjectDataManager
-from zope.app.container.interfaces import INameChooser
+from zope.container.interfaces import INameChooser
 from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
