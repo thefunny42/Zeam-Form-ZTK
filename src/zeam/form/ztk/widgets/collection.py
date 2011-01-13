@@ -203,7 +203,7 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
 # Multi-Choice widget
 
 class MultiChoiceFieldWidget(ChoiceFieldWidget):
-    grok.adapts(ICollectionSchemaField, ChoiceSchemaField, Interface, Interface)
+    grok.adapts(SetSchemaField, ChoiceSchemaField, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
         super(MultiChoiceFieldWidget, self).__init__(field, form, request)
@@ -256,7 +256,7 @@ class MultiChoiceDisplayFieldWidget(MultiChoiceFieldWidget):
 
 
 class MultiChoiceWidgetExtractor(WidgetExtractor):
-    grok.adapts(ICollectionSchemaField, ChoiceSchemaField, Interface, Interface)
+    grok.adapts(SetSchemaField, ChoiceSchemaField, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
         super(MultiChoiceWidgetExtractor, self).__init__(field, form, request)
