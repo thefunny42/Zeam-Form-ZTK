@@ -1,0 +1,47 @@
+<div class="field-list"
+     i18n:domain="zeam.form.base">
+  <tal:values tal:repeat="valueWidget widget.valueWidgets">
+    <div class="field-list-line"
+         metal:define-macro="line"
+         tal:define="valueIdentifier valueWidget.component.identifier"
+         tal:attributes="rel valueWidget.identifier">
+      <input type="checkbox" class="field-list-line-selector"
+             name="${widget.identifier}.checked.${valueIdentifier}" />
+      <input type="hidden" value="1"
+             name="${widget.identifier}.present.${valueIdentifier}" />
+      <tal:widget tal:replace="structure valueWidget.render()" />
+
+      <button title="Move up" class="field-list-move-up"
+              i18n:attributes="title">
+      </button>
+      <button title="Move down" class="field-list-move-down"
+              i18n:attributes="title">
+      </button>
+      <br />
+    </div>
+  </tal:values>
+  <p class="field-list-empty"
+     tal:condition="not:widget.valueWidgets">
+    -
+  </p>
+  <div class="field-list-template" style="display: none"
+       tal:define="valueWidget widget.jsonTemplateWidget">
+    <metal:line metal:use-macro="template.macros.line" />
+  </div>
+
+  <input type="hidden" class="field-list-counter" name="#" value="#"
+         tal:attributes="name string:${widget.identifier};
+                         value widget.inputValue()" />
+  <div class="multi-actions">
+    <input type="submit" name="#" value="Add"
+           class="field-list-add-line"
+           tal:attributes="name string:${widget.identifier}.add"
+           tal:condition="widget.allowAdding"
+           i18n:attributes="value" />
+    <input type="submit" name="#" value="Remove"
+           class="field-list-remove-line"
+           tal:attributes="name string:${widget.identifier}.remove"
+           tal:condition="widget.allowRemove"
+           i18n:attributes="value" />
+  </div>
+</div>

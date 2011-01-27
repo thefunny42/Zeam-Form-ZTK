@@ -24,6 +24,7 @@ _ = MessageFactory("zeam.form.base")
 
 def register():
     registerSchemaField(CollectionSchemaField, schema_interfaces.ICollection)
+    registerSchemaField(ListSchemaField, schema_interfaces.IList)
     registerSchemaField(SetSchemaField, schema_interfaces.ISet)
     registerSchemaField(TupleSchemaField, schema_interfaces.ITuple)
 
@@ -47,6 +48,12 @@ class CollectionSchemaField(SchemaField):
 
     def isEmpty(self, value):
         return value is NO_VALUE or not len(value)
+
+
+class ListSchemaField(CollectionSchemaField):
+    """A list field
+    """
+    collectionType = list
 
 
 class SetSchemaField(CollectionSchemaField):
@@ -103,7 +110,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         self.valueField = value_field
         self.valueWidgets = Widgets()
 
-    def newValueWidget(self, new_identifier, value):
+    def createValueWidget(self, new_identifier, value):
         field = self.valueField.clone(new_identifier=str(new_identifier))
         form = cloneFormData(self.form, prefix=self.identifier)
         if value is not None:
@@ -112,9 +119,13 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         else:
             form.ignoreRequest = False
             form.ignoreContent = True
-        widget = createWidget(field, form, self.request)
+        return createWidget(field, form, self.request)
+
+    def addValueWidget(self, new_identifier, value):
+        widget = self.createValueWidget(new_identifier, value)
         if widget is not None:
             self.valueWidgets.append(widget)
+        return widget
 
     def prepareContentValue(self, values):
         if values is NO_VALUE:
@@ -122,7 +133,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             return {self.identifier: '0'}
         for position, value in enumerate(values):
             # Create new widgets for each value
-            self.newValueWidget(position, value)
+            self.addValueWidget(position, value)
         count = len(values)
         if not count:
             self.allowRemove = False
@@ -140,10 +151,10 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             value_selected = '%s.checked.%d' % value_marker in values
             if remove_something and value_selected:
                 continue
-            self.newValueWidget(position, None)
+            self.addValueWidget(position, None)
             value_count += 1
         if self.identifier + '.add' in values:
-            self.newValueWidget(identifier_count, None)
+            self.addValueWidget(identifier_count, None)
             value_count += 1
             values[self.identifier] = str(identifier_count + 1)
         if not value_count:
@@ -154,6 +165,16 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         super(MultiGenericFieldWidget, self).update()
         self.valueWidgets.update()
 
+
+class ListGenericFieldWidget(MultiGenericFieldWidget):
+    grok.adapts(ListSchemaField, Interface, Interface, Interface)
+
+    @property
+    def jsonTemplateWidget(self):
+        widgets = Widgets()
+        widgets.append(self.createValueWidget('{identifier}', None))
+        widgets.update()
+        return list(widgets)[0]
 
 
 class MultiGenericDisplayFieldWidget(MultiGenericFieldWidget):

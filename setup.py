@@ -37,12 +37,13 @@ setup(name='zeam.form.ztk',
       packages=find_packages('src'),
       include_package_data=True,
       zip_safe=False,
+      # Don't add zope.container. The python file conditionally import
+      # zope.container or zope.app.container
       install_requires=[
           'grokcore.component',
           'megrok.chameleon',
           'setuptools',
           'zeam.form.base >= 1.0',
-          'zope.container',
           'zope.component',
           'zope.event',
           'zope.i18n',
