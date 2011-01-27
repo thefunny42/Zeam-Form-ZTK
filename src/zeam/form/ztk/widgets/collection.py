@@ -109,6 +109,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         super(MultiGenericFieldWidget, self).__init__(field, form, request)
         self.valueField = value_field
         self.valueWidgets = Widgets()
+        self.haveValues = True
 
     def createValueWidget(self, new_identifier, value):
         field = self.valueField.clone(new_identifier=str(new_identifier))
@@ -129,14 +130,14 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
     def prepareContentValue(self, values):
         if values is NO_VALUE:
-            self.allowRemove = False
+            self.haveValues = False
             return {self.identifier: '0'}
         for position, value in enumerate(values):
             # Create new widgets for each value
             self.addValueWidget(position, value)
         count = len(values)
         if not count:
-            self.allowRemove = False
+            self.haveValues = False
         return {self.identifier: str(count)}
 
     def prepareRequestValue(self, values):
@@ -158,7 +159,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             value_count += 1
             values[self.identifier] = str(identifier_count + 1)
         if not value_count:
-            self.allowRemove = False
+            self.haveValues = False
         return values
 
     def update(self):

@@ -39,7 +39,7 @@
            i18n:attributes="value" />
     <input type="submit" name="#" value="Remove"
            tal:attributes="name string:${widget.identifier}.remove"
-           tal:condition="widget.allowRemove"
+           tal:condition="widget.allowRemove and widget.haveValues"
            i18n:attributes="value"/>
   </div>
 </tal:multi>

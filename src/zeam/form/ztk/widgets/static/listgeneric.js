@@ -9,6 +9,14 @@
         return (parseInt(value) + 1).toString();
     };
 
+    var create_template = function(node) {
+        var template = new jsontemplate.Template(node.get(0).innerHTML, {});
+
+        // Remove the template from the DOM.
+        node.html('');
+        return template;
+    };
+
     var starts_with = function(string) {
         var starter = '^';
 
@@ -58,18 +66,23 @@
         $('form.zeam-form div.field-list').each(function (){
             var field = $(this);
             var counter = field.find('input.field-list-counter');
-            var base = field.find('div.field-list-template');
-            var template = new jsontemplate.Template(base.get(0).innerHTML, {});
-
-            // Remove the template from the DOM.
-            base.html('');
+            var container = field.find('div.field-list-lines');
+            var template = create_template(field.find('div.field-list-template'));
 
             // Bind the add button
             field.find('input.field-list-add-line').bind('click', function() {
                 var identifier = counter.val();
                 var html = $(template.expand({identifier: identifier}));
+                var empty_message = field.find('.field-list-empty');
+                var remove_button = field.find('.field-list-remove-line');
 
-                html.insertBefore(base);
+                if (empty_message.is(':visible')) {
+                    empty_message.hide();
+                };
+                if (!remove_button.is(':visible')) {
+                    remove_button.show();
+                };
+                html.appendTo(container);
                 counter.val(increment(identifier));
                 return false;
             });
@@ -80,6 +93,16 @@
                     var selector = $(this);
 
                     selector.parent().remove();
+
+                    var lines = field.find('.field-list-line');
+
+                    if (!lines.length) {
+                        var empty_message = field.find('.field-list-empty');
+                        var remove_button = field.find('.field-list-remove-line');
+
+                        empty_message.show();
+                        remove_button.hide();
+                    };
                 });
                 return false;
             });
