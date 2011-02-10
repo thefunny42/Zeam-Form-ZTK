@@ -61,6 +61,19 @@
         line.attr('rel', field_name + count);
     };
 
+    var update_move_buttons = function(line_top, line_bottom) {
+        // Show or hide move up/down button depending if it is the
+        // first line or last line or not. This code exist because IE
+        // 7 doesn't support last-child in CSS.
+        if (line_top.is(':first-child')) {
+            line_top.find('.field-list-move-up').hide();
+            line_bottom.find('.field-list-move-up').show();
+        };
+        if (line_bottom.is(':last-child')) {
+            line_top.find('.field-list-move-down').show();
+            line_bottom.find('.field-list-move-down').hide();
+        };
+    };
 
     $(document).ready(function (){
         $('form.zeam-form div.field-list').each(function (){
@@ -69,20 +82,27 @@
             var container = field.find('div.field-list-lines');
             var template = create_template(field.find('div.field-list-template'));
 
+            // Clear style on any existing buttons.
+            update_move_buttons(
+                container.find('.field-list-line:first'),
+                container.find('.field-list-line:last'));
+
             // Bind the add button
             field.find('input.field-list-add-line').bind('click', function() {
                 var identifier = counter.val();
-                var html = $(template.expand({identifier: identifier}));
+                var new_line = $(template.expand({identifier: identifier}));
                 var empty_message = field.find('.field-list-empty');
                 var remove_button = field.find('.field-list-remove-line');
+                var previous_line = container.children('.field-list-line:last');
 
                 if (empty_message.is(':visible')) {
-                    empty_message.hide();
+                    empty_message.slideUp();
                 };
                 if (!remove_button.is(':visible')) {
-                    remove_button.show();
+                    remove_button.fadeIn();
                 };
-                html.appendTo(container);
+                update_move_buttons(previous_line, new_line);
+                new_line.appendTo(container);
                 counter.val(increment(identifier));
                 return false;
             });
@@ -91,17 +111,22 @@
             field.find('input.field-list-remove-line').bind('click', function() {
                 field.find('input.field-list-line-selector:checked').each(function (){
                     var selector = $(this);
+                    var line = selector.parents('.field-list-line');
+                    var previous_line = line.prev('.field-list-line');
+                    var next_line = line.next('.field-list-line');
 
-                    selector.parent().remove();
+                    line.remove();
 
-                    var lines = field.find('.field-list-line');
+                    update_move_buttons(next_line, previous_line);
+
+                    var lines = container.find('.field-list-line');
 
                     if (!lines.length) {
                         var empty_message = field.find('.field-list-empty');
                         var remove_button = field.find('.field-list-remove-line');
 
-                        empty_message.show();
-                        remove_button.hide();
+                        empty_message.slideDown();
+                        remove_button.fadeOut();
                     };
                 });
                 return false;
@@ -110,7 +135,7 @@
             // Bind the up button
             field.find('button.field-list-move-up').live('click', function () {
                 var button = $(this);
-                var line = button.parent();
+                var line = button.parents('.field-list-line');
                 var previous_line = line.prev();
 
                 if (previous_line.hasClass('field-list-line')) {
@@ -118,14 +143,15 @@
                     var base_name = name_info[1];
                     var count = name_info[2];
 
-                    var previous_name_info = field_name_regexp.exec(previous_line.attr('rel'));
+                    var previous_name_info = field_name_regexp.exec(
+                        previous_line.attr('rel'));
                     var previous_count = previous_name_info[2];
-
-                    update_line_names(line, base_name, previous_count);
-                    update_line_names(previous_line, base_name, count);
 
                     line.remove();
                     line.insertBefore(previous_line);
+                    update_line_names(line, base_name, previous_count);
+                    update_line_names(previous_line, base_name, count);
+                    update_move_buttons(line, previous_line);
                 };
                 return false;
             });
@@ -133,7 +159,7 @@
             // Bind the down button
             field.find('button.field-list-move-down').live('click', function () {
                 var button = $(this);
-                var line = button.parent();
+                var line = button.parents('.field-list-line');
                 var next_line = line.next();
 
                 if (next_line.hasClass('field-list-line')) {
@@ -144,11 +170,11 @@
                     var next_name_info = field_name_regexp.exec(next_line.attr('rel'));
                     var next_count = next_name_info[2];
 
-                    update_line_names(line, base_name, next_count);
-                    update_line_names(next_line, base_name, count);
-
                     line.remove();
                     line.insertAfter(next_line);
+                    update_line_names(line, base_name, next_count);
+                    update_line_names(next_line, base_name, count);
+                    update_move_buttons(next_line, line);
                 };
                 return false;
             });

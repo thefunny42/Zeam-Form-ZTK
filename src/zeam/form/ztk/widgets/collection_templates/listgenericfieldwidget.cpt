@@ -10,19 +10,23 @@
            metal:define-macro="line"
            tal:define="valueIdentifier valueWidget.component.identifier"
            tal:attributes="rel valueWidget.identifier">
-        <input type="checkbox" class="field-list-line-selector"
-               name="${widget.identifier}.checked.${valueIdentifier}" />
-        <input type="hidden" value="1"
-               name="${widget.identifier}.present.${valueIdentifier}" />
-        <tal:widget tal:replace="structure valueWidget.render()" />
-
-        <button title="Move up" class="field-list-move-up"
-                i18n:attributes="title">
-        </button>
-        <button title="Move down" class="field-list-move-down"
-                i18n:attributes="title">
-        </button>
-        <br />
+        <div class="line-order">
+          <button type="submit" title="Move up" class="field-list-move-up"
+                  i18n:attributes="title">
+            &nbsp;
+          </button>
+          <button title="Move down" class="field-list-move-down"
+                  i18n:attributes="title">
+            &nbsp;
+          </button>
+        </div>
+        <div class="line-data">
+          <input type="checkbox" class="field-list-line-selector"
+                 name="${widget.identifier}.checked.${valueIdentifier}" />
+          <input type="hidden" value="1"
+                 name="${widget.identifier}.present.${valueIdentifier}" />
+          <tal:widget tal:replace="structure valueWidget.render()" />
+        </div>
       </div>
     </tal:values>
   </div>
