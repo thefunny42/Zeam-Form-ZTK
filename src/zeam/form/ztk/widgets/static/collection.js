@@ -31,6 +31,11 @@
     };
 
     var create_template = function(node) {
+        if (node.length) {
+            // allowAdding is false;
+            return undefined;
+        };
+
         var identifier = node.attr('rel');
         var template = new jsontemplate.Template(
             node.get(0).innerHTML, {
