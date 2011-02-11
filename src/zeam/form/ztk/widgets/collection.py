@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+try:
+    import hashlib
+    md5hash = lambda s: hashlib.md5(s).hexdigest()
+except ImportError:
+    import md5
+    md5hash = lambda s: md5.new(s).hexdigest()
+
 from zeam.form.base.datamanager import NoneDataManager
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.form import cloneFormData
@@ -20,6 +27,7 @@ from zope.schema import interfaces as schema_interfaces
 from grokcore import component as grok
 
 _ = MessageFactory("zeam.form.base")
+
 
 
 def register():
@@ -54,6 +62,7 @@ class ListSchemaField(CollectionSchemaField):
     """A list field
     """
     collectionType = list
+    allowOrdering = True
 
 
 class SetSchemaField(CollectionSchemaField):
@@ -75,8 +84,6 @@ def newCollectionWidgetFactory(mode=u"", interface=IWidget):
         """
         widget = component.getMultiAdapter(
             (field, field.valueField, form, request), interface, name=mode)
-        widget.allowAdding = field.allowAdding
-        widget.allowRemove = field.allowRemove
         return widget
     return collectionWidgetFactory
 
@@ -107,6 +114,8 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
     def __init__(self, field, value_field, form, request):
         super(MultiGenericFieldWidget, self).__init__(field, form, request)
+        self.allowAdding = field.allowAdding
+        self.allowRemove = field.allowRemove
         self.valueField = value_field
         self.valueWidgets = Widgets()
         self.haveValues = True
@@ -162,20 +171,34 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             self.haveValues = False
         return values
 
-    def update(self):
-        super(MultiGenericFieldWidget, self).update()
-        self.valueWidgets.update()
-
-
-class ListGenericFieldWidget(MultiGenericFieldWidget):
-    grok.adapts(ListSchemaField, Interface, Interface, Interface)
-
     @property
     def jsonTemplateWidget(self):
         widgets = Widgets()
         widgets.append(self.createValueWidget('{identifier}', None))
         widgets.update()
         return list(widgets)[0]
+
+    def update(self):
+        super(MultiGenericFieldWidget, self).update()
+        self.valueWidgets.update()
+
+        self.jsonAddIdentifier = None
+        self.jsonAddTemplate = None
+        self.includeEmptyMessage = self.haveValues and self.allowRemove
+        if self.allowAdding:
+            self.jsonAddIdentifier = 'id' + md5hash(self.identifier)
+            widgets = Widgets()
+            widgets.append(self.createValueWidget('{' + self.jsonAddIdentifier + '}', None))
+            widgets.update()
+            self.jsonAddTemplate = list(widgets)[0]
+
+
+class ListGenericFieldWidget(MultiGenericFieldWidget):
+    grok.adapts(ListSchemaField, Interface, Interface, Interface)
+
+    def __init__(self, field, value_field, form, request):
+        super(ListGenericFieldWidget, self).__init__(field, value_field, form, request)
+        self.allowOrdering = field.allowOrdering
 
 
 class MultiGenericDisplayFieldWidget(MultiGenericFieldWidget):
@@ -189,6 +212,14 @@ class MultiObjectFieldWidget(MultiGenericFieldWidget):
 
     def getFields(self):
         return self.valueField.objectFields
+
+
+class ListObjectFieldWidget(MultiObjectFieldWidget):
+    grok.adapts(ListSchemaField, ObjectSchemaField, Interface, Interface)
+
+    def __init__(self, field, value_field, form, request):
+        super(ListObjectFieldWidget, self).__init__(field, value_field, form, request)
+        self.allowOrdering = field.allowOrdering
 
 
 class MultiGenericWidgetExtractor(WidgetExtractor):

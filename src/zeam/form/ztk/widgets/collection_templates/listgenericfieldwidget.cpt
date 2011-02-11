@@ -1,27 +1,29 @@
-<div class="field-list"
+<div class="field-list field-collection"
      i18n:domain="zeam.form.base">
-  <p class="field-list-empty"
+  <p class="field-collection-empty"
+     tal:condition="widget.includeEmptyMessage"
      tal:attributes="style python:widget.haveValues and 'display:none' or None">
     -
   </p>
-  <div class="field-list-lines">
+  <div class="field-collection-lines">
     <tal:values tal:repeat="valueWidget widget.valueWidgets">
-      <div class="field-list-line"
+      <div class="field-collection-line"
            metal:define-macro="line"
            tal:define="valueIdentifier valueWidget.component.identifier"
            tal:attributes="rel valueWidget.identifier">
-        <div class="line-order">
-          <button type="submit" title="Move up" class="field-list-move-up"
+        <div class="line-order"
+             tal:condition="widget.allowOrdering">
+          <button type="submit" title="Move up" class="field-collection-move-up"
                   i18n:attributes="title">
             &nbsp;
           </button>
-          <button title="Move down" class="field-list-move-down"
+          <button title="Move down" class="field-collection-move-down"
                   i18n:attributes="title">
             &nbsp;
           </button>
         </div>
         <div class="line-data">
-          <input type="checkbox" class="field-list-line-selector"
+          <input type="checkbox" class="field-collection-line-selector"
                  name="${widget.identifier}.checked.${valueIdentifier}" />
           <input type="hidden" value="1"
                  name="${widget.identifier}.present.${valueIdentifier}" />
@@ -30,22 +32,24 @@
       </div>
     </tal:values>
   </div>
-  <div class="field-list-template" style="display: none"
-       tal:define="valueWidget widget.jsonTemplateWidget">
+  <div class="field-collection-template" style="display: none" rel="#"
+       tal:condition="widget.jsonAddIdentifier"
+       tal:define="valueWidget widget.jsonAddTemplate"
+       tal:attributes="rel widget.jsonAddIdentifier">
     <metal:line metal:use-macro="template.macros.line" />
   </div>
 
-  <input type="hidden" class="field-list-counter" name="#" value="#"
+  <input type="hidden" class="field-collection-counter" name="#" value="#"
          tal:attributes="name string:${widget.identifier};
                          value widget.inputValue()" />
   <div class="multi-actions">
     <input type="submit" name="#" value="Add"
-           class="field-list-add-line"
+           class="field-collection-add-line"
            tal:attributes="name string:${widget.identifier}.add"
            tal:condition="widget.allowAdding"
            i18n:attributes="value" />
     <input type="submit" name="#" value="Remove"
-           class="field-list-remove-line"
+           class="field-collection-remove-line"
            tal:attributes="name string:${widget.identifier}.remove;
                            style python:(not widget.haveValues) and 'display:none' or None"
            tal:condition="widget.allowRemove"
