@@ -11,9 +11,11 @@
            metal:define-macro="line"
            tal:define="valueIdentifier valueWidget.component.identifier"
            tal:attributes="rel valueWidget.identifier">
-        <div class="line-data">
+        <div class="line-actions">
           <input type="checkbox" class="field-collection-line-selector"
                  name="${widget.identifier}.checked.${valueIdentifier}" />
+        </div>
+        <div class="line-data">
           <input type="hidden" value="1"
                  name="${widget.identifier}.present.${valueIdentifier}" />
           <tal:widget tal:replace="structure valueWidget.render()" />

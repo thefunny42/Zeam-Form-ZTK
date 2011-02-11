@@ -1,5 +1,12 @@
-<tal:multi i18n:domain="zeam.form.base">
-  <table tal:condition="widget.valueWidgets">
+<div class="field-table field-collection"
+     i18n:domain="zeam.form.base">
+  <p class="field-collection-empty"
+     tal:condition="widget.includeEmptyMessage"
+     tal:attributes="style python:widget.haveValues and 'display:none' or None">
+    -
+  </p>
+  <table class="field-collection-header"
+         tal:attributes="style python:(not widget.haveValues) and 'display:none' or None">
     <thead>
       <tr>
         <th></th>
@@ -10,36 +17,48 @@
         </th>
       </tr>
     </thead>
-    <tbody>
-      <tr tal:repeat="valueWidget widget.valueWidgets">
-        <td>
-          <input type="checkbox" name="#"
-                 tal:attributes="name string:${widget.identifier}.checked.${valueWidget.component.identifier}" />
-          <input type="hidden" value="1" name="#"
-                 tal:attributes="name string:${widget.identifier}.present.${valueWidget.component.identifier}" />
-          <input type="hidden" value="1" name="#"
-                 tal:attributes="name valueWidget.identifier" />
-        </td>
-        <td tal:repeat="objectWidget valueWidget.objectWidgets">
-          <tal:widget tal:replace="structure objectWidget.render()" />
-        </td>
-      </tr>
+    <tbody class="field-collection-lines">
+      <tal:values tal:repeat="valueWidget widget.valueWidgets">
+        <tr class="field-collection-line"
+            metal:define-macro="line"
+            tal:define="valueIdentifier valueWidget.component.identifier"
+            tal:attributes="rel valueWidget.identifier">
+          <td class="line-actions">
+            <input type="checkbox" name="#" class="field-collection-line-selector"
+                   tal:attributes="name string:${widget.identifier}.checked.${valueIdentifier}" />
+            <input type="hidden" value="1" name="#"
+                   tal:attributes="name string:${widget.identifier}.present.${valueIdentifier}" />
+            <input type="hidden" value="1" name="#"
+                   tal:attributes="name valueWidget.identifier" />
+          </td>
+          <td tal:repeat="objectWidget valueWidget.objectWidgets">
+            <tal:widget tal:replace="structure objectWidget.render()" />
+          </td>
+        </tr>
+      </tal:values>
     </tbody>
   </table>
-  <p tal:condition="not:widget.valueWidgets">
-    -
-  </p>
-  <input type="hidden" name="#" value="#"
+  <table class="field-collection-template" style="display: none" rel="#"
+         tal:condition="widget.jsonAddIdentifier"
+         tal:define="valueWidget widget.jsonAddTemplate"
+         tal:attributes="rel widget.jsonAddIdentifier">
+    <metal:line metal:use-macro="template.macros.line" />
+  </table>
+
+  <input type="hidden" class="field-collection-counter" name="#" value="#"
          tal:attributes="name string:${widget.identifier};
                          value widget.inputValue()" />
   <div class="multi-actions">
     <input type="submit" name="#" value="Add"
+           class="field-collection-add-line"
            tal:attributes="name string:${widget.identifier}.add"
            tal:condition="widget.allowAdding"
            i18n:attributes="value" />
     <input type="submit" name="#" value="Remove"
-           tal:attributes="name string:${widget.identifier}.remove"
-           tal:condition="widget.allowRemove and widget.haveValues"
+           class="field-collection-remove-line"
+           tal:attributes="name string:${widget.identifier}.remove;
+                           style python:(not widget.haveValues) and 'display:none' or None"
+           tal:condition="widget.allowRemove"
            i18n:attributes="value"/>
   </div>
-</tal:multi>
+</div>

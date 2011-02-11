@@ -11,20 +11,22 @@
            metal:define-macro="line"
            tal:define="valueIdentifier valueWidget.component.identifier"
            tal:attributes="rel valueWidget.identifier">
-        <div class="line-order"
-             tal:condition="widget.allowOrdering">
-          <button type="submit" title="Move up" class="field-collection-move-up"
-                  i18n:attributes="title">
-            &nbsp;
-          </button>
-          <button title="Move down" class="field-collection-move-down"
-                  i18n:attributes="title">
-            &nbsp;
-          </button>
-        </div>
-        <div class="line-data">
+        <div class="#"
+             tal:attributes="class widget.allowOrdering and 'line-actions ordering-actions' or 'line-actions'">
           <input type="checkbox" class="field-collection-line-selector"
                  name="${widget.identifier}.checked.${valueIdentifier}" />
+          <tal:ordering tal:condition="widget.allowOrdering">
+            <button type="submit" title="Move up" class="field-collection-move-up"
+                    i18n:attributes="title">
+              &nbsp;
+            </button>
+            <button title="Move down" class="field-collection-move-down"
+                    i18n:attributes="title">
+              &nbsp;
+            </button>
+          </tal:ordering>
+        </div>
+        <div class="line-data">
           <input type="hidden" value="1"
                  name="${widget.identifier}.present.${valueIdentifier}" />
           <tal:widget tal:replace="structure valueWidget.render()" />

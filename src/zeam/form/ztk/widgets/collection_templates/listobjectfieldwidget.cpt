@@ -5,10 +5,11 @@
      tal:attributes="style python:widget.haveValues and 'display:none' or None">
     -
   </p>
-  <table>
+  <table class="field-collection-header"
+         tal:attributes="style python:(not widget.haveValues) and 'display:none' or None">
     <thead>
       <tr>
-        <th width="48px"></th>
+        <th></th>
         <th tal:repeat="field widget.getFields()">
           <span tal:replace="field.title">Title</span>
           <span class="field-required"
@@ -22,17 +23,20 @@
             metal:define-macro="line"
             tal:define="valueIdentifier valueWidget.component.identifier"
             tal:attributes="rel valueWidget.identifier">
-          <td>
+          <td class="#"
+              tal:attributes="class widget.allowOrdering and 'line-actions ordering-actions' or 'line-actions'">
             <input type="checkbox" name="#" class="field-collection-line-selector"
                    tal:attributes="name string:${widget.identifier}.checked.${valueIdentifier}" />
-            <button type="submit" title="Move up" class="field-collection-move-up"
-                    i18n:attributes="title">
-              &nbsp;
-            </button>
-            <button title="Move down" class="field-collection-move-down"
-                    i18n:attributes="title">
-              &nbsp;
-            </button>
+            <tal:ordering tal:condition="widget.allowOrdering">
+              <button type="submit" title="Move up" class="field-collection-move-up"
+                      i18n:attributes="title">
+                &nbsp;
+              </button>
+              <button title="Move down" class="field-collection-move-down"
+                      i18n:attributes="title">
+                &nbsp;
+              </button>
+            </tal:ordering>
             <input type="hidden" value="1" name="#"
                    tal:attributes="name string:${widget.identifier}.present.${valueIdentifier}" />
             <input type="hidden" value="1" name="#"

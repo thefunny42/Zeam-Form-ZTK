@@ -118,7 +118,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         self.allowRemove = field.allowRemove
         self.valueField = value_field
         self.valueWidgets = Widgets()
-        self.haveValues = True
+        self.haveValues = False
 
     def createValueWidget(self, new_identifier, value):
         field = self.valueField.clone(new_identifier=str(new_identifier))
@@ -139,14 +139,13 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
     def prepareContentValue(self, values):
         if values is NO_VALUE:
-            self.haveValues = False
             return {self.identifier: '0'}
         for position, value in enumerate(values):
             # Create new widgets for each value
             self.addValueWidget(position, value)
         count = len(values)
-        if not count:
-            self.haveValues = False
+        if count:
+            self.haveValues = True
         return {self.identifier: str(count)}
 
     def prepareRequestValue(self, values):
@@ -167,8 +166,8 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             self.addValueWidget(identifier_count, None)
             value_count += 1
             values[self.identifier] = str(identifier_count + 1)
-        if not value_count:
-            self.haveValues = False
+        if value_count:
+            self.haveValues = True
         return values
 
     @property
@@ -184,11 +183,12 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
         self.jsonAddIdentifier = None
         self.jsonAddTemplate = None
-        self.includeEmptyMessage = self.haveValues and self.allowRemove
+        self.includeEmptyMessage = self.allowRemove
         if self.allowAdding:
             self.jsonAddIdentifier = 'id' + md5hash(self.identifier)
             widgets = Widgets()
-            widgets.append(self.createValueWidget('{' + self.jsonAddIdentifier + '}', None))
+            widgets.append(self.createValueWidget(
+                    '{' + self.jsonAddIdentifier + '}', None))
             widgets.update()
             self.jsonAddTemplate = list(widgets)[0]
 
@@ -197,7 +197,8 @@ class ListGenericFieldWidget(MultiGenericFieldWidget):
     grok.adapts(ListSchemaField, Interface, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
-        super(ListGenericFieldWidget, self).__init__(field, value_field, form, request)
+        super(ListGenericFieldWidget, self).__init__(
+            field, value_field, form, request)
         self.allowOrdering = field.allowOrdering
 
 
@@ -218,7 +219,8 @@ class ListObjectFieldWidget(MultiObjectFieldWidget):
     grok.adapts(ListSchemaField, ObjectSchemaField, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
-        super(ListObjectFieldWidget, self).__init__(field, value_field, form, request)
+        super(ListObjectFieldWidget, self).__init__(
+            field, value_field, form, request)
         self.allowOrdering = field.allowOrdering
 
 
@@ -226,7 +228,8 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
     grok.adapts(ICollectionSchemaField, Interface, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
-        super(MultiGenericWidgetExtractor, self).__init__(field, form, request)
+        super(MultiGenericWidgetExtractor, self).__init__(
+            field, form, request)
         self.valueField = value_field
 
     def extract(self):
