@@ -31,7 +31,7 @@
     };
 
     var create_template = function(node) {
-        if (node.length) {
+        if (!node.length) {
             // allowAdding is false;
             return undefined;
         };
