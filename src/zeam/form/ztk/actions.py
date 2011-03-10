@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zeam.form.base import Action
-from zeam.form.base.markers import NO_VALUE, SUCCESS, FAILURE
+from zeam.form.base.markers import NO_VALUE, NO_CHANGE, SUCCESS, FAILURE
 from zeam.form.base.datamanager import ObjectDataManager
 from zope.event import notify
 from zope.i18nmessageid import MessageFactory
@@ -34,7 +34,7 @@ class EditAction(Action):
             value = data.get(field.identifier, _marker)
             if value is NO_VALUE and not field.required:
                 value = data.getDefault(field, _marker)
-            if value is not _marker:
+            if value is not _marker and value is not NO_CHANGE:
                 content.set(field.identifier, value)
 
     def __call__(self, form):
