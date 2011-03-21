@@ -9,7 +9,7 @@ from zeam.form.ztk.interfaces import ISchemaField
 from grokcore import component as grok
 from zope import schema, component
 from zope.i18nmessageid import MessageFactory
-from zope.interface import Interface
+from zope.interface import Interface, Invalid
 from zope.schema import interfaces as schema_interfaces
 import zope.interface.interfaces
 
@@ -79,6 +79,8 @@ class SchemaField(Field):
                 binded_field.validate(value)
             except schema_interfaces.ValidationError, error:
                 return error.doc()
+            except Invalid, error:
+                return error.args[0]
         return None
 
     def fromUnicode(self, value):
@@ -126,6 +128,8 @@ class SchemaWidgetExtractor(WidgetExtractor):
                 value = self.component.fromUnicode(value)
             except schema_interfaces.ValidationError, e:
                 return None, e.doc()
+            except Invalid, e:
+                return None, e.args[0]
             except ValueError, e:
                 return None, _(u"Invalid value.")
 
