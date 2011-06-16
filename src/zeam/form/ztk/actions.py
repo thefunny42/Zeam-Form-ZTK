@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zeam.form.base import Action
-from zeam.form.base.markers import NO_VALUE, NO_CHANGE, SUCCESS, FAILURE
+from zeam.form.base.markers import NO_CHANGE, SUCCESS, FAILURE
 from zeam.form.base.datamanager import ObjectDataManager
 from zope.event import notify
 from zope.i18nmessageid import MessageFactory
@@ -23,18 +23,14 @@ class CancelAction(Action):
         form.redirect(form.url())
 
 
-_marker = object()
-
 class EditAction(Action):
     """Edit the form content using the form fields.
     """
 
     def applyData(self, form, content, data):
         for field in form.fields:
-            value = data.get(field.identifier, _marker)
-            if value is NO_VALUE and not field.required:
-                value = data.getDefault(field, _marker)
-            if value is not _marker and value is not NO_CHANGE:
+            value = data.getWithDefault(field.identifier)
+            if value is not NO_CHANGE:
                 content.set(field.identifier, value)
 
     def __call__(self, form):

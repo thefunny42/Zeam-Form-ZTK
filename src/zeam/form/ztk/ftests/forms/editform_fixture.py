@@ -1,6 +1,7 @@
 
 from zeam.form import ztk
 from zope import interface, schema
+from zope.schema.fieldproperty import FieldProperty
 
 from grokcore import component as grok
 
@@ -14,13 +15,18 @@ class IComment(interface.Interface):
         required=True)
     name = schema.TextLine(
         title=u"Name",
+        default=u'',
         required=False)
 
 
 class Comment(grok.Context):
     grok.implements(IComment)
 
-    def __init__(self, title, comment, name=''):
+    title = FieldProperty(IComment['title'])
+    comment = FieldProperty(IComment['comment'])
+    name = FieldProperty(IComment['name'])
+
+    def __init__(self, title, comment, name=u''):
         self.title = title
         self.comment = comment
         self.name = name
@@ -41,7 +47,7 @@ protectName(Comment, 'title', 'zope.Public')
 protectName(Comment, 'comment', 'zope.Public')
 protectName(Comment, 'name', 'zope.Public')
 
-# Everybody as edit right, so test are simpler
+# Everybody has edit right, so test are simpler
 protectSetAttribute(Comment, 'title', 'zope.Public')
 protectSetAttribute(Comment, 'comment', 'zope.Public')
 protectSetAttribute(Comment, 'name', 'zope.Public')

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 We are going to use a simple form with an edit action to edit a comment.
 
@@ -15,6 +16,8 @@ Let's add a comment and try to edit it with our form:
   u'zeam.form'
   >>> root['comment'].comment
   u'Is great'
+  >>> root['comment'].name
+  u''
 
   >>> from zope.testbrowser.testing import Browser
   >>> browser = Browser()
@@ -28,35 +31,96 @@ Now acccess the edit form:
   >>> u'Modify your comment' in browser.contents
   True
 
-  >>> titlefield = browser.getControl('Title')
-  >>> titlefield
+  >>> title_field = browser.getControl('Title')
+  >>> title_field
   <Control name='form.field.title' type='text'>
-  >>> titlefield.value
+  >>> title_field.value
   'zeam.form'
 
-  >>> commentfield = browser.getControl('Comment')
-  >>> commentfield
+  >>> comment_field = browser.getControl('Comment')
+  >>> comment_field
   <Control name='form.field.comment' type='textarea'>
-  >>> commentfield.value
+  >>> comment_field.value
   'Is great'
 
-  >>> namefield = browser.getControl('Name')
-  >>> namefield
+  >>> name_field = browser.getControl('Name')
+  >>> name_field
   <Control name='form.field.name' type='text'>
-  >>> namefield.value
+  >>> name_field.value
   ''
 
 We can now edit the content, and so it get modified:
 
-  >>> titlefield.value = 'zeam.form.ztk'
-  >>> commentfield.value = 'Is far cooler than not ztk'
-  >>> changebutton = browser.getControl('Change')
-  >>> changebutton
+  >>> title_field.value = 'zeam.form.ztk'
+  >>> comment_field.value = 'Is far cooler than not ztk'
+  >>> name_field.value = 'Arthur de la contee d`or'
+  >>> change_button = browser.getControl('Change')
+  >>> change_button
   <SubmitControl name='form.action.change' type='submit'>
 
-  >>> changebutton.click()
+  >>> change_button.click()
   >>> 'Modification saved' in browser.contents
   True
 
+Modifications are saved, we have the new value if we reload the page:
+
+  >>> browser.open('http://localhost/comment/edit')
+
+  >>> title_field = browser.getControl('Title')
+  >>> title_field.value
+  'zeam.form.ztk'
+  >>> comment_field = browser.getControl('Comment')
+  >>> comment_field.value
+  'Is far cooler than not ztk'
+  >>> name_field = browser.getControl('Name')
+  >>> name_field.value
+  'Arthur de la contee d`or'
+
+We can remove name, it will work as it is not required:
+
+  >>> name_field.value = ''
+  >>> change_button = browser.getControl('Change')
+  >>> change_button.click()
+  >>> 'Modification saved' in browser.contents
+  True
+
+
+And name is gone:
+
+  >>> browser.open('http://localhost/comment/edit')
+
+  >>> title_field = browser.getControl('Title')
+  >>> title_field.value
+  'zeam.form.ztk'
+  >>> comment_field = browser.getControl('Comment')
+  >>> comment_field.value
+  'Is far cooler than not ztk'
+  >>> name_field = browser.getControl('Name')
+  >>> name_field.value
+  ''
+
+However comment is required:
+
+  >>> comment_field.value = ''
+  >>> change_button = browser.getControl('Change')
+  >>> change_button.click()
+  >>> 'Modification saved' in browser.contents
+  False
+  >>> 'There were errors' in browser.contents
+  True
+
+So no changes happened:
+
+  >>> browser.open('http://localhost/comment/edit')
+
+  >>> title_field = browser.getControl('Title')
+  >>> title_field.value
+  'zeam.form.ztk'
+  >>> comment_field = browser.getControl('Comment')
+  >>> comment_field.value
+  'Is far cooler than not ztk'
+  >>> name_field = browser.getControl('Name')
+  >>> name_field.value
+  ''
 
 """
