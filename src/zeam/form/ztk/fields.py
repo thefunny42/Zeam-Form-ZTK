@@ -26,8 +26,8 @@ class SchemaFieldFactory(object):
 
     def produce(self):
         interface = self.context.interface
-        if not interface and not getattr(self.context, '__name__', None):
-            raise ValueError("Field has no interface")
+        if interface is None and not getattr(self.context, '__name__', None):
+            raise ValueError("Field has no interface or __name__")
         yield interfaces.IField(self.context)
 
 

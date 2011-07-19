@@ -79,7 +79,7 @@ Definition
   ...    age = Int(
   ...        title=u"Enter your age.",
   ...        required=True)
-  ...        
+  ...
   ...    accept = Choice(
   ...        title=u"I accept the conditions of use.",
   ...        required=True,
@@ -126,6 +126,17 @@ Providing some data
 
   >>> data = FieldsValues(form, fields)
   >>> data.update({'age': 19, 'accept': u"I accept"})
+  >>> print validator.validate(data)
+  []
+
+
+Fields coming not from an interface
+-----------------------------------
+
+  >>> size = Fields(Int(__name__='size',
+  ...                   title=u'Size',
+  ...                   required=True))
+  >>> validator =  InvariantsValidation(size)
   >>> print validator.validate(data)
   []
 

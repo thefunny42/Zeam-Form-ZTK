@@ -75,11 +75,11 @@ But it need to belong to an interface::
   >>> Fields(schema.TextLine(title=u"Quality of McDo restaurant"))
   Traceback (most recent call last):
      ...
-  ValueError: Field has no interface
+  ValueError: Field has no interface or __name__
   >>> s2.extend(schema.TextLine(title=u"Quality of McDo restaurant"))
   Traceback (most recent call last):
      ...
-  ValueError: Field has no interface
+  ValueError: Field has no interface or __name__
 
 Or to specify at least a __name__:
 
@@ -227,7 +227,7 @@ The data manager should provide all the necessary interfaces::
   >>> ITitledItem.providedBy(gadm), IDescriptiveItem.providedBy(gadm)
   (True, True)
 
-We can, now, simply get and set our attributes:: 
+We can, now, simply get and set our attributes::
 
   >>> print gadm.get("title")
   None
