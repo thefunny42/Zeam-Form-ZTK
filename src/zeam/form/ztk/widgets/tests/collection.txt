@@ -30,7 +30,7 @@ First we need some test interfaces that uses collections::
 Field
 -----
 
-So now you can create a field, and get a collection field:
+So now you can create a field, and get a collection field::
 
   >>> from zeam.form.base import interfaces
   >>> from zeam.form.base.markers import NO_VALUE
@@ -136,7 +136,7 @@ well::
   >>> widget.allowAdding
   True
   >>> widget.allowRemove
-  True 
+  True
 
 Let's now create a widget which have values, and we will see that we
 have a sub-widget for each entry of the collection::
@@ -293,7 +293,7 @@ remove values::
   >>> peopleWidget.allowAdding
   True
   >>> peopleWidget.allowRemove
-  True 
+  True
 
 And you have the same with a request containing just the marker::
 
@@ -313,7 +313,7 @@ And you have the same with a request containing just the marker::
   >>> peopleWidget.allowAdding
   True
   >>> peopleWidget.allowRemove
-  True 
+  True
 
 Generic Widget extractor
 ~~~~~~~~~~~~~~~~~~~~~~~~

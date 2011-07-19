@@ -14,7 +14,7 @@ First we need a test interface and content::
   ...    email = schema.TextLine(title=u"Email", required=False)
 
   >>> class IPost(interface.Interface):
-  ...    comment = schema.Object(title=u"Comment", schema=IComment)
+  ...    comment = schema.Object(title=u"Comment", schema=IComment, required=False)
 
 And we will need a content and a request to test::
 
@@ -93,6 +93,18 @@ last will be used in priority::
   <class 'Comment'>
 
 
+Validation
+----------
+
+The field will only validate a correct value::
+
+  >>> from zeam.form.base.markers import NO_VALUE
+  >>> postField.validate(NO_VALUE)
+  >>> postField.validate('foo')
+  u'Schema not provided'
+  >>> postField.validate(Comment(u'Hello', u'hello people !'))
+
+
 Widget
 ------
 
@@ -121,9 +133,7 @@ object, all of them prefixed by the main widget identifier::
   >>> len(commentWidget.objectWidgets)
   3
   >>> list(commentWidget.objectWidgets)
-  [<TextLineWidget Title>,
-   <TextFieldWidget Comment>,
-   <TextLineWidget Email>]
+  [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
   >>> map(lambda w: w.identifier, commentWidget.objectWidgets)
   ['form.field.comment.field.title',
    'form.field.comment.field.comment',

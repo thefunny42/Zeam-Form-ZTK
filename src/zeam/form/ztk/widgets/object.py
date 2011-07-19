@@ -47,8 +47,6 @@ class ObjectSchemaField(SchemaField):
         return getUtility(IFactory, name=schema.__identifier__)
 
 
-
-
 class ObjectFieldWidget(SchemaFieldWidget):
     grok.adapts(ObjectSchemaField, Interface, Interface)
 
