@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from zeam.form.base import Action
-from zeam.form.base.markers import NO_CHANGE, SUCCESS, FAILURE
 from zeam.form.base.datamanager import ObjectDataManager
+from zeam.form.base.markers import NO_CHANGE, SUCCESS, FAILURE
+from zope.container.interfaces import INameChooser
 from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
-
-try:
-    from zope.container.interfaces import INameChooser
-except ImportError:
-    from zope.app.container.interfaces import INameChooser
 
 _ = MessageFactory("zeam.form.base")
 

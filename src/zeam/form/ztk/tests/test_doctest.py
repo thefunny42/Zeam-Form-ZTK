@@ -3,7 +3,7 @@ import unittest
 
 from zope.testing import doctest
 
-from zeam.form.ztk.testing import FunctionalLayer, setUp, tearDown
+from zeam.form.ztk.testing import FunctionalLayer
 
 def test_suite():
     optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
@@ -14,8 +14,6 @@ def test_suite():
         test = doctest.DocFileSuite(
             filename,
             optionflags=optionflags,
-            setUp=setUp,
-            tearDown=tearDown,
             globs=globs)
         test.layer = FunctionalLayer
         suite.addTest(test)

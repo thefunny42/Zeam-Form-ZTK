@@ -19,7 +19,7 @@ Let's add a comment and try to edit it with our form:
   >>> root['comment'].name
   u''
 
-  >>> from zope.testbrowser.testing import Browser
+  >>> from zope.app.wsgi.testlayer import Browser
   >>> browser = Browser()
   >>> browser.handleErrors = False
 

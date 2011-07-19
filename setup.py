@@ -4,15 +4,11 @@ import os
 version = '1.1dev'
 
 tests_require = [
-    'zope.app.authentication',
-    'zope.app.security',
-    'zope.app.testing',
-    'zope.app.zcmlfiles',
-    'zope.configuration',
-    'zope.publisher',
-    'zope.securitypolicy',
-    'zope.testbrowser',
+    'zope.app.schema',
+    'zope.app.wsgi',
+    'zope.security',
     'zope.testing',
+    'zeam.form.base [test]'
     ]
 
 setup(name='zeam.form.ztk',
@@ -37,19 +33,21 @@ setup(name='zeam.form.ztk',
       packages=find_packages('src'),
       include_package_data=True,
       zip_safe=False,
-      # Don't add zope.container. The python file conditionally import
-      # zope.container or zope.app.container
       install_requires=[
           'grokcore.component',
+          'grokcore.view',
+          'grokcore.security',
           'megrok.chameleon',
           'setuptools',
           'zeam.form.base >= 1.0',
           'zope.component',
+          'zope.container',
           'zope.event',
           'zope.i18n',
           'zope.i18nmessageid',
           'zope.interface',
           'zope.lifecycleevent',
+          'zope.publisher',
           'zope.schema',
           'zope.traversing',
         ],

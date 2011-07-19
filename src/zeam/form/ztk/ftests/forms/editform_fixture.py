@@ -40,7 +40,7 @@ class Edit(ztk.Form):
     actions = ztk.Actions(ztk.EditAction(u"Change"))
 
 
-from zope.app.security.protectclass import protectName, protectSetAttribute
+from zope.security.protectclass import protectName, protectSetAttribute
 # Need to declare security for Zope madness
 
 protectName(Comment, 'title', 'zope.Public')
