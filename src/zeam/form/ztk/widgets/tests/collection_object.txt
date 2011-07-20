@@ -7,6 +7,7 @@ implementation::
 
   >>> import datetime
   >>> from zope import schema, interface
+  >>> from zope.component import IFactory, provideUtility
 
   >>> class IProgram(interface.Interface):
   ...     name = schema.TextLine(title=u"Name")
@@ -31,6 +32,8 @@ implementation::
   ...           self.programs = list(programs)
 
   >>> content = Selection([Program(u'TV', u'at my place', datetime.date(2001, 6, 23))])
+
+  >>> provideUtility(Program, IFactory, name=IProgram.__identifier__)
 
 
 Field
@@ -118,12 +121,14 @@ You can extract information from the request.
   >>> programs_request = TestRequest(form={
   ...     'form.field.programs': u'2',
   ...     'form.field.programs.present.0': u'1',
-  ...     'form.field.programs.field.0.name': u'Manga',
-  ...     'form.field.programs.field.0.location': u'Mangashop',
+  ...     'form.field.programs.field.0': u'1',
+  ...     'form.field.programs.field.0.field.name': u'Manga',
+  ...     'form.field.programs.field.0.field.location': u'Mangashop',
   ...     'form.field.programs.present.1': u'1',
-  ...     'form.field.programs.field.1.name': u'TV',
-  ...     'form.field.programs.field.1.location': u'at my place',
-  ...     'form.field.programs.field.1.date': u'10/06/23'})
+  ...     'form.field.programs.field.1': u'1',
+  ...     'form.field.programs.field.1.field.name': u'TV',
+  ...     'form.field.programs.field.1.field.location': u'at my place',
+  ...     'form.field.programs.field.1.field.date': u'10/06/23'})
 
   >>> programs_form = FormData(content, programs_request)
 
@@ -148,3 +153,97 @@ You can extract information from the request.
    [{'form.field.programs.field.1.field.name': u'TV'},
     {'form.field.programs.field.1.field.location': u'at my place'},
     {'form.field.programs.field.1.field.date': u'10/06/23'}]]
+
+
+Widget Extractor
+----------------
+
+You can extract data from the request::
+
+  >>> from zope.component import getMultiAdapter
+
+  >>> programs_extractor = getMultiAdapter(
+  ...      (field, programs_form, programs_request),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> programs_extractor
+  <zeam.form.ztk.widgets.collection.MultiGenericWidgetExtractor object at ...>
+  >>> value, errors = programs_extractor.extract()
+  >>> value
+  [<Program object at ...>, <Program object at ...>]
+  >>> errors
+
+
+If the records doesn't validate properly errors are reported::
+
+  >>> programs_invalid_request = TestRequest(form={
+  ...     'form.field.programs': u'4',
+  ...     'form.field.programs.present.0': u'1',
+  ...     'form.field.programs.field.0': u'1',
+  ...     'form.field.programs.field.0.field.name': u'Manga',
+  ...     'form.field.programs.present.1': u'1',
+  ...     'form.field.programs.field.1': u'1',
+  ...     'form.field.programs.field.1.field.name': u'TV',
+  ...     'form.field.programs.field.1.field.location': u'at my place',
+  ...     'form.field.programs.field.1.field.date': u'10/06/23',
+  ...     'form.field.programs.present.3': u'1',
+  ...     'form.field.programs.field.3': u'1',
+  ...     'form.field.programs.field.3.field.location': u'Antwerpen'})
+
+  >>> programs_invalid_form = FormData(content, programs_invalid_request)
+
+  >>> programs_invalid_extractor = getMultiAdapter(
+  ...      (field, programs_invalid_form, programs_invalid_request),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> programs_invalid_extractor
+  <zeam.form.ztk.widgets.collection.MultiGenericWidgetExtractor object at ...>
+  >>> value, errors = programs_invalid_extractor.extract()
+  >>> value
+  >>> errors
+  <Errors for 'form.field.programs'>
+  >>> list(errors)
+  [<Errors for 'form.field.programs.field.0'>,
+   <Errors for 'form.field.programs'>,
+   <Errors for 'form.field.programs.field.3'>]
+
+
+Reporting sub field errors
+--------------------------
+
+If you edit data coming from the requests and validation fails, errors
+are reported on top of each field::
+
+  >>> programs_invalid_form.extractData(fields)
+  ({'programs': None}, <Errors>)
+  >>> programs_invalid_form.errors
+  <Errors>
+  >>> list(programs_invalid_form.errors)
+  [<Errors for 'form.field.programs'>, <Error There were errors.>]
+
+  >>> programs_invalid_widgets = Widgets(
+  ...     fields,
+  ...     form=programs_invalid_form,
+  ...     request=programs_invalid_request)
+
+  >>> programs_invalid_widgets.update()
+  >>> programs_invalid_widget = programs_invalid_widgets['form.field.programs']
+
+The widgets keep the request values, and report each error correctly::
+
+  >>> from zeam.form.base.interfaces import IError
+
+  >>> programs_invalid_widget.error
+  <Errors for 'form.field.programs'>
+  >>> verifyObject(IError, programs_invalid_widget.error)
+  True
+  >>> len(programs_invalid_widget.valueWidgets)
+  3
+  >>> list(programs_invalid_widget.valueWidgets)
+  [<ObjectFieldWidget form.field.programs.field.0>,
+   <ObjectFieldWidget form.field.programs.field.1>,
+   <ObjectFieldWidget form.field.programs.field.3>]
+  >>> map(lambda w: w.error , programs_invalid_widget.valueWidgets)
+  [<Errors for 'form.field.programs.field.0'>,
+   None,
+   <Errors for 'form.field.programs.field.3'>]
