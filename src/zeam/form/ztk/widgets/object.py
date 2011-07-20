@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zeam.form.base.datamanager import ObjectDataManager
+from zeam.form.base.errors import Errors
 from zeam.form.base.fields import Fields
 from zeam.form.base.markers import NO_VALUE, Marker
 from zeam.form.base.widgets import WidgetExtractor
@@ -60,11 +61,10 @@ class ObjectFieldWidget(SchemaFieldWidget):
     def update(self):
         super(ObjectFieldWidget, self).update()
         value = self.inputValue()
-        fields = self.component.objectFields
         form = cloneFormData(
             self.form, ObjectDataManager(value), self.identifier)
         self.objectWidgets = Widgets(form=form, request=self.request)
-        self.objectWidgets.extend(fields)
+        self.objectWidgets.extend(self.component.objectFields)
         self.objectWidgets.update()
 
 
@@ -85,4 +85,4 @@ class ObjectFieldExtractor(WidgetExtractor):
                         lambda (k, v): not isinstance(v, Marker),
                         data.items())))
             return (value, None)
-        return (value, errors)
+        return (value, Errors(*errors, identifier=self.identifier))

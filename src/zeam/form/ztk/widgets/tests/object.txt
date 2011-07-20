@@ -33,7 +33,7 @@ And we will need a content and a request to test::
   ...    def __init__(self, comment=None):
   ...        self.comment = comment
 
-  >>> content = Comment()
+  >>> content = Post()
 
 
 Field
@@ -45,11 +45,11 @@ You have an Object field you get out of the interface::
   >>> from zeam.form.base import interfaces
   >>> from zeam.form.ztk.interfaces import IObjectSchemaField
 
-  >>> postFields = Fields(IPost)
-  >>> postField = postFields['comment']
-  >>> postField
+  >>> post_fields = Fields(IPost)
+  >>> post_field = post_fields['comment']
+  >>> post_field
   <ObjectSchemaField Comment>
-  >>> verifyObject(IObjectSchemaField, postField)
+  >>> verifyObject(IObjectSchemaField, post_field)
   True
   >>> IObjectSchemaField.extends(interfaces.IField)
   True
@@ -57,13 +57,13 @@ You have an Object field you get out of the interface::
 Now we have a couple more methods on our field to help us with our
 object, to get its schema and fields::
 
-  >>> postField.objectSchema
+  >>> post_field.objectSchema
   <InterfaceClass __builtin__.IComment>
 
-  >>> commentFields = postField.objectFields
-  >>> commentFields
+  >>> comment_fields = post_field.objectFields
+  >>> comment_fields
   <Fields>
-  >>> list(commentFields)
+  >>> list(comment_fields)
   [<TextLineSchemaField Title>,
    <TextSchemaField Comment>,
    <TextLineSchemaField Email>]
@@ -74,23 +74,34 @@ object, or set your factory on the field, as ``objectFactory``. That
 last will be used in priority::
 
   >>> from zope.component import IFactory, provideUtility
-  >>> factoryName = postField.objectSchema.__identifier__
-  >>> provideUtility(Comment, IFactory, name=factoryName)
+  >>> factory_name = post_field.objectSchema.__identifier__
+  >>> provideUtility(Comment, IFactory, name=factory_name)
 
-  >>> postField.getObjectFactory()
+  >>> post_field.getObjectFactory()
   <class 'Comment'>
 
   >>> def customizedOtherFactory(*args):
   ...    return Comment(*args)
 
-  >>> postField.objectFactory = customizedOtherFactory
+  >>> post_field.objectFactory = customizedOtherFactory
 
-  >>> postField.getObjectFactory()
+  >>> post_field.getObjectFactory()
   <function customizedOtherFactory at ...>
 
-  >>> postField.objectFactory = None
-  >>> postField.getObjectFactory()
+  >>> post_field.objectFactory = None
+  >>> post_field.getObjectFactory()
   <class 'Comment'>
+
+Validation
+~~~~~~~~~~
+
+The field will only validate a correct value::
+
+  >>> from zeam.form.base.markers import NO_VALUE
+  >>> post_field.validate(NO_VALUE)
+  >>> post_field.validate('foo')
+  u'Schema not provided'
+  >>> post_field.validate(Comment(u'Hello', u'hello people !'))
 
 
 Widget
@@ -100,34 +111,62 @@ You can now have a widget for your object field::
 
   >>> from zeam.form.ztk import Widgets, FormData
 
-  >>> post = FormData(content, request)
-  >>> post.ignoreContent = False
+  >>> post_form = FormData(content, request)
+  >>> post_form.ignoreContent = False
 
-  >>> postWidgets = Widgets(
-  ...     postFields,
-  ...     form=post,
+  >>> post_widgets = Widgets(
+  ...     post_fields,
+  ...     form=post_form,
   ...     request=request)
 
-  >>> postWidgets.update()
-  >>> commentWidget = postWidgets['form.field.comment']
-  >>> commentWidget
+  >>> post_widgets.update()
+  >>> comment_widget = post_widgets['form.field.comment']
+  >>> comment_widget
   <ObjectFieldWidget Comment>
-  >>> verifyObject(interfaces.IWidget, commentWidget)
+  >>> verifyObject(interfaces.IWidget, comment_widget)
   True
 
 You will have on the widget one widget generated per field in the
 object, all of them prefixed by the main widget identifier::
 
-  >>> len(commentWidget.objectWidgets)
+  >>> len(comment_widget.objectWidgets)
   3
-  >>> list(commentWidget.objectWidgets)
-  [<TextLineWidget Title>,
-   <TextFieldWidget Comment>,
-   <TextLineWidget Email>]
-  >>> map(lambda w: w.identifier, commentWidget.objectWidgets)
-  ['form.field.comment.field.title',
-   'form.field.comment.field.comment',
-   'form.field.comment.field.email']
+  >>> list(comment_widget.objectWidgets)
+  [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
+  >>> map(lambda w: w.value, comment_widget.objectWidgets)
+  [{'form.field.comment.field.title': u''},
+   {'form.field.comment.field.comment': u''},
+   {'form.field.comment.field.email': u''}]
+
+
+Editing content data
+~~~~~~~~~~~~~~~~~~~~
+
+The widget can edit data coming from the content::
+
+  >>> hello_content = Post(Comment(title=u'Hello', comment=u'Hello my name is arthur'))
+
+  >>> post_hello_form = FormData(hello_content, request)
+  >>> post_hello_form.ignoreContent = False
+
+  >>> post_hello_widgets = Widgets(
+  ...     post_fields,
+  ...     form=post_hello_form,
+  ...     request=request)
+
+  >>> post_hello_widgets.update()
+  >>> comment_hello_widget = post_hello_widgets['form.field.comment']
+  >>> comment_hello_widget
+  <ObjectFieldWidget Comment>
+
+  >>> len(comment_hello_widget.objectWidgets)
+  3
+  >>> list(comment_hello_widget.objectWidgets)
+  [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
+  >>> map(lambda w: w.value, comment_hello_widget.objectWidgets)
+  [{'form.field.comment.field.title': u'Hello'},
+   {'form.field.comment.field.comment': u'Hello my name is arthur'},
+   {'form.field.comment.field.email': u''}]
 
 
 Widget Extractor
@@ -136,25 +175,25 @@ Widget Extractor
 You can extract from a request values to create an object by getting
 an extractor for the widget::
 
-  >>> commentRequest = TestRequest(form={
+  >>> comment_request = TestRequest(form={
   ...     'form.field.comment': u'1',
   ...     'form.field.comment.field.title': u'Super cool',
   ...     'form.field.comment.field.comment': u'Everything is working alright.',
   ...     'form.field.comment.field.email': u''})
-  >>> commentData = FormData(content, commentRequest)
+  >>> comment_form = FormData(content, comment_request)
 
-  >>> commentExtractor = getMultiAdapter(
-  ...      (postField, commentData, commentRequest),
+  >>> comment_extractor = getMultiAdapter(
+  ...      (post_field, comment_form, comment_request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> commentExtractor
+  >>> comment_extractor
   <zeam.form.ztk.widgets.object.ObjectFieldExtractor object at ...>
-  >>> verifyObject(interfaces.IWidgetExtractor, commentExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, comment_extractor)
   True
 
 And you can extract the object of the request::
 
-  >>> value, errors = commentExtractor.extract()
+  >>> value, errors = comment_extractor.extract()
   >>> value
   <Comment object at ...>
   >>> errors
@@ -167,11 +206,101 @@ And you can extract the object of the request::
 
 If nothing is in the request, you have no value::
 
-  >>> commentData = FormData(content, request)
+  >>> from zeam.form.base.interfaces import IError
 
-  >>> commentExtractor = getMultiAdapter(
-  ...      (postField, commentData, request),
+  >>> comment_empty_form = FormData(content, request)
+
+  >>> comment_empty_extractor = getMultiAdapter(
+  ...      (post_field, comment_empty_form, request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> commentExtractor.extract()
+  >>> comment_empty_extractor.extract()
   (<Marker NO_VALUE>, None)
+
+If a sub field doesn't validate the error is reported back::
+
+  >>> comment_invalid_request = TestRequest(form={
+  ...     'form.field.comment': u'1',
+  ...     'form.field.comment.field.title': u'Super cool failure'})
+  >>> comment_invalid_form = FormData(content, comment_invalid_request)
+
+  >>> comment_invalid_extractor = getMultiAdapter(
+  ...      (post_field, comment_invalid_form, comment_invalid_request),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> value, errors = comment_invalid_extractor.extract()
+  >>> value
+
+  >>> errors
+  <Errors for 'form.field.comment'>
+  >>> verifyObject(IError, errors)
+  True
+  >>> map(lambda e: (e.identifier, e.title), errors)
+  [('form.field.comment.field.comment', u'Missing required value.'),
+   ('form.field.comment', u'There were errors.')]
+
+
+Reporting sub field errors
+--------------------------
+
+You can edit data coming from the requests, that fails validation. In
+this case, errors are reported on top of each sub field correctly::
+
+  >>> comment_invalid_form.extractData(post_fields)
+  ({'comment': None}, <Errors>)
+  >>> comment_invalid_form.errors
+  <Errors>
+
+  >>> comment_invalid_widgets = Widgets(
+  ...     post_fields,
+  ...     form=comment_invalid_form,
+  ...     request=comment_invalid_request)
+
+  >>> comment_invalid_widgets.update()
+  >>> comment_invalid_widget = comment_invalid_widgets['form.field.comment']
+
+The widget keep the request values. The widget have the main error,
+sub-widgets have the correct errors as well:
+
+  >>> comment_invalid_widget.error
+  <Errors for 'form.field.comment'>
+  >>> verifyObject(IError, comment_invalid_widget.error)
+  True
+  >>> comment_invalid_widget.error.title
+  u'There were errors.'
+  >>> len(comment_invalid_widget.objectWidgets)
+  3
+  >>> list(comment_invalid_widget.objectWidgets)
+  [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
+  >>> map(lambda w: w.error , comment_invalid_widget.objectWidgets)
+  [None, <Error Missing required value.>, None]
+  >>> map(lambda w: w.value, comment_invalid_widget.objectWidgets)
+  [{'form.field.comment.field.title': u'Super cool failure'},
+   {'form.field.comment.field.comment': u''},
+   {'form.field.comment.field.email': u''}]
+
+If you render the widget, you have the same template than a form, with
+the error reported::
+
+  >>> print comment_invalid_widget.render() #doctest: +NORMALIZE_WHITESPACE
+  <label class="field-label" for="form-field-comment-field-title">Title</label>
+  <span class="field-required">*</span>
+  <br />
+  <input type="text" value="Super cool failure" id="form-field-comment-field-title"
+         class="field field-textline field-required" name="form.field.comment.field.title" />
+  <br />
+  <label class="field-label" for="form-field-comment-field-comment">Comment</label>
+  <span class="field-required">*</span>
+  <br />
+  <span class="field-error">Missing required value.</span>
+  <br />
+  <textarea id="form-field-comment-field-comment" name="form.field.comment.field.comment"
+            class="field field-text field-required" cols="80" rows="5"></textarea>
+  <br />
+  <label class="field-label" for="form-field-comment-field-email">Email</label>
+  <br />
+  <input type="text" value="" id="form-field-comment-field-email"
+         class="field field-textline" name="form.field.comment.field.email" />
+  <br />
+  <input type="hidden" name="form.field.comment" value="1" />
+
