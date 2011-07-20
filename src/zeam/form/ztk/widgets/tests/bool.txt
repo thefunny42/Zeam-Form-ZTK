@@ -30,11 +30,11 @@ So now you can create a field, and get a boolean field:
   >>> from zeam.form.base import interfaces
 
   >>> fields = Fields(IQuestion)
-  >>> booleanField = fields['answer']
-  >>> booleanField
+  >>> boolean_field = fields['answer']
+  >>> boolean_field
   <BooleanSchemaField Do you like zeam?>
 
-  >>> verifyObject(interfaces.IField, booleanField)
+  >>> verifyObject(interfaces.IField, boolean_field)
   True
 
 
@@ -71,25 +71,25 @@ the value is False:
 
   >>> from zope import component
 
-  >>> falseExtractor = component.getMultiAdapter(
-  ...      (booleanField, sub, request), interfaces.IWidgetExtractor)
+  >>> false_extractor = component.getMultiAdapter(
+  ...      (boolean_field, sub, request), interfaces.IWidgetExtractor)
 
-  >>> falseExtractor
+  >>> false_extractor
   <zeam.form.ztk.widgets.bool.CheckBoxWidgetExtractor object at ...>
-  >>> falseExtractor.extract()
+  >>> false_extractor.extract()
   (False, None)
 
-  >>> verifyObject(interfaces.IWidgetExtractor, falseExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, false_extractor)
   True
 
 And if there is True in the request that means the checkbox is
 checked:
 
-  >>> trueRequest = TestRequest(
+  >>> true_request = TestRequest(
   ...         form={booleanWidget.identifier: u'True', })
 
   >>> extractor = component.getMultiAdapter(
-  ...      (booleanField, sub, trueRequest), interfaces.IWidgetExtractor)
+  ...      (boolean_field, sub, true_request), interfaces.IWidgetExtractor)
 
   >>> extractor.extract()
   (True, None)
