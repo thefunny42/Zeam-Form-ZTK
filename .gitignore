@@ -8,6 +8,8 @@
 *.egg-info
 *.cpt.py
 .installed.cfg
+.mr.developer.cfg
 bin/
+devel/
 parts/
 develop-eggs/

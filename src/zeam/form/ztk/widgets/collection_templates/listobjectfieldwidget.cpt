@@ -43,6 +43,14 @@
                    tal:attributes="name valueWidget.identifier" />
           </td>
           <td tal:repeat="objectWidget valueWidget.objectWidgets">
+            <tal:error tal:define="error objectWidget.error"
+                       tal:condition="error">
+              <span class="field-error"
+                    tal:content="error.title">
+                Error
+              </span>
+              <br />
+            </tal:error>
             <tal:widget tal:replace="structure objectWidget.render()" />
           </td>
         </tr>

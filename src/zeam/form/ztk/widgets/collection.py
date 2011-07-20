@@ -8,6 +8,7 @@ except ImportError:
     md5hash = lambda s: md5.new(s).hexdigest()
 
 from zeam.form.base.datamanager import NoneDataManager
+from zeam.form.base.errors import Errors
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE
@@ -257,7 +258,8 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
             except ValueError:
                 return (None, u"Invalid internal input")
             collectedValues = []
-            for position in range(0, int(value)):
+            collectedErrors = Errors(identifier=self.identifier)
+            for position in range(0, value):
                 value_present = '%s.present.%d' % (
                     self.identifier, position) in self.request.form
                 if not value_present:
@@ -267,8 +269,11 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
                 form = cloneFormData(self.form, prefix=self.identifier)
                 data, errors = form.extractData(Fields(field))
                 if errors:
-                    return (None, errors)
-                collectedValues.append(data[field.identifier])
+                    collectedErrors.extend(errors)
+                else:
+                    collectedValues.append(data[field.identifier])
+            if collectedErrors:
+                return (None, collectedErrors)
             value = self.component.collectionType(collectedValues)
         return (value, None)
 

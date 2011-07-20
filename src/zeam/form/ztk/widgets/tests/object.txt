@@ -250,6 +250,8 @@ this case, errors are reported on top of each sub field correctly::
   ({'comment': None}, <Errors>)
   >>> comment_invalid_form.errors
   <Errors>
+  >>> list(comment_invalid_form.errors)
+  [<Errors for 'form.field.comment'>, <Error There were errors.>]
 
   >>> comment_invalid_widgets = Widgets(
   ...     post_fields,
