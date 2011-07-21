@@ -41,7 +41,7 @@
             node.get(0).innerHTML, {
                 // For the moment this use an hijack version of
                 // json-template.
-                undefined_str: function(name){
+                undefined_callable: function(name){
                     return '{' + name + '}';
                 }
             });
@@ -125,12 +125,12 @@
     };
 
     $(document).ready(function (){
-        $('form.zeam-form div.field-collection').each(function (){
+        $('form div.field-collection').each(function (){
             prepare_field($(this));
         });
 
         // Bind add buttons
-        $('form.zeam-form input.field-collection-add-line').live('click', function() {
+        $('form input.field-collection-add-line').live('click', function() {
             var field = $(this).closest('div.field-collection');
             var counter = field.children('input.field-collection-counter');
             var identifier = counter.val();
@@ -160,7 +160,7 @@
         });
 
         // Bind the remove button
-        $('form.zeam-form input.field-collection-remove-line').live('click', function() {
+        $('form input.field-collection-remove-line').live('click', function() {
             var field = $(this).closest('div.field-collection');
             var container = field.find('.field-collection-lines:first');
             var selected = container.children(
@@ -193,7 +193,7 @@
         });
 
         // Bind the up button
-        $('form.zeam-form button.field-collection-move-up').live('click', function () {
+        $('form button.field-collection-move-up').live('click', function () {
             var button = $(this);
             var line = button.closest('.field-collection-line');
             var previous_line = line.prev();
@@ -217,7 +217,7 @@
         });
 
         // Bind the down button
-        $('form.zeam-form button.field-collection-move-down').live('click', function () {
+        $('form button.field-collection-move-down').live('click', function () {
             var button = $(this);
             var line = button.closest('.field-collection-line');
             var next_line = line.next();

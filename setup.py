@@ -52,7 +52,10 @@ setup(name='zeam.form.ztk',
           'zope.traversing',
         ],
       tests_require = tests_require,
-      extras_require = {'test': tests_require},
+      extras_require = {'test': tests_require,
+                        'fanstatic': ['fanstatic',
+                                      'js.jquery',
+                                      'zeam.jsontemplate']},
       entry_points="""
       # -*- Entry points: -*-
       [zeam.form.components]
@@ -68,5 +71,7 @@ setup(name='zeam.form.ztk',
       textline = zeam.form.ztk.widgets.textline:register
       uri = zeam.form.ztk.widgets.uri:register
       time = zeam.form.ztk.widgets.time:register
+      [fanstatic.libraries]
+      zeam.form.ztk.widgets = zeam.form.ztk.widgets.collection:library
       """,
       )

@@ -7,6 +7,20 @@ except ImportError:
     import md5
     md5hash = lambda s: md5.new(s).hexdigest()
 
+try:
+    # If you have the fanstatic extra, add support to include widget JS
+    import fanstatic
+    import js.jquery
+    import zeam.jsontemplate
+
+    library = fanstatic.Library('zeam.form.ztk.widgets', 'static')
+    collection = fanstatic.Resource(
+        library, 'collection.js', depends=[js.jquery.jquery,
+                                           zeam.jsontemplate.jsontemplate])
+    requireCollectionResources = collection.need
+except ImportError:
+    requireCollectionResources = lambda: None
+
 from zeam.form.base.datamanager import NoneDataManager
 from zeam.form.base.errors import Errors
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
@@ -181,6 +195,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
     def update(self):
         super(MultiGenericFieldWidget, self).update()
         self.valueWidgets.update()
+        requireCollectionResources()
 
         self.jsonAddIdentifier = None
         self.jsonAddTemplate = None
