@@ -260,6 +260,6 @@ during the data manager initialisation::
   >>> gadm.fields
   {'description': <InterfaceClass __builtin__.IDescriptiveItem>,
    'title': <InterfaceClass __builtin__.ITitledItem>}
-  >>> gadm.adapters
-  {<InterfaceClass __builtin__.ITitledItem>: <TitleProvider object at ...>,
-   <InterfaceClass __builtin__.IDescriptiveItem>: <DescProvider object at ...>}
+  >>> sorted(gadm.adapters.items())
+  [(<InterfaceClass __builtin__.IDescriptiveItem>, <DescProvider object at ...>),
+   (<InterfaceClass __builtin__.ITitledItem>, <TitleProvider object at ...>)]
