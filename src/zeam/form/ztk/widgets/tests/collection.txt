@@ -36,6 +36,7 @@ So now you can create a field, and get a collection field::
   >>> from zeam.form.base.markers import NO_VALUE
   >>> from zeam.form.ztk import Fields
   >>> from zeam.form.ztk.interfaces import ICollectionSchemaField
+  >>> from zeam.form.ztk.interfaces import IListSchemaField
 
   >>> fields = Fields(IListOfTextlines)
   >>> field = fields['names']
@@ -44,6 +45,10 @@ So now you can create a field, and get a collection field::
   >>> verifyObject(ICollectionSchemaField, field)
   True
   >>> ICollectionSchemaField.extends(interfaces.IField)
+  True
+  >>> verifyObject(IListSchemaField, field)
+  True
+  >>> IListSchemaField.extends(ICollectionSchemaField)
   True
   >>> field.required
   False
@@ -58,6 +63,18 @@ This field works on list, and contains text lines:
   >>> verifyObject(interfaces.IField, value_field)
   True
   >>> value_field.required
+  False
+
+By default, ``allowAdding``, ``allowRemove``, and ``allowOrdering``
+are on. ``inlineValidation`` is not::
+
+  >>> field.allowAdding
+  True
+  >>> field.allowRemove
+  True
+  >>> field.allowOrdering
+  True
+  >>> field.inlineValidation
   False
 
 On a required list of required booleans:
@@ -137,6 +154,10 @@ well::
   True
   >>> widget.allowRemove
   True
+  >>> widget.inlineValidation
+  False
+  >>> widget.allowOrdering
+  True
 
 Let's now create a widget which have values, and we will see that we
 have a sub-widget for each entry of the collection::
@@ -186,31 +207,35 @@ created for each data value found in the request::
 This request parsed with our widget we will create two sub-widget, one
 with the value ``Nicolas``, the other with the value ``Jean``::
 
-  >>> peopleInvitation = FormData(content, list_request)
+  >>> list_form = FormData(content, list_request)
 
-  >>> peopleWidgets = Widgets(
+  >>> list_widgets = Widgets(
   ...     fields,
-  ...     form=peopleInvitation,
+  ...     form=list_form,
   ...     request=list_request)
 
-  >>> peopleWidgets.update()
-  >>> peopleWidget = peopleWidgets['form.field.names']
-  >>> len(peopleWidget.valueWidgets)
+  >>> list_widgets.update()
+  >>> list_widget = list_widgets['form.field.names']
+  >>> len(list_widget.valueWidgets)
   2
-  >>> peopleWidget.allowAdding
+  >>> list_widget.allowAdding
   True
-  >>> peopleWidget.allowRemove
+  >>> list_widget.allowRemove
   True
-  >>> list(peopleWidget.valueWidgets)
+  >>> list(list_widget.valueWidgets)
   [<TextLineWidget form.field.names.field.0>,
    <TextLineWidget form.field.names.field.1>]
-  >>> map(lambda w:w.value, peopleWidget.valueWidgets)
+  >>> map(lambda w:w.value, list_widget.valueWidgets)
   [{'form.field.names.field.0': u'Nicolas'},
    {'form.field.names.field.1': u'Jean'}]
+  >>> list_widget.error
+
+Removing input from the request
+...............................
 
 A request can ask to remove one of the values contained in the request::
 
-  >>> list_request = TestRequest(form={
+  >>> list_remove_request = TestRequest(form={
   ...     'form.field.names': u'2',
   ...     'form.field.names.remove': u'Remove',
   ...     'form.field.names.checked.0': u'checked',
@@ -220,32 +245,65 @@ A request can ask to remove one of the values contained in the request::
   ...     'form.field.names.field.1': u'Jean',})
 
 And if we parse this request, we will have only one sub-widget created
-for the second value, the first will have been ignored (and so removed)::
+for the second value, the first will have been ignored (and so
+removed), and there is no error::
 
-  >>> peopleInvitation = FormData(content, list_request)
+  >>> list_remove_form = FormData(content, list_remove_request)
 
-  >>> peopleWidgets = Widgets(
+  >>> list_remove_widgets = Widgets(
   ...     fields,
-  ...     form=peopleInvitation,
-  ...     request=list_request)
+  ...     form=list_remove_form,
+  ...     request=list_remove_request)
 
-  >>> peopleWidgets.update()
-  >>> peopleWidget = peopleWidgets['form.field.names']
-  >>> len(peopleWidget.valueWidgets)
+  >>> list_remove_widgets.update()
+  >>> list_remove_widget = list_remove_widgets['form.field.names']
+  >>> len(list_remove_widget.valueWidgets)
   1
-  >>> peopleWidget.allowAdding
+  >>> list_remove_widget.allowAdding
   True
-  >>> peopleWidget.allowRemove
+  >>> list_remove_widget.allowRemove
   True
-  >>> list(peopleWidget.valueWidgets)
+  >>> list_remove_widget.inlineValidation
+  False
+  >>> list(list_remove_widget.valueWidgets)
   [<TextLineWidget form.field.names.field.1>]
-  >>> map(lambda w:w.value, peopleWidget.valueWidgets)
+  >>> map(lambda w:w.value, list_remove_widget.valueWidgets)
   [{'form.field.names.field.1': u'Jean'}]
+  >>> list_remove_widget.error
+
+There is a possibility that the user made a mistake, and click on
+remove after. We want the data to be validated if the option
+``inlineValidation`` is on::
+
+  >>> inline_fields = Fields(field.clone())
+  >>> inline_fields['names'].inlineValidation = True
+
+  >>> list_remove_inline_widgets = Widgets(
+  ...     inline_fields,
+  ...     form=list_remove_form,
+  ...     request=list_remove_request)
+
+  >>> list_remove_inline_widgets.update()
+  >>> list_remove_inline_widget = list_remove_inline_widgets['form.field.names']
+  >>> list_remove_inline_widget.allowAdding
+  True
+  >>> list_remove_inline_widget.allowRemove
+  True
+  >>> list_remove_inline_widget.inlineValidation
+  True
+  >>> list(list_remove_inline_widget.valueWidgets)
+  [<TextLineWidget form.field.names.field.1>]
+  >>> map(lambda w:w.value, list_remove_inline_widget.valueWidgets)
+  [{'form.field.names.field.1': u'Jean'}]
+  >>> list_remove_inline_widget.error
+
+Adding input from the request
+.............................
 
 In the same way, a request can ask to add a new empty sub-widget in
 order to be able to enter a new value::
 
-  >>> list_request = TestRequest(form={
+  >>> list_add_request = TestRequest(form={
   ...     'form.field.names': u'3',
   ...     'form.field.names.add': u'Add',
   ...     'form.field.names.present.1': u'1',
@@ -254,65 +312,72 @@ order to be able to enter a new value::
 With that request the widget will create two widgets, and one (new)
 empty::
 
-  >>> peopleInvitation = FormData(content, list_request)
+  >>> list_add_form = FormData(content, list_add_request)
 
-  >>> peopleWidgets = Widgets(
+  >>> list_add_widgets = Widgets(
   ...     fields,
-  ...     form=peopleInvitation,
-  ...     request=list_request)
+  ...     form=list_add_form,
+  ...     request=list_add_request)
 
-  >>> peopleWidgets.update()
-  >>> peopleWidget = peopleWidgets['form.field.names']
-  >>> len(peopleWidget.valueWidgets)
+  >>> list_add_widgets.update()
+  >>> list_add_widget = list_add_widgets['form.field.names']
+  >>> len(list_add_widget.valueWidgets)
   2
-  >>> peopleWidget.allowAdding
+  >>> list_add_widget.allowAdding
   True
-  >>> peopleWidget.allowRemove
+  >>> list_add_widget.allowRemove
   True
-  >>> list(peopleWidget.valueWidgets)
+  >>> list_add_widget.inlineValidation
+  False
+  >>> list(list_add_widget.valueWidgets)
   [<TextLineWidget form.field.names.field.1>,
    <TextLineWidget form.field.names.field.3>]
-  >>> map(lambda w:w.value, peopleWidget.valueWidgets)
+  >>> map(lambda w:w.value, list_add_widget.valueWidgets)
   [{'form.field.names.field.1': u'Jean'},
    {'form.field.names.field.3': u''}]
+
+Empty request
+.............
 
 With an empty request, you will have no values, and won't be able to
 remove values::
 
-  >>> peopleInvitation = FormData(content, request)
+  >>> list_empty_form = FormData(content, request)
 
-  >>> peopleWidgets = Widgets(
+  >>> list_empty_widgets = Widgets(
   ...     fields,
-  ...     form=peopleInvitation,
+  ...     form=list_empty_form,
   ...     request=request)
 
-  >>> peopleWidgets.update()
-  >>> peopleWidget = peopleWidgets['form.field.names']
-  >>> len(peopleWidget.valueWidgets)
+  >>> list_empty_widgets.update()
+  >>> list_empty_widget = list_empty_widgets['form.field.names']
+  >>> len(list_empty_widget.valueWidgets)
   0
-  >>> peopleWidget.allowAdding
+  >>> list_empty_widget.allowAdding
   True
-  >>> peopleWidget.allowRemove
+  >>> list_empty_widget.allowRemove
   True
+  >>> list_empty_widget.inlineValidation
+  False
 
 And you have the same with a request containing just the marker::
 
-  >>> zeroPeopleRequest = TestRequest(form={
+  >>> list_almost_empty_request = TestRequest(form={
   ...     'form.field.names': u'4'})
-  >>> peopleInvitation = FormData(content, request)
+  >>> list_almost_empty_form = FormData(content, list_almost_empty_request)
 
-  >>> peopleWidgets = Widgets(
+  >>> list_almost_empty_widgets = Widgets(
   ...     fields,
-  ...     form=peopleInvitation,
-  ...     request=zeroPeopleRequest)
+  ...     form=list_almost_empty_form,
+  ...     request=list_almost_empty_request)
 
-  >>> peopleWidgets.update()
-  >>> peopleWidget = peopleWidgets['form.field.names']
-  >>> len(peopleWidget.valueWidgets)
+  >>> list_almost_empty_widgets.update()
+  >>> list_almost_empty_widget = list_almost_empty_widgets['form.field.names']
+  >>> len(list_almost_empty_widget.valueWidgets)
   0
-  >>> peopleWidget.allowAdding
+  >>> list_almost_empty_widget.allowAdding
   True
-  >>> peopleWidget.allowRemove
+  >>> list_almost_empty_widget.allowRemove
   True
 
 Generic Widget extractor
@@ -320,15 +385,6 @@ Generic Widget extractor
 
 You are able to extract values from the request using the
 corresponding widget extractor::
-
-  >>> list_request = TestRequest(form={
-  ...     'form.field.names': u'4',
-  ...     'form.field.names.present.0': u'1',
-  ...     'form.field.names.field.0': u'Nicolas',
-  ...     'form.field.names.present.2': u'1',
-  ...     'form.field.names.field.2': u'Jean',})
-
-  >>> list_form = FormData(content, list_request)
 
   >>> list_extractor = getMultiAdapter(
   ...      (field, list_form, list_request),

@@ -30,7 +30,7 @@ from zeam.form.base.fields import Fields
 from zeam.form.base.widgets import WidgetExtractor, Widgets, createWidget
 from zeam.form.ztk.fields import (
     SchemaField, registerSchemaField, SchemaFieldWidget)
-from zeam.form.ztk.interfaces import ICollectionSchemaField
+from zeam.form.ztk.interfaces import ICollectionSchemaField, IListSchemaField
 from zeam.form.ztk.widgets.choice import ChoiceSchemaField, ChoiceFieldWidget
 from zeam.form.ztk.widgets.object import ObjectSchemaField
 
@@ -60,6 +60,7 @@ class CollectionSchemaField(SchemaField):
     collectionType = list
     allowAdding = True
     allowRemove = True
+    inlineValidation = False
 
     def __init__(self, field):
         super(CollectionSchemaField, self).__init__(field)
@@ -76,6 +77,7 @@ class CollectionSchemaField(SchemaField):
 class ListSchemaField(CollectionSchemaField):
     """A list field
     """
+    grok.implements(IListSchemaField)
     collectionType = list
     allowOrdering = True
 
@@ -126,11 +128,13 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
     allowAdding = True
     allowRemove = True
+    inlineValidation = False
 
     def __init__(self, field, value_field, form, request):
         super(MultiGenericFieldWidget, self).__init__(field, form, request)
         self.allowAdding = field.allowAdding
         self.allowRemove = field.allowRemove
+        self.inlineValidation = field.inlineValidation
         self.valueField = value_field
         self.valueWidgets = Widgets()
         self.haveValues = False
@@ -163,10 +167,11 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             self.haveValues = True
         return {self.identifier: str(count)}
 
-    def prepareRequestValue(self, values):
+    def prepareRequestValue(self, values, extractor):
         value_count = 0
         identifier_count = int(values.get(self.identifier, '0'))
         remove_something = self.identifier + '.remove' in values
+        add_something = self.identifier + '.add' in values
         for position in range(0, identifier_count):
             value_marker = (self.identifier, position,)
             value_present = '%s.present.%d' % value_marker in values
@@ -177,12 +182,18 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
                 continue
             self.addValueWidget(position, None)
             value_count += 1
-        if self.identifier + '.add' in values:
+        if add_something:
             self.addValueWidget(identifier_count, None)
             value_count += 1
             values[self.identifier] = str(identifier_count + 1)
         if value_count:
             self.haveValues = True
+            if self.inlineValidation:
+                # If inlineValidation is on, and we removed or added
+                # something, we extract this field to get the
+                # validation messages right away.
+                if add_something or remove_something:
+                    extractor.extract()
         return values
 
     @property
