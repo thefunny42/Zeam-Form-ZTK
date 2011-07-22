@@ -191,9 +191,15 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             if self.inlineValidation:
                 # If inlineValidation is on, and we removed or added
                 # something, we extract this field to get the
-                # validation messages right away.
+                # validation messages right away (if the user clicked
+                # on add or remove, he cannot have clicked on an
+                # action button)
                 if add_something or remove_something:
-                    extractor.extract()
+                    ignored, errors = extractor.extract()
+                    if errors:
+                        # We have errors. We have to set them on the
+                        # form in order to see them.
+                        self.form.errors.extend(errors)
         return values
 
     @property

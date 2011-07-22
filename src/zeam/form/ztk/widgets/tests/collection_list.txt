@@ -1,6 +1,6 @@
-================================
-zeam.form.ztk collection widgets
-================================
+=====================================
+zeam.form.ztk list collection widgets
+=====================================
 
 First we need some test interfaces that uses collections::
 
@@ -33,8 +33,7 @@ Field
 So now you can create a field, and get a collection field::
 
   >>> from zeam.form.base import interfaces
-  >>> from zeam.form.base.markers import NO_VALUE
-  >>> from zeam.form.ztk import Fields
+  >>> from zeam.form.base import Fields
   >>> from zeam.form.ztk.interfaces import ICollectionSchemaField
   >>> from zeam.form.ztk.interfaces import IListSchemaField
 
@@ -102,6 +101,7 @@ Validation
 
 Validation should validate only a list of textlines:
 
+  >>> from zeam.form.base.markers import NO_VALUE
   >>> field.validate(NO_VALUE)
   >>> field.validate([])
   >>> field.validate([u'paul', u'henri'])
@@ -121,12 +121,12 @@ If the field is required you cannot provide empty lists:
   u'Missing required value.'
   >>> required_field.validate([True, False, True])
 
-Generic Widget
---------------
+Widget
+------
 
 You can get a generic widget out of your field::
 
-  >>> from zeam.form.ztk import Widgets, FormData
+  >>> from zeam.form.base import Widgets, FormData
   >>> from zope.publisher.browser import TestRequest
 
   >>> request = TestRequest()
@@ -233,7 +233,8 @@ with the value ``Nicolas``, the other with the value ``Jean``::
 Removing input from the request
 ...............................
 
-A request can ask to remove one of the values contained in the request::
+A request can ask to remove one (or more) of the values contained in
+the request::
 
   >>> list_remove_request = TestRequest(form={
   ...     'form.field.names': u'2',

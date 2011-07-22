@@ -1,0 +1,245 @@
+====================================
+zeam.form.ztk set collection widgets
+====================================
+
+We need to define some interfaces, and a content::
+
+  >>> from zope import schema, interface
+  >>> from zope.interface.verify import verifyObject
+
+  >>> class IBingoResults(interface.Interface):
+  ...     numbers = schema.Set(
+  ...         title=u"Numbers",
+  ...         value_type=schema.Int(required=True),
+  ...         required=False)
+
+  >>> class BingoResults(object):
+  ...     interface.implements(IBingoResults)
+  ...     numbers = None
+
+  >>> content = BingoResults()
+
+Field
+-----
+
+You can create a field to work on the numbers field of the interface::
+
+  >>> from zeam.form.ztk import Fields
+  >>> from zeam.form.ztk.interfaces import ICollectionSchemaField
+
+  >>> fields = Fields(IBingoResults)
+  >>> field = fields['numbers']
+  >>> field
+  <SetSchemaField Numbers>
+  >>> verifyObject(ICollectionSchemaField, field)
+  True
+
+This field works a set of numbers::
+
+  >>> field.collectionType
+  <type 'set'>
+  >>> value_field = field.valueField
+  >>> value_field
+  <IntSchemaField >
+  >>> value_field.required
+  True
+
+Now by default we can add or remove content from the field. We will
+set ``inlineValidation`` to True to continue the test suite::
+
+  >>> field.allowAdding
+  True
+  >>> field.allowRemove
+  True
+  >>> field.inlineValidation
+  False
+
+  >>> field.inlineValidation = True
+
+Validation
+~~~~~~~~~~
+
+The field should validate good set of numbers::
+
+  >>> from zeam.form.base.markers import NO_VALUE
+  >>> field.validate(NO_VALUE)
+  >>> field.validate(set([]))
+  >>> field.validate(set([1, 2, 3, 4, 5]))
+
+And should fail in order cases::
+
+  >>> field.validate(u"Hello")
+  u'Object is of wrong type.'
+  >>> field.validate(list([]))
+  u'Object is of wrong type.'
+  >>> field.validate(set([u"Hello"]))
+  u'Wrong contained type'
+
+Widget
+------
+
+You can get a field out of your field::
+
+  >>> from zeam.form.ztk import Widgets, FormData
+  >>> from zeam.form.base import interfaces
+  >>> from zope.publisher.browser import TestRequest
+
+  >>> request = TestRequest()
+  >>> form = FormData(content, request)
+  >>> form.ignoreContent = False
+
+  >>> widgets = Widgets(fields, form=form, request=request)
+  >>> widgets.update()
+  >>> widget = widgets['form.field.numbers']
+  >>> widget
+  <MultiGenericFieldWidget Numbers>
+  >>> verifyObject(interfaces.IFieldWidget, widget)
+  True
+
+We have no widgets to edit any numbers at the moment, and all settings
+are the same than the field::
+
+  >>> widget.valueField
+  <IntSchemaField >
+  >>> len(widget.valueWidgets)
+  0
+  >>> widget.allowAdding
+  True
+  >>> widget.allowRemove
+  True
+  >>> widget.inlineValidation
+  True
+
+Getting input from the request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The widget is able to edit data coming from the request, without errors::
+
+  >>> numbers_request = TestRequest(form={
+  ...     'form.field.numbers': u'2',
+  ...     'form.field.numbers.present.0': u'1',
+  ...     'form.field.numbers.field.0': u'1',
+  ...     'form.field.numbers.present.1': u'1',
+  ...     'form.field.numbers.field.1': u'2',})
+
+  >>> numbers_form = FormData(content, numbers_request)
+
+  >>> numbers_widgets = Widgets(
+  ...     fields,
+  ...     form=numbers_form,
+  ...     request=numbers_request)
+
+  >>> numbers_widgets.update()
+  >>> numbers_widget = numbers_widgets['form.field.numbers']
+  >>> len(numbers_widget.valueWidgets)
+  2
+  >>> numbers_widget.allowAdding
+  True
+  >>> numbers_widget.allowRemove
+  True
+  >>> numbers_widget.inlineValidation
+  True
+  >>> list(numbers_widget.valueWidgets)
+  [<SchemaFieldWidget form.field.numbers.field.0>,
+   <SchemaFieldWidget form.field.numbers.field.1>]
+  >>> map(lambda w:w.value, numbers_widget.valueWidgets)
+  [{'form.field.numbers.field.0': u'1'},
+   {'form.field.numbers.field.1': u'2'}]
+  >>> numbers_widget.error
+
+Adding data to the request
+..........................
+
+A request can ask to add an empty sub-widget to enter an extra value::
+
+  >>> numbers_add_faulty_request = TestRequest(form={
+  ...     'form.field.numbers': u'4',
+  ...     'form.field.numbers.add': u'Add',
+  ...     'form.field.numbers.present.0': u'1',
+  ...     'form.field.numbers.field.0': u'1',
+  ...     'form.field.numbers.present.1': u'1',
+  ...     'form.field.numbers.field.1': u'Toto',
+  ...     'form.field.numbers.present.2': u'1'})
+
+  >>> numbers_add_faulty_form = FormData(content, numbers_add_faulty_request)
+
+  >>> numbers_add_faulty_widgets = Widgets(
+  ...     fields,
+  ...     form=numbers_add_faulty_form,
+  ...     request=numbers_add_faulty_request)
+
+  >>> numbers_add_faulty_widgets.update()
+  >>> numbers_add_faulty_widget = numbers_add_faulty_widgets['form.field.numbers']
+
+We have 3 fields present in the request, plus the added one that
+should makes 4::
+
+  >>> len(numbers_add_faulty_widget.valueWidgets)
+  4
+  >>> numbers_add_faulty_widget.allowAdding
+  True
+  >>> numbers_add_faulty_widget.allowRemove
+  True
+  >>> numbers_add_faulty_widget.inlineValidation
+  True
+  >>> list(numbers_add_faulty_widget.valueWidgets)
+  [<SchemaFieldWidget form.field.numbers.field.0>,
+   <SchemaFieldWidget form.field.numbers.field.1>,
+   <SchemaFieldWidget form.field.numbers.field.2>,
+   <SchemaFieldWidget form.field.numbers.field.4>]
+  >>> map(lambda w:w.value, numbers_add_faulty_widget.valueWidgets)
+  [{'form.field.numbers.field.0': u'1'},
+   {'form.field.numbers.field.1': u'Toto'},
+   {'form.field.numbers.field.2': u''},
+   {'form.field.numbers.field.4': u''}]
+
+However 2 request fields where invalid, and the ``inlineValidation``
+on, they should have been validated::
+
+  >>> numbers_add_faulty_widget.error
+  <Errors for 'form.field.numbers'>
+
+  >>> map(lambda e: (e.identifier, e.title), numbers_add_faulty_widget.error)
+  [('form.field.numbers.field.1', u'Invalid value.'),
+   ('form.field.numbers', u'There were errors.'),
+   ('form.field.numbers.field.2', u'Missing required value.')]
+
+Now, if add something while having valid data in the widget, we won't
+have any error reported::
+
+  >>> numbers_add_request = TestRequest(form={
+  ...     'form.field.numbers': u'2',
+  ...     'form.field.numbers.add': u'Add',
+  ...     'form.field.numbers.present.0': u'1',
+  ...     'form.field.numbers.field.0': u'2',
+  ...     'form.field.numbers.present.1': u'1',
+  ...     'form.field.numbers.field.1': u'42'})
+
+  >>> numbers_add_form = FormData(content, numbers_add_request)
+
+  >>> numbers_add_widgets = Widgets(
+  ...     fields,
+  ...     form=numbers_add_form,
+  ...     request=numbers_add_request)
+
+  >>> numbers_add_widgets.update()
+  >>> numbers_add_widget = numbers_add_widgets['form.field.numbers']
+
+  >>> len(numbers_add_widget.valueWidgets)
+  3
+  >>> numbers_add_widget.allowAdding
+  True
+  >>> numbers_add_widget.allowRemove
+  True
+  >>> numbers_add_widget.inlineValidation
+  True
+  >>> list(numbers_add_widget.valueWidgets)
+  [<SchemaFieldWidget form.field.numbers.field.0>,
+   <SchemaFieldWidget form.field.numbers.field.1>,
+   <SchemaFieldWidget form.field.numbers.field.2>]
+  >>> map(lambda w:w.value, numbers_add_widget.valueWidgets)
+  [{'form.field.numbers.field.0': u'2'},
+   {'form.field.numbers.field.1': u'42'},
+   {'form.field.numbers.field.2': u''}]
+
+  >>> numbers_add_widget.error
