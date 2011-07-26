@@ -198,11 +198,15 @@ on, they should have been validated::
 
   >>> numbers_add_faulty_widget.error
   <Errors for 'form.field.numbers'>
-
   >>> map(lambda e: (e.identifier, e.title), numbers_add_faulty_widget.error)
   [('form.field.numbers.field.1', u'Invalid value.'),
    ('form.field.numbers', u'There were errors.'),
    ('form.field.numbers.field.2', u'Missing required value.')]
+
+Errors should be present on the sub-widgets as well::
+
+  >>> map(lambda w: w.error, numbers_add_faulty_widget.valueWidgets)
+  [None, <Error Invalid value.>, <Error Missing required value.>, None]
 
 Now, if add something while having valid data in the widget, we won't
 have any error reported::

@@ -22,7 +22,7 @@ except ImportError:
     requireCollectionResources = lambda: None
 
 from zeam.form.base.datamanager import NoneDataManager
-from zeam.form.base.errors import Errors
+from zeam.form.base.errors import Errors, Error
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE
@@ -169,17 +169,37 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
     def prepareRequestValue(self, values, extractor):
         value_count = 0
+        errors = None
         identifier_count = int(values.get(self.identifier, '0'))
         remove_something = self.identifier + '.remove' in values
         add_something = self.identifier + '.add' in values
+
+        if self.inlineValidation:
+            # If inlineValidation is on, and we removed or added
+            # something, we extract this field to get the
+            # validation messages right away (if the user clicked
+            # on add or remove, he cannot have clicked on an
+            # action button)
+            if add_something or remove_something:
+                ignored, errors = extractor.extract()
+                if errors:
+                    self.form.errors.append(errors)
+
         for position in range(0, identifier_count):
             value_marker = (self.identifier, position,)
             value_present = '%s.present.%d' % value_marker in values
             if not value_present:
                 continue
+            value_identifier = '%s.field.%d' % value_marker
             value_selected = '%s.checked.%d' % value_marker in values
             if remove_something and value_selected:
+                if errors and value_identifier in errors:
+                    # If the field have an error, remove it
+                    del errors[value_identifier]
                 continue
+            # We need to provide the widget error now, but cannot set
+            # all of them on the form now, as we might remove them
+            # with delete
             self.addValueWidget(position, None)
             value_count += 1
         if add_something:
@@ -188,18 +208,13 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             values[self.identifier] = str(identifier_count + 1)
         if value_count:
             self.haveValues = True
-            if self.inlineValidation:
-                # If inlineValidation is on, and we removed or added
-                # something, we extract this field to get the
-                # validation messages right away (if the user clicked
-                # on add or remove, he cannot have clicked on an
-                # action button)
-                if add_something or remove_something:
-                    ignored, errors = extractor.extract()
-                    if errors:
-                        # We have errors. We have to set them on the
-                        # form in order to see them.
-                        self.form.errors.extend(errors)
+        if errors:
+            if len(errors) > 1:
+                self.form.errors.append(
+                    Error(_(u"There were errors."), self.form.prefix))
+            else:
+                # If no errors  are left, remove from the form (top level error)
+                del self.form.errors[self.identifier]
         return values
 
     @property
