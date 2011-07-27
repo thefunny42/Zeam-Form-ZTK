@@ -1,10 +1,21 @@
 Changelog
 =========
 
-1.1 (unreleased)
+1.1 (2011/07/27)
 ----------------
 
+* Bug fix edit actions that prevented to remove a value of a
+  non-required field.
+
 * SchemaWidgetExtractor and SchemaField now catch Invalid exceptions.
+
+* Add a widget to edit list collections, that let you add / remove and
+  sort linees, implemented in Javascript. The non-javascript version
+  still works.
+
+* To get a MultiChoice widget you should create a Set of Choice
+  instead of a List of Choice now (as in a list you could select
+  multiple times the same choice).
 
 1.0 (2010/10/19)
 ----------------
