@@ -51,6 +51,7 @@ class InvariantsValidation(object):
             obj = Data(interface, data)
             try:
                 interface.validateInvariants(obj, errors)
-            except Invalid:
-                pass  # We continue to get a complete errors log.
-        return errors
+            except Invalid, error:
+                pass
+            for error in errors:
+                yield error.args[0]
