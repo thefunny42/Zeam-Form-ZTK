@@ -42,7 +42,7 @@ Instanciation
   >>> fields = Fields(IPasswords)
 
   >>> from zeam.form.ztk import InvariantsValidation
-  >>> validator = InvariantsValidation(fields)
+  >>> validator = InvariantsValidation(form, fields)
 
   >>> print validator
   <zeam.form.ztk.validation.InvariantsValidation object at ...>
@@ -101,7 +101,7 @@ Instanciation
 
   >>> form = FormData(object(), TestRequest())
   >>> fields = Fields(IAgeAndLegals)
-  >>> validator = InvariantsValidation(fields)
+  >>> validator = InvariantsValidation(form, fields)
 
   >>> print validator
   <zeam.form.ztk.validation.InvariantsValidation object at ...>
@@ -136,7 +136,7 @@ Fields coming not from an interface
   >>> size = Fields(Int(__name__='size',
   ...                   title=u'Size',
   ...                   required=True))
-  >>> validator =  InvariantsValidation(size)
+  >>> validator =  InvariantsValidation(form, size)
   >>> print validator.validate(data)
   []
 
