@@ -58,12 +58,12 @@ Providing some data
 
   >>> data = FieldsValues(form, fields)
   >>> data.update({'passwd': 'test', 'verify': 'nopass'})
-  >>> print validator.validate(data)
-  [Invalid(u'Mismatching passwords!',)]
+  >>> print list(validator.validate(data))
+  [u'Mismatching passwords!']
 
   >>> data = FieldsValues(form, fields)
   >>> data.update({'passwd': 'test', 'verify': 'test'})
-  >>> print validator.validate(data)
+  >>> print list(validator.validate(data))
   []
 
 
@@ -115,18 +115,18 @@ Providing some data
 
   >>> data = FieldsValues(form, fields)
   >>> data.update({'age': 17, 'accept': u"I disapprove"})
-  >>> print validator.validate(data)
-  [Invalid(u'You must be at least 18 to proceed.',),
-   Invalid(u'You can not proceed if you disagree.',)]
+  >>> print list(validator.validate(data))
+  [u'You must be at least 18 to proceed.',
+   u'You can not proceed if you disagree.']
 
   >>> data = FieldsValues(form, fields)
   >>> data.update({'age': 17, 'accept': u"I accept"})
-  >>> print validator.validate(data)
-  [Invalid(u'You must be at least 18 to proceed.',)]
+  >>> print list(validator.validate(data))
+  [u'You must be at least 18 to proceed.']
 
   >>> data = FieldsValues(form, fields)
   >>> data.update({'age': 19, 'accept': u"I accept"})
-  >>> print validator.validate(data)
+  >>> print list(validator.validate(data))
   []
 
 
@@ -137,7 +137,7 @@ Fields coming not from an interface
   ...                   title=u'Size',
   ...                   required=True))
   >>> validator =  InvariantsValidation(form, size)
-  >>> print validator.validate(data)
+  >>> print list(validator.validate(data))
   []
 
 
