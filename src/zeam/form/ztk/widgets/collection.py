@@ -19,6 +19,9 @@ try:
                                            zeam.jsontemplate.jsontemplate])
     requireCollectionResources = collection.need
 except ImportError:
+    class Library(object):
+        name = ""
+    library = Library()
     requireCollectionResources = lambda: None
 
 from zeam.form.base.datamanager import NoneDataManager
