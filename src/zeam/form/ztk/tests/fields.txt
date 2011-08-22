@@ -172,10 +172,10 @@ Now, we need an object that will be used as a context::
 At this point, calling the GenericAdaptiveDataManager will provoke an
 error, since no adapters are registered, yet::
 
-  >>> from zeam.form.ztk.datamanagers import makeGenericAdaptiveDataManager
+  >>> from zeam.form.ztk.datamanager import makeGenericAdaptiveDataManager
   >>> factory = makeGenericAdaptiveDataManager(*fields)
   >>> print factory
-  <class 'zeam.form.ztk.datamanagers.GenericAdaptiveDataManager'>
+  <class 'zeam.form.ztk.datamanager.GenericAdaptiveDataManager'>
 
   >>> gadm = factory(item)
   Traceback (most recent call last):
