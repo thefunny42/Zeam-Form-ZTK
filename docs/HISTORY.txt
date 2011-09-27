@@ -4,7 +4,18 @@ Changelog
 1.1 (unreleased)
 ----------------
 
-* SchemaWidgetExtractor and SchemaField now catch Invalid exceptions.
+* Improve error reporting in collection widgets. Thanks to Novareto
+  for the sponsorship.
+
+* Add an validation option in collection widgets while adding and
+  removing values from it. Thanks to Novareto for the sponsorship.
+
+* Improve Javascript for collection widgets. Add an extra with
+  fanstatic to automatically require required files.
+
+* Various fixes in ``InvariantsValidator``.
+
+* ``SchemaWidgetExtractor`` and ``SchemaField`` now catch Invalid exceptions.
 
 1.0 (2010/10/19)
 ----------------
