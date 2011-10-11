@@ -29,6 +29,14 @@
         <div class="line-data">
           <input type="hidden" value="1"
                  name="${widget.identifier}.present.${valueIdentifier}" />
+          <tal:error tal:define="error valueWidget.error"
+                     tal:condition="error">
+            <span class="field-error"
+                  tal:content="error.title">
+              Error
+            </span>
+            <br />
+          </tal:error>
           <tal:widget tal:replace="structure valueWidget.render()" />
         </div>
       </div>

@@ -35,7 +35,8 @@ class Data(object):
 class InvariantsValidation(object):
     """Validates the invariants of the given fields' interfaces.
     """
-    def __init__(self, fields):
+    def __init__(self, form, fields):
+        self.form = form
         self.interfaces = []
         for field in fields:
             if ISchemaField.providedBy(field):
@@ -50,6 +51,7 @@ class InvariantsValidation(object):
             obj = Data(interface, data)
             try:
                 interface.validateInvariants(obj, errors)
-            except Invalid:
-                pass  # We continue to get a complete errors log.
-        return errors
+            except Invalid, error:
+                pass
+            for error in errors:
+                yield error.args[0]

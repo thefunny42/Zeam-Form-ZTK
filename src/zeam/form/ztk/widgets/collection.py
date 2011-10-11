@@ -145,12 +145,15 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         return widget
 
     def prepareContentValue(self, values):
-        if values is NO_VALUE:
-            return {self.identifier: '0'}
-        for position, value in enumerate(values):
-            # Create new widgets for each value
-            self.addValueWidget(position, value)
-        count = len(values)
+        count = 0
+        if values is not NO_VALUE:
+            for position, value in enumerate(values):
+                # Create new widgets for each value
+                self.addValueWidget(position, value)
+            count += len(values)
+        if self.required and not count:
+            self.addValueWidget(count, None)
+            count += 1
         if count:
             self.haveValues = True
         return {self.identifier: str(count)}
@@ -169,7 +172,8 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
                 continue
             self.addValueWidget(position, None)
             value_count += 1
-        if self.identifier + '.add' in values:
+        if ((self.identifier + '.add' in values) or
+            (self.required and not value_count)):
             self.addValueWidget(identifier_count, None)
             value_count += 1
             values[self.identifier] = str(identifier_count + 1)
@@ -195,7 +199,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             self.jsonAddIdentifier = 'id' + md5hash(self.identifier)
             widgets = Widgets()
             widgets.append(self.createValueWidget(
-                    '{' + self.jsonAddIdentifier + '}', None))
+                   '{' + self.jsonAddIdentifier + '}', None))
             widgets.update()
             self.jsonAddTemplate = list(widgets)[0]
 

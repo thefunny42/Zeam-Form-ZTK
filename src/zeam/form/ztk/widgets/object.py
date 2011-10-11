@@ -3,7 +3,7 @@
 from zeam.form.base.datamanager import ObjectDataManager
 from zeam.form.base.errors import Errors
 from zeam.form.base.fields import Fields
-from zeam.form.base.markers import NO_VALUE, Marker
+from zeam.form.base.markers import NO_VALUE, Marker, DEFAULT
 from zeam.form.base.widgets import WidgetExtractor
 from zeam.form.base.widgets import Widgets
 from zeam.form.base.form import cloneFormData
@@ -27,7 +27,8 @@ class ObjectSchemaField(SchemaField):
     """A collection field.
     """
     implements(IObjectSchemaField)
-    objectFactory = None
+    objectFactory = DEFAULT
+    dataManager = ObjectDataManager
 
     def __init__(self, field):
         super(ObjectSchemaField, self).__init__(field)
@@ -42,12 +43,10 @@ class ObjectSchemaField(SchemaField):
         return self.__object_fields
 
     def getObjectFactory(self):
-        if self.objectFactory is not None:
+        if self.objectFactory is not DEFAULT:
             return self.objectFactory
         schema = self.objectSchema
         return getUtility(IFactory, name=schema.__identifier__)
-
-
 
 
 class ObjectFieldWidget(SchemaFieldWidget):
@@ -60,9 +59,8 @@ class ObjectFieldWidget(SchemaFieldWidget):
 
     def update(self):
         super(ObjectFieldWidget, self).update()
-        value = self.inputValue()
-        form = cloneFormData(
-            self.form, ObjectDataManager(value), self.identifier)
+        value = self.component.dataManager(self.inputValue())
+        form = cloneFormData(self.form, value, self.identifier)
         self.objectWidgets = Widgets(form=form, request=self.request)
         self.objectWidgets.extend(self.component.objectFields)
         self.objectWidgets.update()
@@ -86,3 +84,4 @@ class ObjectFieldExtractor(WidgetExtractor):
                         data.items())))
             return (value, None)
         return (value, Errors(*errors, identifier=self.identifier))
+
