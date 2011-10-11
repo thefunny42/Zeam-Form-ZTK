@@ -151,7 +151,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
                 # Create new widgets for each value
                 self.addValueWidget(position, value)
             count += len(values)
-        if self.required and not count:
+        if self.allowAdding and self.required and not count:
             self.addValueWidget(count, None)
             count += 1
         if count:
@@ -173,7 +173,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             self.addValueWidget(position, None)
             value_count += 1
         if ((self.identifier + '.add' in values) or
-            (self.required and not value_count)):
+            (self.allowAdding and self.required and not value_count)):
             self.addValueWidget(identifier_count, None)
             value_count += 1
             values[self.identifier] = str(identifier_count + 1)
