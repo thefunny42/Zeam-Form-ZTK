@@ -115,6 +115,12 @@ grok.global_adapter(
     name='input')
 
 grok.global_adapter(
+    newCollectionWidgetFactory(mode='input-list'),
+    adapts=(ICollectionSchemaField, Interface, Interface),
+    provides=IWidget,
+    name='input-list')
+
+grok.global_adapter(
     newCollectionWidgetFactory(mode='display'),
     adapts=(ICollectionSchemaField, Interface, Interface),
     provides=IWidget,
@@ -273,6 +279,18 @@ class ListObjectFieldWidget(MultiObjectFieldWidget):
         super(ListObjectFieldWidget, self).__init__(
             field, value_field, form, request)
         self.allowOrdering = field.allowOrdering
+
+
+# Still make possible to have the non-table implementation
+
+class RegularMultiObjectFieldWidget(MultiGenericFieldWidget):
+    grok.adapts(ICollectionSchemaField, ObjectSchemaField, Interface, Interface)
+    grok.name('input-list')
+
+
+class RegularListObjectFieldWidget(ListGenericFieldWidget):
+    grok.adapts(ListSchemaField, ObjectSchemaField, Interface, Interface)
+    grok.name('input-list')
 
 
 class MultiGenericWidgetExtractor(WidgetExtractor):
