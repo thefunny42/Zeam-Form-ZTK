@@ -1,0 +1,9 @@
+<a href="#" target="#" id="#" class="#"
+   tal:define="value widget.inputValue()"
+   tal:attributes="href value;
+                   target widget.target;
+                   id widget.htmlId();
+                   class widget.htmlClass()"
+   tal:content="value">
+  data
+</a>

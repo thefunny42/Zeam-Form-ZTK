@@ -11,6 +11,10 @@ from zope.schema import interfaces as schema_interfaces
 _ = MessageFactory("zeam.form.base")
 
 
+def register():
+    registerSchemaField(BooleanSchemaField, schema_interfaces.IBool)
+
+
 class BooleanSchemaField(SchemaField):
     """A boolean field.
     """
@@ -40,8 +44,3 @@ class CheckBoxWidgetExtractor(WidgetExtractor):
             value = True
         return (value, error)
 
-
-def register():
-    """Entry point hook.
-    """
-    registerSchemaField(BooleanSchemaField, schema_interfaces.IBool)
