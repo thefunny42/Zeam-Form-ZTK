@@ -3,7 +3,6 @@
 from grokcore import component as grok
 from zeam.form.ztk.fields import (
     SchemaField, SchemaFieldWidget, registerSchemaField)
-from zeam.form.base.widgets import DisplayFieldWidget
 from zope.schema import interfaces as schema_interfaces
 from zope.interface import Interface
 
@@ -22,7 +21,7 @@ class URIWidget(SchemaFieldWidget):
     grok.adapts(URISchemaField, Interface, Interface)
 
 
-class URIDisplayWidget(DisplayFieldWidget):
+class URIDisplayWidget(SchemaFieldWidget):
     grok.adapts(URISchemaField, Interface, Interface)
     grok.name('display')
 
