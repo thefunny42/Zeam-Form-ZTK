@@ -66,6 +66,10 @@ class ObjectFieldWidget(SchemaFieldWidget):
         self.objectWidgets.update()
 
 
+class ObjectDisplayWidget(ObjectFieldWidget):
+    grok.name('display')
+
+
 class ObjectFieldExtractor(WidgetExtractor):
     grok.adapts(ObjectSchemaField, Interface, Interface)
 
