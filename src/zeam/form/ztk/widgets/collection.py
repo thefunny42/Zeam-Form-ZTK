@@ -96,10 +96,10 @@ grok.global_adapter(
     name='input')
 
 grok.global_adapter(
-    newCollectionWidgetFactory(mode='long'),
+    newCollectionWidgetFactory(mode='list'),
     adapts=(ICollectionSchemaField, Interface, Interface),
     provides=IWidget,
-    name='long')
+    name='list')
 
 grok.global_adapter(
     newCollectionWidgetFactory(mode='display'),
@@ -238,12 +238,12 @@ class ListObjectFieldWidget(MultiObjectFieldWidget):
 
 class RegularMultiObjectFieldWidget(MultiGenericFieldWidget):
     grok.adapts(ICollectionSchemaField, ObjectSchemaField, Interface, Interface)
-    grok.name('long')
+    grok.name('list')
 
 
 class RegularListObjectFieldWidget(ListGenericFieldWidget):
     grok.adapts(ListSchemaField, ObjectSchemaField, Interface, Interface)
-    grok.name('long')
+    grok.name('list')
 
 
 class MultiGenericWidgetExtractor(WidgetExtractor):
