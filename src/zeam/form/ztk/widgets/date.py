@@ -22,11 +22,13 @@ def register():
 class DatetimeSchemaField(SchemaField):
     """A datetime field.
     """
+    valueLength = 'short'
 
 
 class DateSchemaField(SchemaField):
     """A date field.
     """
+    valueLength = 'short'
 
 
 class DateFieldWidget(SchemaFieldWidget):
@@ -36,7 +38,8 @@ class DateFieldWidget(SchemaFieldWidget):
 
     def valueToUnicode(self, value):
         locale = self.request.locale
-        formatter = locale.dates.getFormatter(self.valueType, 'short')
+        formatter = locale.dates.getFormatter(
+            self.valueType, self.component.valueLength)
         return formatter.format(value)
 
 
@@ -49,7 +52,8 @@ class DateWidgetExtractor(WidgetExtractor):
         value, error = super(DateWidgetExtractor, self).extract()
         if value is not NO_VALUE:
             locale = self.request.locale
-            formatter = locale.dates.getFormatter(self.valueType, 'short')
+            formatter = locale.dates.getFormatter(
+                self.valueType, self.component.valueLength)
             try:
                 value = formatter.parse(value)
             except (ValueError, DateTimeParseError), error:
@@ -75,7 +79,8 @@ class DateFieldDisplayWidget(DisplayFieldWidget):
     valueType = 'date'
 
     def valueToUnicode(self, value):
-        formatter = self.request.locale.dates.getFormatter(self.valueType)
+        formatter = self.request.locale.dates.getFormatter(
+            self.valueType, self.component.valueLength)
         return formatter.format(value)
 
 
