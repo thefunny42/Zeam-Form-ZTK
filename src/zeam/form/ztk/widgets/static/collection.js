@@ -2,7 +2,6 @@
 // Requires: json-template.js
 
 (function ($, jsontemplate){
-
     var field_name_regexp = /(.*)\.field\.(\d+)$/;
 
     var increment = function(value) {
@@ -16,18 +15,6 @@
             starter += arguments[i];
         };
         return string.match(starter);
-    };
-
-    var prepare_field = function($field) {
-        var $container = $field.find('.field-collection-lines:first');
-        $field.data(
-            'template',
-            create_template($field.children('.field-collection-template')));
-
-        // Clear style on any existing buttons.
-        update_move_buttons(
-            $container.children('.field-collection-line:first'),
-            $container.children('.field-collection-line:last'));
     };
 
     var create_template = function($node) {
@@ -69,6 +56,22 @@
                 return data;
             }
         };
+    };
+
+    var prepare_field = function($field) {
+        if (!$field.is('.field-collection')) {
+            return;
+        };
+
+        var $container = $field.find('.field-collection-lines:first');
+        $field.data(
+            'template',
+            create_template($field.children('.field-collection-template')));
+
+        // Clear style on any existing buttons.
+        update_move_buttons(
+            $container.children('.field-collection-line:first'),
+            $container.children('.field-collection-line:last'));
     };
 
     var update_line_names = function(line, base_name, count) {
@@ -124,11 +127,13 @@
         };
     };
 
-    $(document).ready(function (){
-        $('form div.field-collection').each(function (){
-            prepare_field($(this));
-        });
+    $.extend($.fn, {
+        ZeamCollectionWidget: function () {
+            return $(this).each(function() { prepare_field($(this)) ;});
+        }
+    });
 
+    $(document).ready(function (){
         // Bind add buttons
         $('form input.field-collection-add-line').live('click', function() {
             var $field = $(this).closest('div.field-collection');
@@ -244,5 +249,8 @@
             };
             return false;
         });
+
+        // Load existing fields.
+        $('form div.field-collection').ZeamCollectionWidget();
     });
 })(jQuery, jsontemplate);
