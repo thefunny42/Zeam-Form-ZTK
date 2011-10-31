@@ -167,7 +167,7 @@
             $new_line.appendTo($container);
             update_move_buttons($previous_line, $new_line);
             $counter.val(increment(identifier));
-            $new_line.trigger('addline-zeamform', $new_line);
+            $new_line.trigger('addline-zeamform');
             return false;
         });
 
