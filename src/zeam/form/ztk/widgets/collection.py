@@ -166,12 +166,15 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         return widget
 
     def prepareContentValue(self, values):
-        if values is NO_VALUE:
-            return {self.identifier: '0'}
-        for position, value in enumerate(values):
-            # Create new widgets for each value
-            self.addValueWidget(position, value)
-        count = len(values)
+        count = 0
+        if values is not NO_VALUE:
+            for position, value in enumerate(values):
+                # Create new widgets for each value
+                self.addValueWidget(position, value)
+            count += len(values)
+        if self.allowAdding and self.required and not count:
+            self.addValueWidget(count, None)
+            count += 1
         if count:
             self.haveValues = True
         return {self.identifier: str(count)}
@@ -211,7 +214,8 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
             # with delete
             self.addValueWidget(position, None)
             value_count += 1
-        if add_something:
+        if (add_something or
+            (self.allowAdding and self.required and not value_count)):
             self.addValueWidget(identifier_count, None)
             value_count += 1
             values[self.identifier] = str(identifier_count + 1)
