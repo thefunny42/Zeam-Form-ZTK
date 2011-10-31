@@ -1,7 +1,7 @@
 
 // Requires: json-template.js
 
-(function ($){
+(function ($, jsontemplate){
 
     var field_name_regexp = /(.*)\.field\.(\d+)$/;
 
@@ -18,27 +18,27 @@
         return string.match(starter);
     };
 
-    var prepare_field = function(field) {
-        var container = field.find('.field-collection-lines:first');
-        field.data(
+    var prepare_field = function($field) {
+        var $container = $field.find('.field-collection-lines:first');
+        $field.data(
             'template',
-            create_template(field.children('.field-collection-template')));
+            create_template($field.children('.field-collection-template')));
 
         // Clear style on any existing buttons.
         update_move_buttons(
-            container.children('.field-collection-line:first'),
-            container.children('.field-collection-line:last'));
+            $container.children('.field-collection-line:first'),
+            $container.children('.field-collection-line:last'));
     };
 
-    var create_template = function(node) {
-        if (!node.length) {
+    var create_template = function($node) {
+        if (!$node.length) {
             // allowAdding is false;
             return undefined;
         };
 
-        var identifier = node.attr('rel');
+        var identifier = $node.attr('rel');
         var template = new jsontemplate.Template(
-            node.get(0).innerHTML, {
+            $node.get(0).innerHTML, {
                 // For the moment this use an hijack version of
                 // json-template.
                 undefined_callable: function(name){
@@ -47,11 +47,11 @@
             });
 
         // Remove the template from the DOM.
-        node.html('');
+        $node.html('');
         // Return an object that let you render the template
         return {
-            identifier:identifier,
-            template:template,
+            identifier: identifier,
+            template: template,
             render: function(identifier) {
                 var parameters = {};
                 parameters[this.identifier] = identifier;
@@ -106,20 +106,20 @@
         line.attr('rel', field_name + count);
     };
 
-    var update_move_buttons = function(line_top, line_bottom) {
+    var update_move_buttons = function($line_top, $line_bottom) {
         // Show or hide move up/down button depending if it is the
         // first line or last line or not. This code exist because IE
         // 7 doesn't support last-child in CSS.
-        if (line_top.is(':first-child')) {
-            line_bottom.children('.ordering-actions').children(
+        if ($line_top.is(':first-child')) {
+            $line_bottom.children('.ordering-actions').children(
                 '.field-collection-move-up').show();
-            line_top.children('.ordering-actions').children(
+            $line_top.children('.ordering-actions').children(
                 '.field-collection-move-up').hide();
         };
-        if (line_bottom.is(':last-child')) {
-            line_top.children('.ordering-actions').children(
+        if ($line_bottom.is(':last-child')) {
+            $line_top.children('.ordering-actions').children(
                 '.field-collection-move-down').show();
-            line_bottom.children('.ordering-actions').children(
+            $line_bottom.children('.ordering-actions').children(
                 '.field-collection-move-down').hide();
         };
     };
@@ -131,31 +131,38 @@
 
         // Bind add buttons
         $('form input.field-collection-add-line').live('click', function() {
-            var field = $(this).closest('div.field-collection');
-            var counter = field.children('input.field-collection-counter');
-            var identifier = counter.val();
-            var container = field.find('.field-collection-lines:first');
+            var $field = $(this).closest('div.field-collection');
 
-            var new_line = field.data('template').render(identifier);
-            var header_message = field.children('.field-collection-header');
-            var empty_message = field.children('.field-collection-empty');
-            var actions = field.children('.multi-actions');
-            var remove_button = actions.children('.field-collection-remove-line');
-            var previous_line = container.children('.field-collection-line:last');
+            // Clear the empty message
+            var $header_message = $field.children('.field-collection-header');
+            var $empty_message = $field.children('.field-collection-empty');
 
-            if (empty_message.is(':visible')) {
-                header_message.slideDown();
-                empty_message.slideUp();
+            if ($empty_message.is(':visible')) {
+                $header_message.slideDown();
+                $empty_message.slideUp();
             };
-            if (!remove_button.is(':visible')) {
-                remove_button.fadeIn();
+
+            // Display the remove button
+            var $actions = $field.children('.multi-actions');
+            var $remove_button = $actions.children('.field-collection-remove-line');
+            if (!$remove_button.is(':visible')) {
+                $remove_button.fadeIn();
             };
-            if (!previous_line.length) {
-                previous_line = new_line;
+
+            // Add a line
+            var $counter = $field.children('input.field-collection-counter');
+            var identifier = $counter.val();
+            var $new_line = $field.data('template').render(identifier);
+            var $container = $field.find('.field-collection-lines:first');
+            var $previous_line = $container.children('.field-collection-line:last');
+
+            if (!$previous_line.length) {
+                $previous_line = $new_line;
             };
-            new_line.appendTo(container);
-            update_move_buttons(previous_line, new_line);
-            counter.val(increment(identifier));
+            $new_line.appendTo($container);
+            update_move_buttons($previous_line, $new_line);
+            $counter.val(increment(identifier));
+            $new_line.trigger('addline-zeamform', $new_line);
             return false;
         });
 
@@ -218,8 +225,7 @@
 
         // Bind the down button
         $('form button.field-collection-move-down').live('click', function () {
-            var button = $(this);
-            var line = button.closest('.field-collection-line');
+            var line = $(this).closest('.field-collection-line');
             var next_line = line.next();
 
             if (next_line.is('.field-collection-line')) {
@@ -239,4 +245,4 @@
             return false;
         });
     });
-})(jQuery);
+})(jQuery, jsontemplate);

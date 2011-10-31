@@ -73,10 +73,13 @@ register an utility with name the schema interface identifier of the
 object, or set your factory on the field, as ``objectFactory``. That
 last will be used in priority::
 
+  >>> from zeam.form.base import DEFAULT
   >>> from zope.component import IFactory, provideUtility
   >>> factory_name = post_field.objectSchema.__identifier__
   >>> provideUtility(Comment, IFactory, name=factory_name)
 
+  >>> post_field.objectFactory
+  <Marker DEFAULT>
   >>> post_field.getObjectFactory()
   <class 'Comment'>
 
@@ -88,7 +91,7 @@ last will be used in priority::
   >>> post_field.getObjectFactory()
   <function customizedOtherFactory at ...>
 
-  >>> post_field.objectFactory = None
+  >>> post_field.objectFactory = DEFAULT
   >>> post_field.getObjectFactory()
   <class 'Comment'>
 
@@ -121,20 +124,20 @@ You can now have a widget for your object field::
   ...     request=request)
 
   >>> post_widgets.update()
-  >>> comment_widget = post_widgets['form.field.comment']
-  >>> comment_widget
+  >>> post_widget = post_widgets['form.field.comment']
+  >>> post_widget
   <ObjectFieldWidget Comment>
-  >>> verifyObject(interfaces.IWidget, comment_widget)
+  >>> verifyObject(interfaces.IWidget, post_widget)
   True
 
-You will have on the widget one widget generated per field in the
+You will have generated on the widget one widget per field in the
 object, all of them prefixed by the main widget identifier::
 
-  >>> len(comment_widget.objectWidgets)
+  >>> len(post_widget.objectWidgets)
   3
-  >>> list(comment_widget.objectWidgets)
+  >>> list(post_widget.objectWidgets)
   [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
-  >>> map(lambda w: w.value, comment_widget.objectWidgets)
+  >>> map(lambda w: w.value, post_widget.objectWidgets)
   [{'form.field.comment.field.title': u''},
    {'form.field.comment.field.comment': u''},
    {'form.field.comment.field.email': u''}]
@@ -167,6 +170,42 @@ The widget can edit data coming from the content::
   >>> map(lambda w: w.value, comment_hello_widget.objectWidgets)
   [{'form.field.comment.field.title': u'Hello'},
    {'form.field.comment.field.comment': u'Hello my name is arthur'},
+   {'form.field.comment.field.email': u''}]
+
+
+Display widget
+--------------
+
+There is a widget for display mode as well:
+
+  >>> from zeam.form.ztk import DISPLAY
+
+  >>> display_form = FormData(content, request)
+  >>> display_form.ignoreContent = False
+  >>> display_form.mode = DISPLAY
+
+  >>> display_widgets = Widgets(
+  ...     post_fields,
+  ...     form=display_form,
+  ...     request=request)
+
+  >>> display_widgets.update()
+  >>> display_widget = display_widgets['form.field.comment']
+  >>> display_widget
+  <ObjectDisplayWidget Comment>
+  >>> verifyObject(interfaces.IWidget, display_widget)
+  True
+
+You will have generated on the widget one display widget per field in
+the object, all of them prefixed by the main widget identifier::
+
+  >>> len(display_widget.objectWidgets)
+  3
+  >>> list(display_widget.objectWidgets)
+  [<DisplayFieldWidget Title>, <DisplayFieldWidget Comment>, <DisplayFieldWidget Email>]
+  >>> map(lambda w: w.value, display_widget.objectWidgets)
+  [{'form.field.comment.field.title': u''},
+   {'form.field.comment.field.comment': u''},
    {'form.field.comment.field.email': u''}]
 
 
@@ -290,7 +329,8 @@ the error reported::
   <span class="field-required">*</span>
   <br />
   <input type="text" value="Super cool failure" id="form-field-comment-field-title"
-         class="field field-textline field-required" name="form.field.comment.field.title" />
+         name="form.field.comment.field.title"
+         class="field field-textline field-required" required="required" />
   <br />
   <label class="field-label" for="form-field-comment-field-comment">Comment</label>
   <span class="field-required">*</span>
@@ -298,12 +338,12 @@ the error reported::
   <span class="field-error">Missing required value.</span>
   <br />
   <textarea id="form-field-comment-field-comment" name="form.field.comment.field.comment"
-            class="field field-text field-required" cols="80" rows="5"></textarea>
+            class="field field-text field-required" cols="80" rows="5" required="required"></textarea>
   <br />
   <label class="field-label" for="form-field-comment-field-email">Email</label>
   <br />
   <input type="text" value="" id="form-field-comment-field-email"
-         class="field field-textline" name="form.field.comment.field.email" />
+         name="form.field.comment.field.email" class="field field-textline" />
   <br />
   <input type="hidden" name="form.field.comment" value="1" />
 
