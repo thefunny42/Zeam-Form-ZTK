@@ -102,24 +102,24 @@ Validation
 Validation should validate only a list of textlines:
 
   >>> from zeam.form.base.markers import NO_VALUE
-  >>> field.validate(NO_VALUE)
-  >>> field.validate([])
-  >>> field.validate([u'paul', u'henri'])
+  >>> field.validate(NO_VALUE, None)
+  >>> field.validate([], None)
+  >>> field.validate([u'paul', u'henri'], None)
 
 And fail in other conditions:
 
-  >>> field.validate(set())
+  >>> field.validate(set(), None)
   u'Object is of wrong type.'
-  >>> field.validate([4, 5, 6])
+  >>> field.validate([4, 5, 6], None)
   u'Wrong contained type'
 
 If the field is required you cannot provide empty lists:
 
-  >>> required_field.validate(NO_VALUE)
+  >>> required_field.validate(NO_VALUE, None)
   u'Missing required value.'
-  >>> required_field.validate([])
+  >>> required_field.validate([], None)
   u'Missing required value.'
-  >>> required_field.validate([True, False, True])
+  >>> required_field.validate([True, False, True], None)
 
 Widget
 ------

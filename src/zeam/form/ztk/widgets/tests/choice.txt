@@ -56,8 +56,8 @@ So now you can create a field, and get a choice field:
   >>> simple_field.source is letter_vocabulary
   True
 
-  >>> simple_field.validate('A')
-  >>> simple_field.validate('foo')
+  >>> simple_field.validate('A', None)
+  >>> simple_field.validate('foo', None)
   u'Constraint not satisfied'
 
   >>> verifyObject(interfaces.IField, simple_field)
@@ -228,8 +228,8 @@ So now you can create a field, and get a choice field:
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> secondField.validate('A')
-  >>> secondField.validate(42)
+  >>> secondField.validate('A', None)
+  >>> secondField.validate(42, None)
   u'Constraint not satisfied'
 
 Widget
@@ -306,4 +306,4 @@ So now you can create a field, and get a choice field:
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> vocabulary_field.validate('C')
+  >>> vocabulary_field.validate('C', None)

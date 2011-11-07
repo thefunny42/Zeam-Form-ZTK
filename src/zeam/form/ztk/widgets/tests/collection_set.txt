@@ -62,17 +62,17 @@ Validation
 The field should validate good set of numbers::
 
   >>> from zeam.form.base.markers import NO_VALUE
-  >>> field.validate(NO_VALUE)
-  >>> field.validate(set([]))
-  >>> field.validate(set([1, 2, 3, 4, 5]))
+  >>> field.validate(NO_VALUE, None)
+  >>> field.validate(set([]), None)
+  >>> field.validate(set([1, 2, 3, 4, 5]), None)
 
 And should fail in order cases::
 
-  >>> field.validate(u"Hello")
+  >>> field.validate(u"Hello", None)
   u'Object is of wrong type.'
-  >>> field.validate(list([]))
+  >>> field.validate(list([]), None)
   u'Object is of wrong type.'
-  >>> field.validate(set([u"Hello"]))
+  >>> field.validate(set([u"Hello"]), None)
   u'Wrong contained type'
 
 Widget

@@ -85,25 +85,25 @@ Validation
 
 Validation should validate only set that contains correct choices:
 
-  >>> field.validate(NO_VALUE)
-  >>> field.validate(set())
-  >>> field.validate(set(['42%', '51%']))
+  >>> field.validate(NO_VALUE, None)
+  >>> field.validate(set(), None)
+  >>> field.validate(set(['42%', '51%']), None)
 
 If the value is not a set or value is incorrect, the validation shall
 fail:
 
-  >>> field.validate([])
+  >>> field.validate([], None)
   u'Object is of wrong type.'
-  >>> field.validate(set(['apple juice', '51%']))
+  >>> field.validate(set(['apple juice', '51%']), None)
   u'Wrong contained type'
 
 If the field is required, an empty collection will not validate:
 
-  >>> required_field.validate(NO_VALUE)
+  >>> required_field.validate(NO_VALUE, None)
   u'Missing required value.'
-  >>> required_field.validate(set())
+  >>> required_field.validate(set(), None)
   u'Missing required value.'
-  >>> required_field.validate(set(['42%', '51%']))
+  >>> required_field.validate(set(['42%', '51%']), None)
 
 Multi choice widget
 -------------------

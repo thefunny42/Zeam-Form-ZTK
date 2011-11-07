@@ -102,10 +102,10 @@ Validation
 The field will only validate a correct value::
 
   >>> from zeam.form.base.markers import NO_VALUE
-  >>> post_field.validate(NO_VALUE)
-  >>> post_field.validate('foo')
+  >>> post_field.validate(NO_VALUE, None)
+  >>> post_field.validate('foo', None)
   u'Schema not provided'
-  >>> post_field.validate(Comment(u'Hello', u'hello people !'))
+  >>> post_field.validate(Comment(u'Hello', u'hello people !'), None)
 
 
 Widget

@@ -54,8 +54,8 @@ So now you can create a field, and get a choice field::
   >>> firstField.source is letterVocabulary
   True
 
-  >>> firstField.validate('A')
-  >>> firstField.validate('foo')
+  >>> firstField.validate('A', None)
+  >>> firstField.validate('foo', None)
   u'Constraint not satisfied'
 
   >>> verifyObject(interfaces.IField, firstField)
@@ -184,8 +184,8 @@ So now you can create a field, and get a choice field::
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> secondField.validate('A')
-  >>> secondField.validate(42)
+  >>> secondField.validate('A', None)
+  >>> secondField.validate(42, None)
   u'Constraint not satisfied'
 
 

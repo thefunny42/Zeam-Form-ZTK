@@ -68,12 +68,15 @@ class SchemaField(Field):
             copy.identifier = new_identifier
         return copy
 
-    def validate(self, value, context=None):
-        error = super(SchemaField, self).validate(value)
+    def validate(self, value, form):
+        error = super(SchemaField, self).validate(value, form)
         if error is not None:
             return error
 
         if value is not NO_VALUE:
+            context = None
+            if form is not None:
+                context = form.context
             try:
                 binded_field = self._field.bind(context)
                 binded_field.validate(value)
