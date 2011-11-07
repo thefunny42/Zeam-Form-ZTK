@@ -13,9 +13,22 @@ Changelog
 * Improve Javascript for collection widgets. Add an extra with
   fanstatic to automatically require required files.
 
+* If a collection widget is required, it will by default display one
+  empty item in the collection when it is empty. That prevent an extra
+  click to add it.
+
 * Various fixes in ``InvariantsValidator``.
 
-* ``SchemaWidgetExtractor`` and ``SchemaField`` now catch Invalid exceptions.
+* ``SchemaWidgetExtractor`` and ``SchemaField`` now catch Invalid
+  exceptions.
+
+* Add support for the HTML 5 attribute required in every template. Use
+  the attribute novalidate on the form tag to disable it.
+
+* Add a display widget for object and uri fields.
+
+* Add an option ``valueLength`` to the date widgets. Any Zope
+  formatter size can be use (``short``, ``medium`` ...).
 
 1.0 (2010/10/19)
 ----------------
