@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1 (unreleased)
+1.2 (2011/11/08)
 ----------------
 
 * Improve error reporting in collection widgets. Thanks to Novareto
