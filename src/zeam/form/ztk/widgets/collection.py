@@ -406,7 +406,7 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
             if value is NO_VALUE:
                 # Nothing selected
                 return (self.component.collectionType(), None)
-            choices = self.source.getChoices(self.form.context)
+            choices = self.source.getChoices(self.form)
             try:
                 if not isinstance(value, list):
                     value = [value]

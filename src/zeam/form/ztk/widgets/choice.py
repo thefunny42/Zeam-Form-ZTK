@@ -22,28 +22,44 @@ class ChoiceSchemaField(SchemaField):
 
     def __init__(self, field):
         super(ChoiceSchemaField, self).__init__(field)
-        self.__source = None
-        self.__source_name = None
+        self._source = None
+        self._source_name = None
+        self._custom = None    # The field can have a custom source.
         if field.source is not None:
-            self.__source = field.source
+            self._source = field.source
         elif isinstance(field.vocabularyName, str):
             # We delay the lookup of the vocabulary, to be sure it
             # have been registered.
-            self.__source = None
-            self.__source_name = field.vocabularyName
+            self._source_name = field.vocabularyName
 
-    @property
-    def source(self):
-        if self.__source is None:
-            self.__source = component.getUtility(
-                schema_interfaces.IVocabularyFactory, name=self.__source_name)
-        return self.__source
+    @apply
+    def source():
 
-    def getChoices(self, context):
+        def getter(self):
+            if self._source is None:
+                if self._custom is not None:
+                    self._source = self._custom
+                else:
+                    self._source = component.getUtility(
+                        schema_interfaces.IVocabularyFactory,
+                        name=self._source_name)
+            return self._source
+
+        def setter(self, source):
+            self._custom = source
+
+        return property(getter, setter)
+
+    def getChoices(self, form):
         source = self.source
         if (schema_interfaces.IContextSourceBinder.providedBy(source) or
             schema_interfaces.IVocabularyFactory.providedBy(source)):
-            source = source(context)
+            source = source(form.context)
+        elif callable(source):
+            source = source(form)
+        # If that's custom, we need to re-inject this in zope.schema
+        # to get it right.
+        self._field.vocabulary = source
         assert schema_interfaces.IVocabularyTokenized.providedBy(source)
         return source
 
@@ -54,7 +70,7 @@ class ChoiceFieldWidget(SchemaFieldWidget):
     def __init__(self, field, form, request):
         super(ChoiceFieldWidget, self).__init__(field, form, request)
         self.source = field
-        self.__choices = None
+        self._choices = None
 
     def lookupTerm(self, value):
         choices = self.choices()
@@ -74,12 +90,12 @@ class ChoiceFieldWidget(SchemaFieldWidget):
         return u''
 
     def choices(self):
-        if self.__choices is not None:
-            return self.__choices
+        if self._choices is not None:
+            return self._choices
         # self.source is used instead of self.component in order to be
         # able to override it in subclasses.
-        self.__choices = self.source.getChoices(self.form.context)
-        return self.__choices
+        self._choices = self.source.getChoices(self.form)
+        return self._choices
 
 
 class ChoiceDisplayWidget(ChoiceFieldWidget):
@@ -98,7 +114,7 @@ class ChoiceWidgetExtractor(WidgetExtractor):
     def extract(self):
         value, error = super(ChoiceWidgetExtractor, self).extract()
         if value is not NO_VALUE:
-            choices = self.component.getChoices(self.form.context)
+            choices = self.component.getChoices(self.form)
             try:
                 value = choices.getTermByToken(value).value
             except LookupError:
