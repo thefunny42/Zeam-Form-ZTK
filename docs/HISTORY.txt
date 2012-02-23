@@ -1,11 +1,15 @@
 Changelog
 =========
 
-1.1.1 (unreleased)
+1.1.1 (2012/02/23)
 ------------------
 
-* ...
+* Update nested widgets to properly report errors in sub widgets.
 
+* Improve zope.schema invalidation.
+
+* Add a widget that display nested zope.schema objects as a list
+  instead as a table.
 
 1.1 (2011/07/27)
 ----------------
