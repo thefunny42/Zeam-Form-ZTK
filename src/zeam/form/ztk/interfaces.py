@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from zope import interface
+from zope.schema.interfaces import ISource
 from zeam.form.base.interfaces import IField, IZeamFormBaseAPI
 
+
+class ISourceFactory(ISource):
+    """Marker interface used with zope.schema Choice in order to give
+    a factory that takes the source.
+
+    """
 
 class ISchemaField(IField):
     """This is a field for zope schema field.

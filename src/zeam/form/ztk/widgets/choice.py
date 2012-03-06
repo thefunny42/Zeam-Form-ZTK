@@ -2,6 +2,7 @@
 
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import WidgetExtractor
+from zeam.form.ztk.interfaces import ISourceFactory
 from zeam.form.ztk.fields import (
     SchemaField, registerSchemaField, SchemaFieldWidget)
 
@@ -55,7 +56,7 @@ class ChoiceSchemaField(SchemaField):
         if (schema_interfaces.IContextSourceBinder.providedBy(source) or
             schema_interfaces.IVocabularyFactory.providedBy(source)):
             source = source(form.context)
-        elif callable(source):
+        elif ISourceFactory.providedBy(source):
             source = source(form)
         # If that's custom, we need to re-inject this in zope.schema
         # to get it right.
