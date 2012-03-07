@@ -20,6 +20,11 @@ First we need a choice:
   ...     SimpleTerm(value='B', token='b1', title='Letter B'),
   ...     SimpleTerm(value='C', token='c1', title='Letter C')])
 
+  >>> number_vocabulary = SimpleVocabulary([
+  ...     SimpleTerm(value=1, token='#1', title='Number 1'),
+  ...     SimpleTerm(value=2, token='#2', title='Number 2'),
+  ...     SimpleTerm(value=3, token='#3', title='Number 3')])
+
   >>> class ISimpleChoice(interface.Interface):
   ...     choice = schema.Choice(
   ...         title=u"My favorite letter",
@@ -191,20 +196,25 @@ and an interface for it:
   >>> from zope.schema.interfaces import IContextSourceBinder
 
   >>> @component.provider(IContextSourceBinder)
-  ... def secondVocabulary(context):
+  ... def context_vocabulary(context):
   ...     return letter_vocabulary
 
-  >>> class ISecondChoice(interface.Interface):
+  >>> class IContextChoice(interface.Interface):
   ...     choice = schema.Choice(
   ...         title=u"My Choice",
-  ...         source=secondVocabulary)
+  ...         source=context_vocabulary)
 
-  >>> class SecondContent(object):
-  ...    interface.implements(ISecondChoice)
+  >>> class ContextContent(object):
+  ...    interface.implements(IContextChoice)
   ...    choice = None
 
-  >>> content = SecondContent()
+  >>> content = ContextContent()
   >>> content.choice = 'C'
+
+  >>> from zeam.form.ztk import FormData
+
+  >>> context_form = FormData(content, request)
+  >>> context_form.ignoreContent = False
 
 Field
 -----
@@ -213,14 +223,16 @@ So now you can create a field, and get a choice field:
 
   >>> from zeam.form.ztk import Fields
 
-  >>> secondChoiceFields = Fields(ISecondChoice)
-  >>> secondField = secondChoiceFields['choice']
-  >>> secondField
+  >>> context_fields = Fields(IContextChoice)
+  >>> context_field = context_fields['choice']
+  >>> context_field
   <ChoiceSchemaField My Choice>
-  >>> secondField.source is secondVocabulary
+  >>> context_field.source is None
+  True
+  >>> context_field.factory is context_vocabulary
   True
 
-  >>> choices = secondField.getChoices(None)
+  >>> choices = context_field.getChoices(context_form)
   >>> choices
   <zope.schema.vocabulary.SimpleVocabulary object at ...>
   >>> display_vocabulary(choices)
@@ -228,8 +240,8 @@ So now you can create a field, and get a choice field:
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> secondField.validate('A', None)
-  >>> secondField.validate(42, None)
+  >>> context_field.validate('A', None)
+  >>> context_field.validate(1, None)
   u'Constraint not satisfied'
 
 Widget
@@ -239,29 +251,71 @@ You have an associated widget:
 
   >>> from zeam.form.ztk import Widgets, FormData
 
-  >>> secondSub = FormData(content, request)
-  >>> secondSub.ignoreContent = False
+  >>> context_form = FormData(content, request)
+  >>> context_form.ignoreContent = False
 
-  >>> secondWidgets = Widgets(
-  ...     secondChoiceFields,
-  ...     form=secondSub,
+  >>> context_widgets = Widgets(
+  ...     context_fields,
+  ...     form=context_form,
   ...     request=request)
 
-  >>> secondWidgets.update()
+  >>> context_widgets.update()
 
-  >>> secondWidget = secondWidgets['form.field.choice']
-  >>> secondWidget
+  >>> context_widget = context_widgets['form.field.choice']
+  >>> context_widget
   <ChoiceFieldWidget My Choice>
 
-  >>> secondWidget.inputValue()
+  >>> context_widget.inputValue()
   'c1'
 
-  >>> print secondWidget.render()
+  >>> print context_widget.render()
   <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required">
     <option value="a1">Letter A</option>
     <option value="b1">Letter B</option>
     <option value="c1" selected="selected">Letter C</option>
   </select>
+
+
+Customizing vocabulary
+----------------------
+
+You after creation change the vocabulary:
+
+  >>> context_field.source = number_vocabulary
+  >>> new_choices = context_field.getChoices(context_form)
+  >>> new_choices
+  <zope.schema.vocabulary.SimpleVocabulary object at ...>
+  >>> display_vocabulary(new_choices)
+  1 '#1' 'Number 1'
+  2 '#2' 'Number 2'
+  3 '#3' 'Number 3'
+
+  >>> context_field.validate('A', None)
+  u'Constraint not satisfied'
+  >>> context_field.validate(1, None)
+
+Or you can change the factory. Let's define a form binded source:
+
+  >>> from zeam.form.ztk.interfaces import IFormSourceBinder
+
+  >>> @component.provider(IFormSourceBinder)
+  ... def form_vocabulary(form):
+  ...     assert form is context_form
+  ...     return letter_vocabulary
+
+  >>> context_field.factory = form_vocabulary
+  >>> new_choices = context_field.getChoices(context_form)
+  >>> new_choices
+  <zope.schema.vocabulary.SimpleVocabulary object at ...>
+  >>> display_vocabulary(new_choices)
+  'A' 'a1' 'Letter A'
+  'B' 'b1' 'Letter B'
+  'C' 'c1' 'Letter C'
+
+  >>> context_field.validate('A', None)
+  >>> context_field.validate(1, None)
+  u'Constraint not satisfied'
+
 
 Registered vocabulary
 =====================
@@ -295,10 +349,12 @@ So now you can create a field, and get a choice field:
   >>> vocabulary_field = vocabulary_fields['choice']
   >>> vocabulary_field
   <ChoiceSchemaField The third letter>
-  >>> vocabulary_field.source is vocabulary_factory
+  >>> vocabulary_field.source is None
+  True
+  >>> vocabulary_field.factory is vocabulary_factory
   True
 
-  >>> choices = vocabulary_field.getChoices(None)
+  >>> choices = vocabulary_field.getChoices(context_form)
   >>> choices
   <zope.schema.vocabulary.SimpleVocabulary object at ...>
   >>> display_vocabulary(choices)

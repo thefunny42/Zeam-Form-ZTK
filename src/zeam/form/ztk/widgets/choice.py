@@ -2,13 +2,15 @@
 
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.ztk.interfaces import ISourceFactory
+from zeam.form.ztk.interfaces import IFormSourceBinder
 from zeam.form.ztk.fields import (
     SchemaField, registerSchemaField, SchemaFieldWidget)
 
 from zope import component
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
+from zope.schema.interfaces import IVocabularyTokenized, IVocabularyFactory
+from zope.schema.interfaces import IContextSourceBinder
 
 from grokcore import component as grok
 
@@ -24,44 +26,72 @@ class ChoiceSchemaField(SchemaField):
     def __init__(self, field):
         super(ChoiceSchemaField, self).__init__(field)
         self._source = None
-        self._source_name = None
-        self._custom = None    # The field can have a custom source.
+        self._factory = None    # The field can have a custom factory.
+        self._factory_name = None
         if field.source is not None:
-            self._source = field.source
+            if IVocabularyTokenized.providedBy(field.source):
+                self._source = field.source
+            else:
+                self._factory = field.source
         elif isinstance(field.vocabularyName, str):
             # We delay the lookup of the vocabulary, to be sure it
             # have been registered.
-            self._source_name = field.vocabularyName
+            self._factory_name = field.vocabularyName
+
+    @apply
+    def factory():
+
+        def getter(self):
+            if self._factory is None:
+                if self._factory_name is not None:
+                    self._factory = component.getUtility(
+                        schema_interfaces.IVocabularyFactory,
+                        name=self._factory_name)
+            return self._factory
+
+        def setter(self, factory):
+            if isinstance(factory, str):
+                self._factory_name = factory
+                self._factory = None
+            else:
+                self._factory_name = None
+                self._factory = factory
+            self._source = None
+
+        return property(getter, setter)
 
     @apply
     def source():
 
         def getter(self):
-            if self._source is None:
-                if self._custom is not None:
-                    self._source = self._custom
-                else:
-                    self._source = component.getUtility(
-                        schema_interfaces.IVocabularyFactory,
-                        name=self._source_name)
             return self._source
 
         def setter(self, source):
-            self._custom = source
+            if IVocabularyTokenized.providedBy(source):
+                # If that's custom, we need to re-inject this in zope.schema
+                # to get validation working properly.
+                self._source = source
+                self._field.vocabulary = source
+            else:
+                # This is a factory.
+                self.factory = source
 
         return property(getter, setter)
 
     def getChoices(self, form):
         source = self.source
-        if (schema_interfaces.IContextSourceBinder.providedBy(source) or
-            schema_interfaces.IVocabularyFactory.providedBy(source)):
-            source = source(form.context)
-        elif ISourceFactory.providedBy(source):
-            source = source(form)
-        # If that's custom, we need to re-inject this in zope.schema
-        # to get it right.
-        self._field.vocabulary = source
-        assert schema_interfaces.IVocabularyTokenized.providedBy(source)
+        if source is None:
+            factory = self.factory
+            assert factory is not None, \
+                "No vocabulary source available."
+            if (IContextSourceBinder.providedBy(factory) or
+                IVocabularyFactory.providedBy(factory)):
+                source = factory(form.context)
+            elif IFormSourceBinder.providedBy(factory):
+                source = factory(form)
+            assert IVocabularyTokenized.providedBy(source), \
+                "No valid vocabulary available"
+            self.source = source
         return source
 
 

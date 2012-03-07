@@ -5,7 +5,7 @@ from zope.schema.interfaces import ISource
 from zeam.form.base.interfaces import IField, IZeamFormBaseAPI
 
 
-class ISourceFactory(ISource):
+class IFormSourceBinder(ISource):
     """Marker interface used with zope.schema Choice in order to give
     a factory that takes the source.
 

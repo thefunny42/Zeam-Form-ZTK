@@ -11,11 +11,11 @@ First we need a choice::
   >>> from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
   >>> from zope.interface.verify import verifyObject
 
-  >>> def displayVocabulary(values):
+  >>> def display_vocabulary(values):
   ...     for value in values:
   ...         print "%r %r %r" % (value.value, value.token, value.title)
 
-  >>> letterVocabulary = SimpleVocabulary([
+  >>> letter_vocabulary = SimpleVocabulary([
   ...     SimpleTerm(value='A', token='a1', title='Letter A'),
   ...     SimpleTerm(value='B', token='b1', title='Letter B'),
   ...     SimpleTerm(value='C', token='c1', title='Letter C')])
@@ -23,7 +23,7 @@ First we need a choice::
   >>> class IFirstChoice(interface.Interface):
   ...     choice = schema.Choice(
   ...         title=u"My favorite letter",
-  ...         source=letterVocabulary)
+  ...         source=letter_vocabulary)
 
 
 And we will need a content and a request to test:
@@ -51,7 +51,7 @@ So now you can create a field, and get a choice field::
   >>> firstField
   <ChoiceSchemaField My favorite letter>
 
-  >>> firstField.source is letterVocabulary
+  >>> firstField.source is letter_vocabulary
   True
 
   >>> firstField.validate('A', None)
@@ -146,20 +146,25 @@ and an interface for it::
   >>> from zope.schema.interfaces import IContextSourceBinder
 
   >>> @component.provider(IContextSourceBinder)
-  ... def secondVocabulary(context):
-  ...     return letterVocabulary
+  ... def context_vocabulary(context):
+  ...     return letter_vocabulary
 
-  >>> class ISecondChoice(interface.Interface):
+  >>> class IContextChoice(interface.Interface):
   ...     choice = schema.Choice(
   ...         title=u"My Choice",
-  ...         source=secondVocabulary)
+  ...         source=context_vocabulary)
 
-  >>> class SecondContent(object):
-  ...    interface.implements(ISecondChoice)
+  >>> class ContextContent(object):
+  ...    interface.implements(IContextChoice)
   ...    choice = None
 
-  >>> content = SecondContent()
+  >>> content = ContextContent()
   >>> content.choice = 'C'
+
+  >>> from zeam.form.ztk import FormData
+
+  >>> context_form = FormData(content, request)
+  >>> context_form.ignoreContent = False
 
 
 Field
@@ -169,23 +174,25 @@ So now you can create a field, and get a choice field::
 
   >>> from zeam.form.ztk import Fields
 
-  >>> secondChoiceFields = Fields(ISecondChoice)
-  >>> secondField = secondChoiceFields['choice']
-  >>> secondField
+  >>> context_fields = Fields(IContextChoice)
+  >>> context_field = context_fields['choice']
+  >>> context_field
   <ChoiceSchemaField My Choice>
-  >>> secondField.source is secondVocabulary
+  >>> context_field.source is None
+  True
+  >>> context_field.factory is context_vocabulary
   True
 
-  >>> choices = secondField.getChoices(None)
+  >>> choices = context_field.getChoices(context_form)
   >>> choices
   <zope.schema.vocabulary.SimpleVocabulary object at ...>
-  >>> displayVocabulary(choices)
+  >>> display_vocabulary(choices)
   'A' 'a1' 'Letter A'
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> secondField.validate('A', None)
-  >>> secondField.validate(42, None)
+  >>> context_field.validate('A', None)
+  >>> context_field.validate(42, None)
   u'Constraint not satisfied'
 
 
@@ -194,26 +201,23 @@ Widget
 
 You have an associated widget::
 
-  >>> from zeam.form.ztk import Widgets, FormData
+  >>> from zeam.form.ztk import Widgets
 
-  >>> secondSub = FormData(content, request)
-  >>> secondSub.ignoreContent = False
-
-  >>> secondWidgets = Widgets(
-  ...     secondChoiceFields,
-  ...     form=secondSub,
+  >>> context_widgets = Widgets(
+  ...     context_fields,
+  ...     form=context_form,
   ...     request=request)
 
-  >>> secondWidgets.update()
+  >>> context_widgets.update()
 
-  >>> secondWidget = secondWidgets['form.field.choice']
-  >>> secondWidget
+  >>> context_widget = context_widgets['form.field.choice']
+  >>> context_widget
   <ChoiceFieldWidget My Choice>
 
-  >>> secondWidget.inputValue()
+  >>> context_widget.inputValue()
   'c1'
 
-  >>> print secondWidget.render()
+  >>> print context_widget.render()
   <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required">
     <option value="a1">Letter A</option>
     <option value="b1">Letter B</option>
