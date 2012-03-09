@@ -78,9 +78,9 @@ class ChoiceSchemaField(SchemaField):
 
         return property(getter, setter)
 
-    def getChoices(self, form):
+    def getChoices(self, form, reset=False):
         source = self.source
-        if source is None:
+        if source is None or reset:
             factory = self.factory
             assert factory is not None, \
                 "No vocabulary source available."
