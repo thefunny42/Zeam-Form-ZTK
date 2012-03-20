@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from zope.interface import alsoProvides
-from zeam.form.base.datamanager import ObjectDataManager
+from zeam.form.base.datamanager import BaseDataManager
 
 
 def makeGenericAdaptiveDataManager(*fields):
 
-    class GenericAdaptiveDataManager(ObjectDataManager):
+    class GenericAdaptiveDataManager(BaseDataManager):
         """A data manager that adapt its content to an interface
         before doing anything.
         """
@@ -30,7 +30,10 @@ def makeGenericAdaptiveDataManager(*fields):
         def get(self, identifier):
             content = self._getAdapter(identifier)
             if content is not None:
-                return getattr(content, identifier)
+                try:
+                    return getattr(content, identifier)
+                except AttributeError:
+                    pass
             raise KeyError(identifier)
 
         def set(self, identifier, value):
@@ -38,5 +41,15 @@ def makeGenericAdaptiveDataManager(*fields):
             if content is None:
                 raise KeyError(identifier)
             setattr(content, identifier, value)
+
+        def delete(self, identifier):
+            content = self._getAdapter(identifier)
+            if content is not None:
+                try:
+                    return delattr(content, identifier)
+                except AttributeError:
+                    pass
+            raise KeyError(identifier)
+
 
     return GenericAdaptiveDataManager
