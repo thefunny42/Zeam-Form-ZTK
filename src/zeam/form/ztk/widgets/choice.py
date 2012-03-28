@@ -91,7 +91,7 @@ class ChoiceSchemaField(SchemaField):
                 source = factory(form)
             assert IVocabularyTokenized.providedBy(source), \
                 "No valid vocabulary available"
-            self.source = source
+            self._field.vocabulary = source
         return source
 
 
