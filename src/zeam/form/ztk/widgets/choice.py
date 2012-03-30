@@ -90,7 +90,8 @@ class ChoiceSchemaField(SchemaField):
             elif IFormSourceBinder.providedBy(factory):
                 source = factory(form)
             assert IVocabularyTokenized.providedBy(source), \
-                "No valid vocabulary available, %s is not valid" % source
+                "No valid vocabulary available, %s is not valid for %s" % (
+                source, self)
             self._field.vocabulary = source
         return source
 
