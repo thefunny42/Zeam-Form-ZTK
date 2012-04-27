@@ -1,10 +1,18 @@
 Changelog
 =========
 
-1.3 (unreleased)
-----------------
+1.2.1 (2012/04/27)
+------------------
 
-* ...
+* Improve choice widgets, to make possible to customize the source of
+  it. Add support for a ``IFormSourceBinder``, that works like a
+  ``IContextSourceBinder`` except it takes the form as parameter
+  instead of the context (thus giving access to request as well for
+  instance).
+
+* Add a method ``delete`` to the data manager.
+
+* Now use ``grokcore.chameleon`` instead of ``megrok.chameleon``.
 
 1.2 (2011/11/08)
 ----------------
