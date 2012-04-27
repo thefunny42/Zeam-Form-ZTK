@@ -238,7 +238,7 @@ We can, now, simply get and set our attributes::
   >>> print gadm.get("nothing")
   Traceback (most recent call last):
   ...
-  AttributeError: 'Item' object has no attribute 'nothing'
+  KeyError: 'nothing'
 
   >>> gadm.set('title', u'My title')
   >>> title = gadm.get('title')
