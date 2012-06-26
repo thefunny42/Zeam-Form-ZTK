@@ -25,7 +25,7 @@ class EditAction(Action):
 
     def applyData(self, form, content, data):
         for field in form.fields:
-            value = data.getWithDefault(field.identifier)
+            value = data.getWithDefault(field.identifier, default=NO_CHANGE)
             if value is not NO_CHANGE:
                 content.set(field.identifier, value)
 
