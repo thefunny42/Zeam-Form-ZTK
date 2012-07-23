@@ -42,5 +42,7 @@ class CheckBoxWidgetExtractor(WidgetExtractor):
             value = False
         elif value == 'True':
             value = True
+        else:
+            value = False
         return (value, error)
 
