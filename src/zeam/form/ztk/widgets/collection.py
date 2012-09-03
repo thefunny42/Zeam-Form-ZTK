@@ -30,7 +30,7 @@ from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.fields import Fields
-from zeam.form.base.widgets import WidgetExtractor, Widgets, createWidget
+from zeam.form.base.widgets import WidgetExtractor, Widgets
 from zeam.form.ztk.fields import (
     SchemaField, registerSchemaField, SchemaFieldWidget)
 from zeam.form.ztk.interfaces import ICollectionSchemaField, IListSchemaField
@@ -157,7 +157,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
         else:
             form.ignoreRequest = False
             form.ignoreContent = True
-        return createWidget(field, form, self.request)
+        return form.widgetFactory.widget(field)
 
     def addValueWidget(self, new_identifier, value):
         widget = self.createValueWidget(new_identifier, value)
