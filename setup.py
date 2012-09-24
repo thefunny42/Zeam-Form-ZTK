@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.2.3'
+version = '1.3dev'
 
 tests_require = [
     'zope.app.schema',
