@@ -1,10 +1,16 @@
 Changelog
 =========
 
-1.2.2 (2012/07/25)
-----------------
+1.2.3 (2012/09/24)
+------------------
 
-* adjust CheckboxWidgetExtractor to convert 'False' input to bool False
+* Update API to use ``zeam.form.base`` 1.2.3.
+
+1.2.2 (2012/07/25)
+------------------
+
+* Adjust CheckboxWidgetExtractor to convert ``False`` input to bool
+  ``False``.
 
 1.2.1 (2012/04/27)
 ------------------
