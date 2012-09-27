@@ -93,7 +93,7 @@ You have an associated widget:
   'b1'
 
   >>> print simple_widget.render()
-  <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required">
+  <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required" required="required">
     <option value="a1">Letter A</option>
     <option value="b1" selected="selected">Letter B</option>
     <option value="c1">Letter C</option>
@@ -269,7 +269,7 @@ You have an associated widget:
   'c1'
 
   >>> print context_widget.render()
-  <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required">
+  <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required" required="required">
     <option value="a1">Letter A</option>
     <option value="b1">Letter B</option>
     <option value="c1" selected="selected">Letter C</option>

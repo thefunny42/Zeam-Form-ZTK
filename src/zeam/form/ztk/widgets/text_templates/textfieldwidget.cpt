@@ -1,6 +1,11 @@
-<textarea id="#" name="#" class="#" cols="80" rows="5"
-          tal:attributes="readonly widget.readonly and 'readonly' or None;
-                          required widget.required and 'required' or None;
+<textarea id="#" name="#" class="#"
+          tal:attributes="cols widget.htmlAttribute('cols') or '80';
+                          maxlength widget.htmlAttribute('maxlength');
+                          placeholder widget.htmlAttribute('placeholder');
+                          required widget.htmlAttribute('required');
+                          rows widget.htmlAttribute('rows') or '5';
+                          wrap widget.htmlAttribute('wrap');
+                          readonly widget.htmlAttribute('readonly');
                           name widget.identifier;
                           id widget.htmlId();
                           class widget.htmlClass()"

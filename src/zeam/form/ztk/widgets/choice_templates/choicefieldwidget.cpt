@@ -2,7 +2,9 @@
         tal:define="value widget.inputValue()"
         tal:attributes="name widget.identifier;
                         id widget.htmlId();
-                        class widget.htmlClass()">
+                        class widget.htmlClass();
+                        required widget.htmlAttribute('required');
+                        size widget.htmlAttribute('size')">
   <option value="#"
           tal:repeat="choice widget.choices()"
           tal:attributes="value choice.token;
