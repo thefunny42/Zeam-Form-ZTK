@@ -51,14 +51,14 @@ You have an associated widget:
   >>> widgets = Widgets(fields, form=sub, request=request)
   >>> widgets.update()
 
-  >>> booleanWidget = widgets['form.field.answer']
-  >>> booleanWidget
+  >>> boolean_widget = widgets['form.field.answer']
+  >>> boolean_widget
   <CheckBoxWidget Do you like zeam?>
 
-  >>> verifyObject(interfaces.IWidget, booleanWidget)
+  >>> verifyObject(interfaces.IWidget, boolean_widget)
   True
 
-  >>> print booleanWidget.render()
+  >>> print boolean_widget.render()
   <input id="form-field-answer" name="form.field.answer" class="field field-bool field-required"
          checked="checked" value="True" type="checkbox" />
 
@@ -86,38 +86,36 @@ And if there is True in the request that means the checkbox is
 checked:
 
   >>> true_request = TestRequest(
-  ...         form={booleanWidget.identifier: u'True', })
+  ...         form={boolean_widget.identifier: u'True', })
 
   >>> extractor = component.getMultiAdapter(
   ...      (boolean_field, sub, true_request), interfaces.IWidgetExtractor)
 
   >>> extractor.extract()
   (True, None)
-  
-Passing in u'False' will result in a False boolean value being returned 
+
+Passing in u'False' will result in a False boolean value being returned
 (checkbox is not checked).
 
   >>> false_request = TestRequest(
-  ...         form={booleanWidget.identifier: u'False', })
+  ...         form={boolean_widget.identifier: u'False', })
 
   >>> extractor = component.getMultiAdapter(
   ...      (boolean_field, sub, false_request), interfaces.IWidgetExtractor)
 
   >>> extractor.extract()
   (False, None)
-  
+
 Also, passing in an empty string will result in a False boolean value being
 returned (checkbox is not checked).  Being a checkbox, a browser
 will not send 'False', it simply won't send the field.  Accepting 'false' makes
 it easier to develop an api which is called from code.
 
   >>> empty_request = TestRequest(
-  ...         form={booleanWidget.identifier: u'', })
+  ...         form={boolean_widget.identifier: u'', })
 
   >>> extractor = component.getMultiAdapter(
   ...      (boolean_field, sub, empty_request), interfaces.IWidgetExtractor)
 
   >>> extractor.extract()
   (False, None)
-  
-

@@ -20,6 +20,16 @@ class ISchemaField(IField):
         """
 
 
+class IFieldCreatedEvent(interface.Interface):
+    """A zeam.form Field have been created (out of a zope.schema
+    Field).
+    """
+    field = interface.Attribute(
+        u"Created field")
+    interface = interface.Attribute(
+        u"Interface on which the field have been crated")
+
+
 class ICollectionSchemaField(ISchemaField):
     """This is a field for zope schema collection field. It is defined
     in order to be able to have a generic behavior on collections.

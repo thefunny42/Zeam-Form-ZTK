@@ -65,7 +65,7 @@ object, to get its schema and fields::
   <Fields>
   >>> list(comment_fields)
   [<TextLineSchemaField Title>,
-   <TextSchemaField Comment>,
+   <TextField Comment>,
    <TextLineSchemaField Email>]
 
 An another method let you get a factory for the object. You can either
@@ -136,7 +136,7 @@ object, all of them prefixed by the main widget identifier::
   >>> len(post_widget.objectWidgets)
   3
   >>> list(post_widget.objectWidgets)
-  [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
+  [<TextLineWidget Title>, <TextareaWidget Comment>, <TextLineWidget Email>]
   >>> map(lambda w: w.value, post_widget.objectWidgets)
   [{'form.field.comment.field.title': u''},
    {'form.field.comment.field.comment': u''},
@@ -166,7 +166,7 @@ The widget can edit data coming from the content::
   >>> len(comment_hello_widget.objectWidgets)
   3
   >>> list(comment_hello_widget.objectWidgets)
-  [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
+  [<TextLineWidget Title>, <TextareaWidget Comment>, <TextLineWidget Email>]
   >>> map(lambda w: w.value, comment_hello_widget.objectWidgets)
   [{'form.field.comment.field.title': u'Hello'},
    {'form.field.comment.field.comment': u'Hello my name is arthur'},
@@ -313,7 +313,7 @@ sub-widgets have the correct errors as well:
   >>> len(comment_invalid_widget.objectWidgets)
   3
   >>> list(comment_invalid_widget.objectWidgets)
-  [<TextLineWidget Title>, <TextFieldWidget Comment>, <TextLineWidget Email>]
+  [<TextLineWidget Title>, <TextareaWidget Comment>, <TextLineWidget Email>]
   >>> map(lambda w: w.error , comment_invalid_widget.objectWidgets)
   [None, <Error Missing required value.>, None]
   >>> map(lambda w: w.value, comment_invalid_widget.objectWidgets)

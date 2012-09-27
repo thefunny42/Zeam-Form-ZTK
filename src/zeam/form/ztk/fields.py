@@ -4,7 +4,7 @@ from zeam.form.base import interfaces
 from zeam.form.base.fields import Field
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
-from zeam.form.ztk.interfaces import ISchemaField
+from zeam.form.ztk.interfaces import ISchemaField, IFieldCreatedEvent
 
 from grokcore import component as grok
 from zope import schema, component
@@ -14,6 +14,14 @@ from zope.schema import interfaces as schema_interfaces
 import zope.interface.interfaces
 
 _ = MessageFactory("zeam.form.base")
+
+
+class FieldCreatedEvent(object):
+    grok.implements(IFieldCreatedEvent)
+
+    def __init__(self, field, interface=None):
+        self.interface = interface
+        self.field = field
 
 
 class SchemaFieldFactory(object):

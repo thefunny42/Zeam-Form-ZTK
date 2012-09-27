@@ -1,0 +1,112 @@
+=========================
+zeam.form.ztk text widget
+=========================
+
+We need first a text schema:
+
+  >>> from zope import interface, schema
+  >>> from zope.interface.verify import verifyObject
+
+  >>> class IQuestion(interface.Interface):
+  ...     comment = schema.Text(title=u"Why do you like zeam?")
+
+And a test content and request:
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+  >>> class Question(object):
+  ...    interface.implements(IQuestion)
+  ...    comment = u''
+  >>> content = Question()
+
+
+
+Field
+-----
+
+So now you can create a field, and get a boolean field:
+
+  >>> from zeam.form.ztk import Fields, FormData, NO_VALUE
+  >>> from zeam.form.base import interfaces
+
+  >>> form = FormData(content, request)
+  >>> form.ignoreContent = False
+
+  >>> fields = Fields(IQuestion)
+  >>> text_field = fields['comment']
+  >>> text_field
+  <TextField Why do you like zeam?>
+
+  >>> verifyObject(interfaces.IField, text_field)
+  True
+
+
+Validation
+~~~~~~~~~~
+
+You an validate the input:
+
+  >>> text_field.required
+  True
+  >>> text_field.validate(NO_VALUE, form)
+  u'Missing required value.'
+
+  >>> text_field.minLength = 6
+  >>> text_field.validate('what?', form)
+  u'Not enough text was entered.'
+
+  >>> text_field.validate('what did you say?', form)
+
+  >>> text_field.maxLength = 6
+  >>> text_field.validate('what did you say?', form)
+   u'Too much text was entered.'
+
+
+Widget
+------
+
+You have an associated widget:
+
+  >>> from zeam.form.ztk import Widgets
+
+  >>> widgets = Widgets(fields, form=form, request=request)
+  >>> widgets.update()
+
+  >>> text_widget = widgets['form.field.comment']
+  >>> text_widget
+  <TextareaWidget Why do you like zeam?>
+
+  >>> verifyObject(interfaces.IWidget, text_widget)
+  True
+
+  >>> print text_widget.render()   #doctest: +NORMALIZE_WHITESPACE
+  <textarea id="form-field-comment" name="form.field.comment" class="field field-text field-required"
+            rows="5" required="required" cols="80"></textarea>
+
+
+Extractor
+---------
+
+And finaly we have an extractor. If there is nothing in the request
+the value is False:
+
+  >>> from zope import component
+
+  >>> empty_extractor = component.getMultiAdapter(
+  ...      (text_field, form, request), interfaces.IWidgetExtractor)
+  >>> empty_extractor
+  <zeam.form.base.widgets.WidgetExtractor object at ...>
+  >>> empty_extractor.extract()
+  (<Marker NO_VALUE>, None)
+
+And with a value:
+
+  >>> text_request = TestRequest(
+  ...         form={text_widget.identifier: u'Sometime there was an another version ...', })
+  >>> text_extractor = component.getMultiAdapter(
+  ...      (text_field, form, text_request), interfaces.IWidgetExtractor)
+  >>> text_extractor
+  <zeam.form.base.widgets.WidgetExtractor object at ...>
+  >>> text_extractor.extract()
+  (u'Sometime there was an another version ...', None)
