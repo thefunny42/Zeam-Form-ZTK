@@ -18,6 +18,7 @@ Let's create some interface using dates::
 And some content for them::
 
   >>> from zope.publisher.browser import TestRequest
+  >>> from zeam.form.ztk import FormData
   >>> request = TestRequest()
 
   >>> class DayInfo(object):
@@ -25,85 +26,120 @@ And some content for them::
   ...    date = None
   >>> day = DayInfo()
   >>> day.date = datetime.date(1983, 4, 25)
+  >>> date_form = FormData(day, request)
+  >>> date_form.ignoreContent = False
 
   >>> class Appointment(object):
   ...    interface.implements(IAppointment)
   ...    when = None
   >>> appointment = Appointment()
+  >>> appointment_form = FormData(appointment, request)
+  >>> appointment_form.ignoreContent = False
 
 
 Field
 -----
 
-You can get a field for a date::
+You can get a field for a date:
 
-  >>> from zeam.form.base import Fields
+  >>> from zeam.form.base import Fields, NO_VALUE
   >>> from zeam.form.base import interfaces
 
-  >>> dayFields = Fields(IDayInfo)
-  >>> dateField = dayFields['date']
-  >>> dateField
-  <DateSchemaField Current date>
-  >>> verifyObject(interfaces.IField, dateField)
+  >>> date_fields = Fields(IDayInfo)
+  >>> date_field = date_fields['date']
+  >>> date_field
+  <DateField Current date>
+  >>> verifyObject(interfaces.IField, date_field)
   True
 
-And one for datetime as well::
+And one for datetime as well:
 
-  >>> appointmentFields = Fields(IAppointment)
-  >>> whenField = appointmentFields['when']
-  >>> whenField
-  <DatetimeSchemaField When>
-  >>> verifyObject(interfaces.IField, whenField)
+  >>> appointment_fields = Fields(IAppointment)
+  >>> when_field = appointment_fields['when']
+  >>> when_field
+  <DatetimeField When>
+  >>> verifyObject(interfaces.IField, when_field)
   True
 
+Validation
+~~~~~~~~~~
+
+You can validate a date field between two different dates:
+
+  >>> date_field.required = True
+  >>> date_field.min = datetime.date(1983, 1, 1)
+  >>> date_field.max = datetime.date(1984, 1, 1)
+
+  >>> date_field.validate(NO_VALUE, date_form)
+  u'Missing required value.'
+  >>> date_field.validate(datetime.date(1983, 4, 25), date_form)
+  >>> date_field.validate(datetime.date(1981, 4, 25), date_form)
+  u'This date is before the ${not_before}.'
+  >>> date_field.validate(datetime.date(1985, 4, 25), date_form)
+  u'This date is after the ${not_after}.'
+
+And the same for a datetime field:
+
+  >>> when_field.required = True
+  >>> when_field.min = datetime.datetime(2012, 2, 15, 9, 30)
+  >>> when_field.max = datetime.datetime(2012, 2, 16, 18, 30)
+
+  >>> when_field.validate(NO_VALUE, appointment_form)
+  u'Missing required value.'
+  >>> when_field.validate(datetime.datetime(2012, 2, 15, 12, 0), appointment_form)
+  >>> when_field.validate(datetime.datetime(2012, 2, 15, 8, 0), appointment_form)
+  u'This date is before the ${not_before}.'
+  >>> when_field.validate(datetime.datetime(2012, 4, 25, 12, 00), appointment_form)
+  u'This date is after the ${not_after}.'
 
 Widget
 ------
 
 You can have a widget for a day. The input value is a formated version
-of the date, based on the locale of the request::
+of the date, based on the locale of the request:
 
-  >>> from zeam.form.ztk import Widgets, FormData
+  >>> from zeam.form.ztk import Widgets
 
-  >>> dailyForm = FormData(day, request)
-  >>> dailyForm.ignoreContent = False
-
-  >>> dailyWidgets = Widgets(
-  ...     dayFields,
-  ...     form=dailyForm,
+  >>> date_widgets = Widgets(
+  ...     date_fields,
+  ...     form=date_form,
   ...     request=request)
-  >>> dailyWidgets.update()
-  >>> len(dailyWidgets)
+  >>> date_widgets.update()
+  >>> len(date_widgets)
   1
 
-  >>> dailyWidget = dailyWidgets['form.field.date']
-  >>> dailyWidget
+  >>> date_widget = date_widgets['form.field.date']
+  >>> date_widget
   <DateFieldWidget Current date>
 
-  >>> verifyObject(interfaces.IFieldWidget, dailyWidget)
+  >>> verifyObject(interfaces.IFieldWidget, date_widget)
   True
 
-  >>> dailyWidget.inputValue()
+  >>> date_widget.inputValue()
   u'83/04/25'
+
+  >>> print date_widget.render() #doctest: +NORMALIZE_WHITESPACE
+  <input type="text" id="form-field-date" name="form.field.date"
+         class="field field-date field-required" value="83/04/25" required="required" />
 
 
 Widget extractor
 ----------------
 
 You can extract a value from the request. It is a bit more difficult
-here because the parsing is a bit more advanced::
+here because the parsing is a bit more advanced:
 
-  >>> dateRequest = TestRequest(form={
+  >>> date_request = TestRequest(form={
   ...     'form.field.date': u'82/06/10'})
-  >>> niceDayData = FormData(day, dateRequest)
+  >>> date_form = FormData(day, date_request)
 
-  >>> niceDayExtractor = getMultiAdapter(
-  ...      (dateField, niceDayData, dateRequest),
+  >>> date_extractor = getMultiAdapter(
+  ...      (date_field, date_form, date_request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> verifyObject(interfaces.IWidgetExtractor, niceDayExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, date_extractor)
   True
-  >>> niceDayExtractor.extract()
+  >>> date_extractor.extract()
   (datetime.date(1982, 6, 10), None)
 
 Now if you give an invalid date you will have an error::
@@ -113,7 +149,7 @@ Now if you give an invalid date you will have an error::
   >>> invalidDayData = FormData(day, invalidDateRequest)
 
   >>> invalidDayExtractor = getMultiAdapter(
-  ...      (dateField, invalidDayData, invalidDateRequest),
+  ...      (date_field, invalidDayData, invalidDateRequest),
   ...      interfaces.IWidgetExtractor)
 
   >>> verifyObject(interfaces.IWidgetExtractor, invalidDayExtractor)

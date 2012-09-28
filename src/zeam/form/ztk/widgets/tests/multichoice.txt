@@ -50,12 +50,12 @@ We can have a field out of the interface:
   >>> from zeam.form.base import interfaces
   >>> from zeam.form.base.markers import NO_VALUE
   >>> from zeam.form.ztk import Fields
-  >>> from zeam.form.ztk.interfaces import ICollectionSchemaField
+  >>> from zeam.form.ztk.interfaces import ICollectionField
 
   >>> fields = Fields(ISetOfChoices)
   >>> field = fields['choices']
   >>> field
-  <SetSchemaField My choices>
+  <SetField My choices>
   >>> verifyObject(interfaces.IField, field)
   True
   >>> field.required
@@ -67,7 +67,7 @@ And the field manage a set collection of choice:
   <type 'set'>
   >>> value_field = field.valueField
   >>> value_field
-  <ChoiceSchemaField >
+  <ChoiceField >
   >>> verifyObject(interfaces.IField, value_field)
   True
 
@@ -76,7 +76,7 @@ It can be required:
   >>> required_fields = Fields(IRequiredSetOfChoices)
   >>> required_field = required_fields['choices']
   >>> required_field
-  <SetSchemaField My required choices>
+  <SetField My required choices>
   >>> required_field.required
   True
 
@@ -88,14 +88,6 @@ Validation should validate only set that contains correct choices:
   >>> field.validate(NO_VALUE, None)
   >>> field.validate(set(), None)
   >>> field.validate(set(['42%', '51%']), None)
-
-If the value is not a set or value is incorrect, the validation shall
-fail:
-
-  >>> field.validate([], None)
-  u'Object is of wrong type.'
-  >>> field.validate(set(['apple juice', '51%']), None)
-  u'Wrong contained type'
 
 If the field is required, an empty collection will not validate:
 
@@ -110,7 +102,7 @@ Multi choice widget
 
 Collection fields can get by default a widget and extractor picked
 differently dependently of the value type. When the value type is a
-choice, you will get a multi-choice widget by default::
+choice, you will get a multi-choice widget by default:
 
   >>> from zeam.form.ztk import Widgets, FormData
   >>> from zope.publisher.browser import TestRequest
@@ -131,7 +123,7 @@ choice, you will get a multi-choice widget by default::
   True
 
 The widget will provides a list of choice that you can render. The
-ones already selected in the content will already by marked::
+ones already selected in the content will already by marked:
 
   >>> list(widget.renderableChoice())
   [{'token': 'vodka', 'checked': True,
@@ -147,19 +139,19 @@ And we can render this widget:
 
   >>> print widget.render()
   <input type="checkbox" id="form-field-choices-0" name="form.field.choices"
-   value="vodka" checked="checked" class="field field-set" />
+   value="vodka" checked="checked" class="field field-multichoice" />
   <label for="form-field-choices-0">Vodka</label>
   <br />
   <input type="checkbox" id="form-field-choices-1" name="form.field.choices"
-   value="tequila" class="field field-set" />
+   value="tequila" class="field field-multichoice" />
   <label for="form-field-choices-1">Tequila</label>
   <br />
   <input type="checkbox" id="form-field-choices-2" name="form.field.choices"
-   value="cognac" class="field field-set" />
+   value="cognac" class="field field-multichoice" />
   <label for="form-field-choices-2">Cognac</label>
   <br />
   <input type="checkbox" id="form-field-choices-3" name="form.field.choices"
-   value="champagne" checked="checked" class="field field-set" />
+   value="champagne" checked="checked" class="field field-multichoice" />
   <label for="form-field-choices-3">Champagne</label>
   <br />
   <input type="hidden" name="form.field.choices.present" value="1" />
@@ -171,7 +163,7 @@ Getting input from the request
 The widget is able to have input from the request only. The present
 marker is used in case the user select nothing, because in that case
 the browser will send nothing and it would sounds like nothing was in
-the request::
+the request:
 
   >>> content_request = TestRequest(form={
   ...     'form.field.choices': [u'vodka', u'tequila'],
@@ -183,7 +175,7 @@ the request::
   >>> choice_widgets.update()
   >>> choice_widget = choice_widgets['form.field.choices']
 
-And so now you have only Vodka and Tequila of selected by the widget::
+And so now you have only Vodka and Tequila of selected by the widget:
 
   >>> list(choice_widget.renderableChoice())
   [{'token': 'vodka', 'checked': True,
@@ -195,7 +187,7 @@ And so now you have only Vodka and Tequila of selected by the widget::
    {'token': 'champagne', 'checked': False,
     'id': 'form-field-choices-3', 'title': u'Champagne'}]
 
-However the user can uncheck all available choices::
+However the user can uncheck all available choices:
 
   >>> empty_request = TestRequest(form={
   ...     'form.field.choices.present' : u'1'})
@@ -221,7 +213,7 @@ Multi Choice Widget extractor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You need to be able to get the corresponding extractor with
-multi-choice widgets::
+multi-choice widgets:
 
   >>> extractor = getMultiAdapter(
   ...      (field, form, content_request), interfaces.IWidgetExtractor)
@@ -231,7 +223,7 @@ multi-choice widgets::
   >>> verifyObject(interfaces.IWidgetExtractor, extractor)
   True
 
-And you can get your values out of it::
+And you can get your values out of it:
 
   >>> extractor.extract()
   (set(['42%', '30%']), None)
@@ -246,7 +238,7 @@ If you selected nothing, you will get an empty selection:
   >>> empty_extractor.extract()
   (set([]), None)
 
-If you have nothing in your request, you will get nothing::
+If you have nothing in your request, you will get nothing:
 
   >>> empty_extractor = getMultiAdapter(
   ...      (field, form, request), interfaces.IWidgetExtractor)
@@ -281,7 +273,7 @@ And we can render this widget:
 
   >>> print select_widget.render()
   <select id="form-field-choices" name="form.field.choices"
-   class="field field-set" multiple="multiple">
+   class="field field-multichoice" multiple="multiple">
     <option value="vodka" selected="selected">Vodka</option>
     <option value="tequila">Tequila</option>
     <option value="cognac">Cognac</option>

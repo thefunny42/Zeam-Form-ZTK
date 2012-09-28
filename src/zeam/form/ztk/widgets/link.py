@@ -18,5 +18,6 @@ class LinkFieldWidget(DisplayFieldWidget):
         context = self.form.context
         return getMultiAdapter((context, self.request), IAbsoluteURL)()
 
+
 LINK = ModeMarker('LINK', extractable=False)
 

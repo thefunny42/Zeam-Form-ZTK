@@ -39,11 +39,9 @@ class InvariantsValidation(object):
         self.form = form
         self.interfaces = []
         for field in fields:
-            if ISchemaField.providedBy(field):
-                interface = field._field.interface
-                if (interface is not None and
-                    interface not in self.interfaces):
-                    self.interfaces.append(interface)
+            if (field.interface is not None and
+                field.interface not in self.interfaces):
+                self.interfaces.append(field.interface)
 
     def validate(self, data):
         errors = []

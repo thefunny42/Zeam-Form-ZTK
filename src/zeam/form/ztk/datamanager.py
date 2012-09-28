@@ -14,12 +14,11 @@ def makeGenericAdaptiveDataManager(*fields):
             self.fields = {}
             self.adapters = {}
             for field in fields:
-                interface = field._field.interface
-                self.fields[field.identifier] = interface
-                if (not interface.providedBy(content) and
-                    not interface in self.adapters):
-                    alsoProvides(self, interface)
-                    self.adapters[interface] = interface(content)
+                self.fields[field.identifier] = field.interface
+                if (not field.interface.providedBy(content) and
+                    not field.interface in self.adapters):
+                    alsoProvides(self, field.interface)
+                    self.adapters[field.interface] = field.interface(content)
             self.content = content
 
         def _getAdapter(self, identifier):

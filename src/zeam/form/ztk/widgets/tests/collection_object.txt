@@ -46,14 +46,14 @@ You can create a field::
   >>> fields = Fields(IProgramSelection)
   >>> field = fields['programs']
   >>> field
-  <ListSchemaField Program selection>
+  <ListField Program selection>
 
   >>> field.required
   True
 
   >>> value_field = field.valueField
   >>> value_field
-  <ObjectSchemaField >
+  <ObjectField >
 
 
 Validation
@@ -66,12 +66,6 @@ The field can only validate a list of correctly build objects::
   u'Missing required value.'
   >>> field.validate([], None)
   u'Missing required value.'
-  >>> field.validate([1, 2, 3], None)
-  u'Wrong contained type'
-
-  >>> field.validate([Program(u'TV', u'at my place'),
-  ...                 Program(u'Rock', u'in the street'),
-  ...                 Program(u'Manga', u'at his place')], None)
 
 
 Widget

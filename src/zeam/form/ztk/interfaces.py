@@ -30,7 +30,7 @@ class IFieldCreatedEvent(interface.Interface):
         u"Interface on which the field have been crated")
 
 
-class ICollectionSchemaField(ISchemaField):
+class ICollectionField(IField):
     """This is a field for zope schema collection field. It is defined
     in order to be able to have a generic behavior on collections.
     """
@@ -46,14 +46,14 @@ class ICollectionSchemaField(ISchemaField):
         u"Boolean flag to validate data when a value is added or removed")
 
 
-class IListSchemaField(ICollectionSchemaField):
+class IListField(ICollectionField):
     """This is a field for zope schema list field.
     """
     allowOrdering = interface.Attribute(
         u"Boolean flag to allow ordering of values")
 
 
-class IObjectSchemaField(ISchemaField):
+class IObjectField(IField):
     """This field is mapped to the zope.schema Object schema field.
     """
     objectFactory = interface.Attribute(

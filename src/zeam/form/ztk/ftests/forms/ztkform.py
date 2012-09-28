@@ -53,7 +53,7 @@ We can access the form, fill it and submit it:
 
   >>> agefield = browser.getControl('Person age')
   >>> agefield
-  <Control name='form.field.age' type='text'>
+  <Control name='form.field.age' type='number'>
   >>> agefield.value = '42'
 
   >>> action = browser.getControl('Send')

@@ -8,12 +8,14 @@ Simple case
 Setup
 -----
 
+We need first a schema with a URI field, and a content:
+
   >>> from zope import interface
   >>> from zope import schema
-  >>> class ILink(interface.Interface):
-  ...     uri = schema.URI(
-  ...         title=u"uri")
+  >>> from zope.interface.verify import verifyObject
 
+  >>> class ILink(interface.Interface):
+  ...     uri = schema.URI(title=u"Location")
 
   >>> class Link(object):
   ...     pass
@@ -25,19 +27,38 @@ Setup
 Field
 -----
 
-So now you can create a field, and get a choice field::
+So now you can create a field, and get a URI field:
 
   >>> from zeam.form.base import Fields, Field
+  >>> from zeam.form.base import interfaces
 
   >>> fields = Fields(ILink)
+  >>> uri_field = fields['uri']
+  >>> uri_field
+  <URIField Location>
 
-If we want to use a radio widget instead of the default selection widget
-we have to change the default mode for our field to radio::
-You can do this easily in the update method of your form.
+  >>> verifyObject(interfaces.IField, uri_field)
+  True
 
-  >>> URIField = fields.get('uri')
-  >>> URIField.mode
-  <Marker DEFAULT>
+
+Validation
+~~~~~~~~~~
+
+The field will only validate proper URIs:
+
+  >>> uri_field.validate('https://github.com/thefunny42/Zeam-Form-ZTK', None)
+  >>> uri_field.validate('Github', None)
+  u'The URI is malformed.'
+
+  >>> uri_field.maxLength = 20
+  >>> uri_field.validate('https://github.com/thefunny42/Zeam-Form-ZTK', None)
+  u'The URI is too long.'
+  >>> uri_field.validate('http://github.com', None)
+
+  >>> uri_field.minLength = 15
+  >>> uri_field.validate('http://g.com', None)
+  u'The URI is too short.'
+
 
 Widget
 ------
@@ -58,8 +79,7 @@ You have an associated widget::
 
   >>> URIWidget = URIWidgets['form.field.uri']
   >>> URIWidget
-  <URIWidget uri>
-
-  >>> print URIWidget.render() #doctest: +NORMALIZE_WHITESPACE 
+  <URIWidget Location>
+  >>> print URIWidget.render() #doctest: +NORMALIZE_WHITESPACE
   <input type="url" value="" id="form-field-uri" class="field field-uri field-required"
-      name="form.field.uri" required="required" />
+         name="form.field.uri" required="required" />

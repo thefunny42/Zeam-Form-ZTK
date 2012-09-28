@@ -34,20 +34,20 @@ So now you can create a field, and get a collection field::
 
   >>> from zeam.form.base import interfaces
   >>> from zeam.form.base import Fields
-  >>> from zeam.form.ztk.interfaces import ICollectionSchemaField
-  >>> from zeam.form.ztk.interfaces import IListSchemaField
+  >>> from zeam.form.ztk.interfaces import ICollectionField
+  >>> from zeam.form.ztk.interfaces import IListField
 
   >>> fields = Fields(IListOfTextlines)
   >>> field = fields['names']
   >>> field
-  <ListSchemaField People Names>
-  >>> verifyObject(ICollectionSchemaField, field)
+  <ListField People Names>
+  >>> verifyObject(ICollectionField, field)
   True
-  >>> ICollectionSchemaField.extends(interfaces.IField)
+  >>> ICollectionField.extends(interfaces.IField)
   True
-  >>> verifyObject(IListSchemaField, field)
+  >>> verifyObject(IListField, field)
   True
-  >>> IListSchemaField.extends(ICollectionSchemaField)
+  >>> IListField.extends(ICollectionField)
   True
   >>> field.required
   False
@@ -58,7 +58,7 @@ This field works on list, and contains text lines:
   <type 'list'>
   >>> value_field = field.valueField
   >>> value_field
-  <TextLineSchemaField >
+  <TextLineField >
   >>> verifyObject(interfaces.IField, value_field)
   True
   >>> value_field.required
@@ -81,8 +81,8 @@ On a required list of required booleans:
   >>> required_fields = Fields(IRequiredListOfBools)
   >>> required_field = required_fields['assertions']
   >>> required_field
-  <ListSchemaField Assertions result>
-  >>> verifyObject(ICollectionSchemaField, required_field)
+  <ListField Assertions result>
+  >>> verifyObject(ICollectionField, required_field)
   True
   >>> required_field.required
   True
@@ -90,7 +90,7 @@ On a required list of required booleans:
   <type 'list'>
   >>> required_value_field = required_field.valueField
   >>> required_value_field
-  <BooleanSchemaField >
+  <BooleanField >
   >>> verifyObject(interfaces.IField, required_value_field)
   True
   >>> required_value_field.required
@@ -105,13 +105,6 @@ Validation should validate only a list of textlines:
   >>> field.validate(NO_VALUE, None)
   >>> field.validate([], None)
   >>> field.validate([u'paul', u'henri'], None)
-
-And fail in other conditions:
-
-  >>> field.validate(set(), None)
-  u'Object is of wrong type.'
-  >>> field.validate([4, 5, 6], None)
-  u'Wrong contained type'
 
 If the field is required you cannot provide empty lists:
 
@@ -147,7 +140,7 @@ widgets here. An another side effect is that we can't remove values as
 well::
 
   >>> widget.valueField
-  <TextLineSchemaField >
+  <TextLineField >
   >>> len(widget.valueWidgets)
   0
   >>> widget.allowAdding

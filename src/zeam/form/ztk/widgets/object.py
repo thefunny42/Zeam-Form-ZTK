@@ -2,45 +2,44 @@
 
 from zeam.form.base.datamanager import ObjectDataManager
 from zeam.form.base.errors import Errors
-from zeam.form.base.fields import Fields
+from zeam.form.base.fields import Field, Fields
+from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE, Marker, DEFAULT
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.base.widgets import Widgets
-from zeam.form.base.form import cloneFormData
-from zeam.form.ztk.fields import (
-    SchemaField, registerSchemaField, SchemaFieldWidget)
-from zeam.form.ztk.interfaces import IObjectSchemaField
+from zeam.form.base.widgets import Widgets, FieldWidget
+from zeam.form.ztk.fields import FieldCreatedEvent
+from zeam.form.ztk.fields import registerSchemaField
+from zeam.form.ztk.interfaces import IObjectField
 
+from grokcore import component as grok
 from zope.component import getUtility
 from zope.component.interfaces import IFactory
+from zope.event import notify
 from zope.interface import Interface, implements
 from zope.schema import interfaces as schema_interfaces
 
-from grokcore import component as grok
 
-
-def register():
-    registerSchemaField(ObjectSchemaField, schema_interfaces.IObject)
-
-
-class ObjectSchemaField(SchemaField):
+class ObjectField(Field):
     """A collection field.
     """
-    implements(IObjectSchemaField)
+    implements(IObjectField)
     objectFactory = DEFAULT
     dataManager = ObjectDataManager
 
-    def __init__(self, field):
-        super(ObjectSchemaField, self).__init__(field)
-        self.__object_fields = Fields(field.schema)
+    def __init__(self, title, schema=None, **options):
+        super(ObjectField, self).__init__(title, **options)
+        self._schema = schema
+        self._fields = Fields()
+        if schema is not None:
+            self._fields.extend(schema)
 
     @property
     def objectSchema(self):
-        return self._field.schema
+        return self._schema
 
     @property
     def objectFields(self):
-        return self.__object_fields
+        return self._fields
 
     def getObjectFactory(self):
         if self.objectFactory is not DEFAULT:
@@ -48,9 +47,12 @@ class ObjectSchemaField(SchemaField):
         schema = self.objectSchema
         return getUtility(IFactory, name=schema.__identifier__)
 
+# BBB
+ObjectSchemaField = ObjectField
 
-class ObjectFieldWidget(SchemaFieldWidget):
-    grok.adapts(ObjectSchemaField, Interface, Interface)
+
+class ObjectFieldWidget(FieldWidget):
+    grok.adapts(ObjectField, Interface, Interface)
 
     def prepareContentValue(self, value):
         if value is NO_VALUE:
@@ -71,7 +73,7 @@ class ObjectDisplayWidget(ObjectFieldWidget):
 
 
 class ObjectFieldExtractor(WidgetExtractor):
-    grok.adapts(ObjectSchemaField, Interface, Interface)
+    grok.adapts(ObjectField, Interface, Interface)
 
     def extract(self):
         is_present = self.request.form.get(self.identifier, NO_VALUE)
@@ -88,3 +90,21 @@ class ObjectFieldExtractor(WidgetExtractor):
                         data.items())))
             return (value, None)
         return (value, Errors(*errors, identifier=self.identifier))
+
+
+def ObjectSchemaFactory(schema):
+    field = ObjectField(
+        schema.title or None,
+        identifier=schema.__name__,
+        description=schema.description,
+        required=schema.required,
+        readonly=schema.readonly,
+        schema=schema.schema,
+        interface=schema.interface,
+        defaultValue=schema.default or NO_VALUE)
+    notify(FieldCreatedEvent(field, schema.interface))
+    return field
+
+
+def register():
+    registerSchemaField(ObjectSchemaFactory, schema_interfaces.IObject)

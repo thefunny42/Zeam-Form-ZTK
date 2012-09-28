@@ -21,7 +21,6 @@ And a test content and request:
   >>> content = Question()
 
 
-
 Field
 -----
 
@@ -80,7 +79,7 @@ You have an associated widget:
   >>> verifyObject(interfaces.IWidget, text_widget)
   True
 
-  >>> print text_widget.render()   #doctest: +NORMALIZE_WHITESPACE
+  >>> print text_widget.render() #doctest: +NORMALIZE_WHITESPACE
   <textarea id="form-field-comment" name="form.field.comment" class="field field-text field-required"
             rows="5" required="required" cols="80"></textarea>
 
@@ -96,7 +95,7 @@ the value is False:
   >>> empty_extractor = component.getMultiAdapter(
   ...      (text_field, form, request), interfaces.IWidgetExtractor)
   >>> empty_extractor
-  <zeam.form.base.widgets.WidgetExtractor object at ...>
+  <zeam.form.base.widgets.FieldWidgetExtractor object at ...>
   >>> empty_extractor.extract()
   (<Marker NO_VALUE>, None)
 
@@ -107,6 +106,6 @@ And with a value:
   >>> text_extractor = component.getMultiAdapter(
   ...      (text_field, form, text_request), interfaces.IWidgetExtractor)
   >>> text_extractor
-  <zeam.form.base.widgets.WidgetExtractor object at ...>
+  <zeam.form.base.widgets.FieldWidgetExtractor object at ...>
   >>> text_extractor.extract()
   (u'Sometime there was an another version ...', None)

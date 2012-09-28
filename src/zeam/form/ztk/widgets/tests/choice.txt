@@ -56,14 +56,14 @@ So now you can create a field, and get a choice field:
   >>> simple_choice_fields = Fields(ISimpleChoice)
   >>> simple_field = simple_choice_fields['choice']
   >>> simple_field
-  <ChoiceSchemaField My favorite letter>
+  <ChoiceField My favorite letter>
 
   >>> simple_field.source is letter_vocabulary
   True
 
   >>> simple_field.validate('A', None)
   >>> simple_field.validate('foo', None)
-  u'Constraint not satisfied'
+  u'The selected value is not among the possible choices.'
 
   >>> verifyObject(interfaces.IField, simple_field)
   True
@@ -221,15 +221,15 @@ Field
 
 So now you can create a field, and get a choice field:
 
-  >>> from zeam.form.ztk import Fields
+  >>> from zeam.form.ztk import Fields, NO_VALUE
 
   >>> context_fields = Fields(IContextChoice)
   >>> context_field = context_fields['choice']
   >>> context_field
-  <ChoiceSchemaField My Choice>
+  <ChoiceField My Choice>
   >>> context_field.source is None
   True
-  >>> context_field.factory is context_vocabulary
+  >>> context_field.vocabularyFactory is context_vocabulary
   True
 
   >>> choices = context_field.getChoices(context_form)
@@ -240,9 +240,21 @@ So now you can create a field, and get a choice field:
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> context_field.validate('A', None)
-  >>> context_field.validate(1, None)
-  u'Constraint not satisfied'
+Validation
+~~~~~~~~~~~
+
+You can validate a value that is inside the choice:
+
+  >>> context_field.validate('A', context_form)
+  >>> context_field.validate(1, context_form)
+  u'The selected value is not among the possible choices.'
+
+  >>> context_field.required = False
+  >>> context_field.validate(NO_VALUE, context_form)
+
+  >>> context_field.required = True
+  >>> context_field.validate(NO_VALUE, context_form)
+  u'Missing required value.'
 
 Widget
 ------
@@ -291,7 +303,7 @@ You after creation change the vocabulary:
   3 '#3' 'Number 3'
 
   >>> context_field.validate('A', None)
-  u'Constraint not satisfied'
+   u'The selected value is not among the possible choices.'
   >>> context_field.validate(1, None)
 
 Or you can change the factory. Let's define a form binded source:
@@ -303,7 +315,7 @@ Or you can change the factory. Let's define a form binded source:
   ...     assert form is context_form
   ...     return letter_vocabulary
 
-  >>> context_field.factory = form_vocabulary
+  >>> context_field.vocabularyFactory = form_vocabulary
   >>> new_choices = context_field.getChoices(context_form)
   >>> new_choices
   <zope.schema.vocabulary.SimpleVocabulary object at ...>
@@ -312,9 +324,9 @@ Or you can change the factory. Let's define a form binded source:
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> context_field.validate('A', None)
-  >>> context_field.validate(1, None)
-  u'Constraint not satisfied'
+  >>> context_field.validate('A', context_form)
+  >>> context_field.validate(1, context_form)
+  u'The selected value is not among the possible choices.'
 
 
 Registered vocabulary
@@ -348,10 +360,10 @@ So now you can create a field, and get a choice field:
   >>> vocabulary_fields = Fields(IThirdChoice)
   >>> vocabulary_field = vocabulary_fields['choice']
   >>> vocabulary_field
-  <ChoiceSchemaField The third letter>
+  <ChoiceField The third letter>
   >>> vocabulary_field.source is None
   True
-  >>> vocabulary_field.factory is vocabulary_factory
+  >>> vocabulary_field.vocabularyFactory is vocabulary_factory
   True
 
   >>> choices = vocabulary_field.getChoices(context_form)
@@ -362,4 +374,4 @@ So now you can create a field, and get a choice field:
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> vocabulary_field.validate('C', None)
+  >>> vocabulary_field.validate('C', context_form)

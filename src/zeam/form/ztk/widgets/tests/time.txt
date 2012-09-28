@@ -2,7 +2,7 @@
 zeam.form.ztk time widgets
 ==========================
 
-Let's create some interface using times::
+Let's create some interface using times:
 
   >>> from zope import schema, interface
   >>> from zope.interface.verify import verifyObject
@@ -12,9 +12,10 @@ Let's create some interface using times::
   >>> class ITimeInfo(interface.Interface):
   ...     time = schema.Time(title=u'Current time')
 
-And some content for them::
+And some content for them:
 
   >>> from zope.publisher.browser import TestRequest
+  >>> from zeam.form.ztk import FormData
   >>> request = TestRequest()
 
   >>> class TimeInfo(object):
@@ -22,65 +23,85 @@ And some content for them::
   ...    time = None
   >>> timeinfo = TimeInfo()
   >>> timeinfo.time = datetime.time(12, 00, 00)
+  >>> time_form = FormData(timeinfo, request)
+  >>> time_form.ignoreContent = False
 
 
 Field
 -----
 
-You can get a field for a time::
+You can get a field for a time:
 
-  >>> from zeam.form.base import Fields
+  >>> from zeam.form.base import Fields, NO_VALUE
   >>> from zeam.form.base import interfaces
 
-  >>> timeFields = Fields(ITimeInfo)
-  >>> timeField = timeFields['time']
-  >>> timeField
-  <TimeSchemaField Current time>
-  >>> verifyObject(interfaces.IField, timeField)
+  >>> time_fields = Fields(ITimeInfo)
+  >>> time_field = time_fields['time']
+  >>> time_field
+  <TimeField Current time>
+  >>> verifyObject(interfaces.IField, time_field)
   True
+
+Validation
+~~~~~~~~~~
+
+You can validate a time between two different times:
+
+  >>> time_field.required = True
+  >>> time_field.min = datetime.time(9, 30)
+  >>> time_field.max = datetime.time(18, 30)
+
+  >>> time_field.validate(NO_VALUE, time_form)
+  u'Missing required value.'
+  >>> time_field.validate(datetime.time(12, 55), time_form)
+  >>> time_field.validate(datetime.time(7, 45), time_form)
+  u'This time is before ${not_before}.'
+  >>> time_field.validate(datetime.time(23, 45), time_form)
+  u'This time is after ${not_after}.'
 
 Widget
 ------
 
 You can have a widget for a timeinfo. The input value is a formated version
-of the time, based on the locale of the request::
+of the time, based on the locale of the request:
 
-  >>> from zeam.form.ztk import Widgets, FormData
+  >>> from zeam.form.ztk import Widgets
 
-  >>> timeForm = FormData(timeinfo, request)
-  >>> timeForm.ignoreContent = False
-
-  >>> timeWidgets = Widgets(
-  ...     timeFields,
-  ...     form=timeForm,
+  >>> time_widgets = Widgets(
+  ...     time_fields,
+  ...     form=time_form,
   ...     request=request)
-  >>> timeWidgets.update()
-  >>> len(timeWidgets)
+  >>> time_widgets.update()
+  >>> len(time_widgets)
   1
 
-  >>> timeWidget = timeWidgets['form.field.time']
-  >>> timeWidget
+  >>> time_widget = time_widgets['form.field.time']
+  >>> time_widget
   <TimeFieldWidget Current time>
 
-  >>> verifyObject(interfaces.IFieldWidget, timeWidget)
+  >>> verifyObject(interfaces.IFieldWidget, time_widget)
   True
 
-  >>> timeWidget.inputValue()
+  >>> time_widget.inputValue()
   u'12:00'
+
+  >>> print time_widget.render() #doctest: +NORMALIZE_WHITESPACE
+  <input type="text" id="form-field-time" name="form.field.time"
+         class="field field-time field-required" value="12:00" required="required" />
 
 
 Widget extractor
 ----------------
 
 You can extract a value from the request. It is a bit more difficult
-here because the parsing is a bit more advanced::
+here because the parsing is a bit more advanced:
 
   >>> timeRequest = TestRequest(form={
   ...     'form.field.time': u'12:21'})
   >>> niceTimeData = FormData(timeinfo, timeRequest)
 
   >>> niceTimeExtractor = getMultiAdapter(
-  ...      (timeField, niceTimeData, timeRequest),
+  ...      (time_field, niceTimeData, timeRequest),
   ...      interfaces.IWidgetExtractor)
 
   >>> verifyObject(interfaces.IWidgetExtractor, niceTimeExtractor)
@@ -95,7 +116,7 @@ Now if you give an invalid date you will have an error::
   >>> invalidTimeData = FormData(timeinfo, invalidTimeRequest)
 
   >>> invalidTimeExtractor = getMultiAdapter(
-  ...      (timeField, invalidTimeData, invalidTimeRequest),
+  ...      (time_field, invalidTimeData, invalidTimeRequest),
   ...      interfaces.IWidgetExtractor)
 
   >>> verifyObject(interfaces.IWidgetExtractor, invalidTimeExtractor)

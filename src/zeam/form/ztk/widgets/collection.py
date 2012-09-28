@@ -26,75 +26,102 @@ except ImportError:
 
 from zeam.form.base.datamanager import NoneDataManager
 from zeam.form.base.errors import Errors, Error
-from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
+from zeam.form.base.fields import Field, Fields
+from zeam.form.base.markers import Marker
 from zeam.form.base.form import cloneFormData
+from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.markers import NO_VALUE
-from zeam.form.base.fields import Fields
-from zeam.form.base.widgets import WidgetExtractor, Widgets
-from zeam.form.ztk.fields import (
-    SchemaField, registerSchemaField, SchemaFieldWidget)
-from zeam.form.ztk.interfaces import ICollectionSchemaField, IListSchemaField
-from zeam.form.ztk.widgets.choice import ChoiceSchemaField, ChoiceFieldWidget
-from zeam.form.ztk.widgets.object import ObjectSchemaField
+from zeam.form.base.widgets import WidgetExtractor, FieldWidget, Widgets
+from zeam.form.ztk.fields import FieldCreatedEvent
+from zeam.form.ztk.fields import registerSchemaField
+from zeam.form.ztk.interfaces import ICollectionField, IListField
+from zeam.form.ztk.widgets.choice import ChoiceField, ChoiceFieldWidget
+from zeam.form.ztk.widgets.object import ObjectField
 
+from grokcore import component as grok
 from zope import component
+from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
 
-from grokcore import component as grok
-
 _ = MessageFactory("zeam.form.base")
 
 
-
-def register():
-    registerSchemaField(CollectionSchemaField, schema_interfaces.ICollection)
-    registerSchemaField(ListSchemaField, schema_interfaces.IList)
-    registerSchemaField(SetSchemaField, schema_interfaces.ISet)
-    registerSchemaField(TupleSchemaField, schema_interfaces.ITuple)
-
-
-class CollectionSchemaField(SchemaField):
+class CollectionField(Field):
     """A collection field.
     """
-    grok.implements(ICollectionSchemaField)
+    grok.implements(ICollectionField)
 
     collectionType = list
     allowAdding = True
     allowRemove = True
     inlineValidation = False
 
-    def __init__(self, field):
-        super(CollectionSchemaField, self).__init__(field)
-        self.__value_field = IField(self._field.value_type)
+    def __init__(self, title,
+                 valueField=None,
+                 minLength=0,
+                 maxLength=None,
+                 **options):
+        super(CollectionField, self).__init__(title, **options)
+        self._valueField = IField(valueField, None)
+        self.minLength = minLength
+        self.maxLength = maxLength
 
     @property
     def valueField(self):
-        return self.__value_field
+        return self._valueField
+
+    def validate(self, value, form):
+        error = super(CollectionField, self).validate(value, form)
+        if error is not None:
+            return error
+        if not isinstance(value, Marker):
+            assert isinstance(value, self.collectionType)
+            if self.minLength and len(value) < self.minLength:
+                return _(u"There are too few items.")
+            if self.maxLength and len(value) > self.maxLength:
+                return _(u"There are too many items.")
+        return None
 
     def isEmpty(self, value):
         return value is NO_VALUE or not len(value)
 
 
-class ListSchemaField(CollectionSchemaField):
+# BBB
+CollectionSchemaField = CollectionField
+
+
+class ListField(CollectionField):
     """A list field
     """
-    grok.implements(IListSchemaField)
+    grok.implements(IListField)
     collectionType = list
     allowOrdering = True
 
 
-class SetSchemaField(CollectionSchemaField):
+# BBB
+ListSchemaField = ListField
+
+
+class SetField(CollectionField):
     """A set field
     """
     collectionType = set
 
 
-class TupleSchemaField(CollectionSchemaField):
+# BBB
+SetSchemaField = SetField
+
+
+class TupleField(CollectionField):
     """A tuple field.
     """
     collectionType = tuple
+
+
+# BBB
+TupleSchemaField = TupleField
 
 
 def newCollectionWidgetFactory(mode=u"", interface=IWidget):
@@ -110,30 +137,30 @@ def newCollectionWidgetFactory(mode=u"", interface=IWidget):
 
 grok.global_adapter(
     newCollectionWidgetFactory(mode='input'),
-    adapts=(ICollectionSchemaField, Interface, Interface),
+    adapts=(ICollectionField, Interface, Interface),
     provides=IWidget,
     name='input')
 
 grok.global_adapter(
     newCollectionWidgetFactory(mode='input-list'),
-    adapts=(ICollectionSchemaField, Interface, Interface),
+    adapts=(ICollectionField, Interface, Interface),
     provides=IWidget,
     name='input-list')
 
 grok.global_adapter(
     newCollectionWidgetFactory(mode='display'),
-    adapts=(ICollectionSchemaField, Interface, Interface),
+    adapts=(ICollectionField, Interface, Interface),
     provides=IWidget,
     name='display')
 
 grok.global_adapter(
     newCollectionWidgetFactory(interface=IWidgetExtractor),
-    adapts=(ICollectionSchemaField, Interface, Interface),
+    adapts=(ICollectionField, Interface, Interface),
     provides=IWidgetExtractor)
 
 
-class MultiGenericFieldWidget(SchemaFieldWidget):
-    grok.adapts(ICollectionSchemaField, Interface, Interface, Interface)
+class MultiGenericFieldWidget(FieldWidget):
+    grok.adapts(ICollectionField, Interface, Interface, Interface)
 
     allowAdding = True
     allowRemove = True
@@ -255,7 +282,7 @@ class MultiGenericFieldWidget(SchemaFieldWidget):
 
 
 class ListGenericFieldWidget(MultiGenericFieldWidget):
-    grok.adapts(ListSchemaField, Interface, Interface, Interface)
+    grok.adapts(ListField, Interface, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
         super(ListGenericFieldWidget, self).__init__(
@@ -270,14 +297,14 @@ class MultiGenericDisplayFieldWidget(MultiGenericFieldWidget):
 # For collection of objects, generate a different widget (with a table)
 
 class MultiObjectFieldWidget(MultiGenericFieldWidget):
-    grok.adapts(ICollectionSchemaField, ObjectSchemaField, Interface, Interface)
+    grok.adapts(ICollectionField, ObjectField, Interface, Interface)
 
     def getFields(self):
         return self.valueField.objectFields
 
 
 class ListObjectFieldWidget(MultiObjectFieldWidget):
-    grok.adapts(ListSchemaField, ObjectSchemaField, Interface, Interface)
+    grok.adapts(ListField, ObjectField, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
         super(ListObjectFieldWidget, self).__init__(
@@ -288,17 +315,17 @@ class ListObjectFieldWidget(MultiObjectFieldWidget):
 # Still make possible to have the non-table implementation
 
 class RegularMultiObjectFieldWidget(MultiGenericFieldWidget):
-    grok.adapts(ICollectionSchemaField, ObjectSchemaField, Interface, Interface)
+    grok.adapts(ICollectionField, ObjectField, Interface, Interface)
     grok.name('input-list')
 
 
 class RegularListObjectFieldWidget(ListGenericFieldWidget):
-    grok.adapts(ListSchemaField, ObjectSchemaField, Interface, Interface)
+    grok.adapts(ListField, ObjectField, Interface, Interface)
     grok.name('input-list')
 
 
 class MultiGenericWidgetExtractor(WidgetExtractor):
-    grok.adapts(ICollectionSchemaField, Interface, Interface, Interface)
+    grok.adapts(ICollectionField, Interface, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
         super(MultiGenericWidgetExtractor, self).__init__(
@@ -336,7 +363,8 @@ class MultiGenericWidgetExtractor(WidgetExtractor):
 # Multi-Choice widget
 
 class MultiChoiceFieldWidget(ChoiceFieldWidget):
-    grok.adapts(SetSchemaField, ChoiceSchemaField, Interface, Interface)
+    grok.adapts(SetField, ChoiceField, Interface, Interface)
+    defaultHtmlClass = ['field', 'field-multichoice']
 
     def __init__(self, field, value_field, form, request):
         super(MultiChoiceFieldWidget, self).__init__(field, form, request)
@@ -367,7 +395,7 @@ class MultiChoiceFieldWidget(ChoiceFieldWidget):
 
 grok.global_adapter(
     newCollectionWidgetFactory(mode='multiselect'),
-    adapts=(ICollectionSchemaField, Interface, Interface),
+    adapts=(ICollectionField, Interface, Interface),
     provides=IWidget,
     name='multiselect')
 
@@ -389,7 +417,7 @@ class MultiChoiceDisplayFieldWidget(MultiChoiceFieldWidget):
 
 
 class MultiChoiceWidgetExtractor(WidgetExtractor):
-    grok.adapts(SetSchemaField, ChoiceSchemaField, Interface, Interface)
+    grok.adapts(SetField, ChoiceField, Interface, Interface)
 
     def __init__(self, field, value_field, form, request):
         super(MultiChoiceWidgetExtractor, self).__init__(field, form, request)
@@ -415,3 +443,38 @@ class MultiChoiceWidgetExtractor(WidgetExtractor):
             except LookupError:
                 return (None, _(u'The selected value is not available.'))
         return (value, errors)
+
+
+def makeCollectionSchemaFactory(factory):
+
+    def CollectionSchemaFactory(schema):
+        field = factory(
+            schema.title or None,
+            identifier=schema.__name__,
+            description=schema.description,
+            required=schema.required,
+            readonly=schema.readonly,
+            minLength=schema.min_length,
+            maxLength=schema.max_length,
+            valueField=schema.value_type,
+            interface=schema.interface,
+            defaultValue=schema.default or NO_VALUE)
+        notify(FieldCreatedEvent(field, schema.interface))
+        return field
+
+    return CollectionSchemaFactory
+
+
+def register():
+    registerSchemaField(
+        makeCollectionSchemaFactory(CollectionField),
+        schema_interfaces.ICollection)
+    registerSchemaField(
+        makeCollectionSchemaFactory(ListField),
+        schema_interfaces.IList)
+    registerSchemaField(
+        makeCollectionSchemaFactory(SetField),
+        schema_interfaces.ISet)
+    registerSchemaField(
+        makeCollectionSchemaFactory(TupleField),
+        schema_interfaces.ITuple)

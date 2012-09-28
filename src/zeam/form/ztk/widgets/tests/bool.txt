@@ -32,7 +32,7 @@ So now you can create a field, and get a boolean field:
   >>> fields = Fields(IQuestion)
   >>> boolean_field = fields['answer']
   >>> boolean_field
-  <BooleanSchemaField Do you like zeam?>
+  <BooleanField Do you like zeam?>
 
   >>> verifyObject(interfaces.IField, boolean_field)
   True

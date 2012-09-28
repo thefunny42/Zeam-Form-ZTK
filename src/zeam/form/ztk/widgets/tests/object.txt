@@ -43,15 +43,15 @@ You have an Object field you get out of the interface::
 
   >>> from zeam.form.base.fields import Fields
   >>> from zeam.form.base import interfaces
-  >>> from zeam.form.ztk.interfaces import IObjectSchemaField
+  >>> from zeam.form.ztk.interfaces import IObjectField
 
   >>> post_fields = Fields(IPost)
   >>> post_field = post_fields['comment']
   >>> post_field
-  <ObjectSchemaField Comment>
-  >>> verifyObject(IObjectSchemaField, post_field)
+  <ObjectField Comment>
+  >>> verifyObject(IObjectField, post_field)
   True
-  >>> IObjectSchemaField.extends(interfaces.IField)
+  >>> IObjectField.extends(interfaces.IField)
   True
 
 Now we have a couple more methods on our field to help us with our
@@ -64,9 +64,7 @@ object, to get its schema and fields::
   >>> comment_fields
   <Fields>
   >>> list(comment_fields)
-  [<TextLineSchemaField Title>,
-   <TextField Comment>,
-   <TextLineSchemaField Email>]
+  [<TextLineField Title>, <TextField Comment>, <TextLineField Email>]
 
 An another method let you get a factory for the object. You can either
 register an utility with name the schema interface identifier of the
@@ -102,11 +100,15 @@ Validation
 The field will only validate a correct value::
 
   >>> from zeam.form.base.markers import NO_VALUE
-  >>> post_field.validate(NO_VALUE, None)
-  >>> post_field.validate('foo', None)
-  u'Schema not provided'
+
   >>> post_field.validate(Comment(u'Hello', u'hello people !'), None)
 
+  >>> post_field.required = True
+  >>> post_field.validate(NO_VALUE, None)
+  u'Missing required value.'
+
+  >>> post_field.required = False
+  >>> post_field.validate(NO_VALUE, None)
 
 Widget
 ------
@@ -243,6 +245,7 @@ And you can extract the object of the request::
   >>> value.comment
   u'Everything is working alright.'
   >>> value.email
+  u''
 
 If nothing is in the request, you have no value::
 

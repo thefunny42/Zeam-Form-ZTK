@@ -46,29 +46,29 @@ So now you can create a field, and get a choice field::
   >>> from zeam.form.base import Fields
   >>> from zeam.form.base import interfaces
 
-  >>> firstChoiceFields = Fields(IFirstChoice)
-  >>> firstField = firstChoiceFields['choice']
-  >>> firstField
-  <ChoiceSchemaField My favorite letter>
+  >>> letter_fields = Fields(IFirstChoice)
+  >>> letter_field = letter_fields['choice']
+  >>> letter_field
+  <ChoiceField My favorite letter>
 
-  >>> firstField.source is letter_vocabulary
+  >>> letter_field.source is letter_vocabulary
   True
 
-  >>> firstField.validate('A', None)
-  >>> firstField.validate('foo', None)
-  u'Constraint not satisfied'
+  >>> letter_field.validate('A', None)
+  >>> letter_field.validate('foo', None)
+   u'The selected value is not among the possible choices.'
 
-  >>> verifyObject(interfaces.IField, firstField)
+  >>> verifyObject(interfaces.IField, letter_field)
   True
 
 If we want to use a radio widget instead of the default selection widget
 we have to change the default mode for our field to radio::
 You can do this easily in the update method of your form.
 
-  >>> firstField.mode
+  >>> letter_field.mode
   <Marker DEFAULT>
 
-  >>> firstField.mode = 'radio'
+  >>> letter_field.mode = 'radio'
 
 
 Widget
@@ -82,7 +82,7 @@ You have an associated widget::
   >>> firstForm.ignoreContent = False
 
   >>> firstWidgets = Widgets(
-  ...     firstChoiceFields,
+  ...     letter_fields,
   ...     form=firstForm,
   ...     request=request)
 
@@ -117,7 +117,7 @@ different than the real value::
   >>> from zeam.form.base import interfaces
 
   >>> firstExtractor = component.getMultiAdapter(
-  ...      (firstField, firstForm, request), interfaces.IWidgetExtractor)
+  ...      (letter_field, firstForm, request), interfaces.IWidgetExtractor)
 
   >>> firstExtractor
   <zeam.form.ztk.widgets.choice.ChoiceWidgetExtractor object at ...>
@@ -126,13 +126,13 @@ different than the real value::
 
 Let's now do it with a value::
 
-  >>> firstRequest = TestRequest(
+  >>> letter_request = TestRequest(
   ...         form={firstWidget.identifier: u'a1', })
 
-  >>> firstExtractor = component.getMultiAdapter(
-  ...      (firstField, firstForm, firstRequest), interfaces.IWidgetExtractor)
+  >>> letter_extractor = component.getMultiAdapter(
+  ...      (letter_field, firstForm, letter_request), interfaces.IWidgetExtractor)
 
-  >>> firstExtractor.extract()
+  >>> letter_extractor.extract()
   ('A', None)
 
 
@@ -177,10 +177,10 @@ So now you can create a field, and get a choice field::
   >>> context_fields = Fields(IContextChoice)
   >>> context_field = context_fields['choice']
   >>> context_field
-  <ChoiceSchemaField My Choice>
+  <ChoiceField My Choice>
   >>> context_field.source is None
   True
-  >>> context_field.factory is context_vocabulary
+  >>> context_field.vocabularyFactory is context_vocabulary
   True
 
   >>> choices = context_field.getChoices(context_form)
@@ -191,9 +191,9 @@ So now you can create a field, and get a choice field::
   'B' 'b1' 'Letter B'
   'C' 'c1' 'Letter C'
 
-  >>> context_field.validate('A', None)
-  >>> context_field.validate(42, None)
-  u'Constraint not satisfied'
+  >>> context_field.validate('A', context_form)
+  >>> context_field.validate(42, context_form)
+  u'The selected value is not among the possible choices.'
 
 
 Widget

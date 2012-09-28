@@ -24,6 +24,10 @@ class FieldCreatedEvent(object):
         self.field = field
 
 
+def fieldCreatedEventHandler(event):
+    component.subscribers((event.field, event.interface, event), None)
+
+
 class SchemaFieldFactory(object):
     """Create form fields from a zope.schema field (by adapting it).
     """
@@ -35,7 +39,7 @@ class SchemaFieldFactory(object):
     def produce(self):
         interface = self.context.interface
         if interface is None and not getattr(self.context, '__name__', None):
-            raise ValueError("Field has no interface or __name__")
+            raise AssertionError("Field has no interface or __name__")
         yield interfaces.IField(self.context)
 
 
@@ -60,14 +64,16 @@ class SchemaField(Field):
 
     def __init__(self, field):
         super(SchemaField, self).__init__(
-            field.title or None, field.__name__)
-        self.description = field.description
-        self.required = field.required
-        self.readonly = field.readonly
+            field.title or None, field.__name__,
+            description=field.description,
+            required=field.required,
+            readonly=field.readonly,
+            interface=field.interface)
         self._field = field
 
     def get_field(self):
         return self._field
+
 
     def clone(self, new_identifier=None):
         copy = self.__class__(self._field)
@@ -164,4 +170,7 @@ def registerDefault():
     component.provideAdapter(
         InterfaceSchemaFieldFactory,
         (zope.interface.interfaces.IInterface,))
+    component.provideHandler(
+        fieldCreatedEventHandler,
+        (IFieldCreatedEvent,))
     registerSchemaField(SchemaField, schema_interfaces.IField)
