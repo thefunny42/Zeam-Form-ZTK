@@ -25,7 +25,7 @@ class ChoiceField(Field):
     """
     _source = None
     _vocabularyFactory = None
-    _voaabularyName = None
+    _vocabularyName = None
 
     def __init__(self, title,
                  source=None,
