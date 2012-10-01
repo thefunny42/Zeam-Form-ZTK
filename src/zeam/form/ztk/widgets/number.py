@@ -82,6 +82,61 @@ class NumberWidget(FieldWidget):
     defaultHTMLClass = ['field', 'field-number']
 
 
+class CurrencyWidget(FieldWidget):
+    grok.adapts(FloatField, Interface, Interface)
+    grok.name('currency')
+
+    defaultHTMLClass = ['field', 'field-currency']
+    symbol = '&euro;'
+    thousandsSeparator = ','
+    decimalSeparator = '.'
+    symbolPrecedes = False
+    symbolSpaceSepartor = True
+    fracDigits = 2
+    positiveSign = ''
+    negativeSign = ''
+    negativeHtmlClass = 'field-currency-negative'
+    signPrecedes = True
+
+    def htmlClass(self):
+        value = super(CurrencyWidget, self).htmlClass()
+        if self.negativeHtmlClass:
+            value += " " + self.negativeHtmlClass
+        return value
+
+    def valueToUnicode(self, value):
+        return self.formatHtmlCurrency(value or 0.0)
+
+    def formatHtmlCurrency(self, value):
+        string_value = ("%%.0%df" % self.fracDigits) % abs(value)
+        integer_part, decimal_part = string_value.split('.')
+        digits = list(integer_part)
+        chars = []
+        count = 0
+        while digits:
+            digit = digits.pop()
+            chars.append(digit)
+            count += 1
+            if count % 3 == 0 and len(digits):
+                chars.append(self.thousandsSeparator)
+        integer_part = "".join(reversed(chars))
+        buf = ''
+        if self.symbolPrecedes:
+            buf += self.symbol
+            if self.symbolSpaceSepartor:
+                buf += '&nbsp;'
+        if value >= 0:
+            buf += self.positiveSign
+        else:
+            buf += self.negativeSign
+        buf += integer_part + self.decimalSeparator + decimal_part
+        if not self.symbolPrecedes:
+            if self.symbolSpaceSepartor:
+                buf += '&nbsp;'
+            buf += self.symbol
+        return buf
+
+
 def IntegerSchemaFactory(schema):
     field = IntegerField(
         schema.title or None,

@@ -1,0 +1,3 @@
+<div tal:attributes="class widget.htmlClass();
+					id widget.htmlId();"
+	 tal:content="structure widget.inputValue()"/>
