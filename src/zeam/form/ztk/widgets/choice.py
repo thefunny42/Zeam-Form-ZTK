@@ -70,6 +70,8 @@ class ChoiceField(Field):
             if IVocabularyTokenized.providedBy(source):
                 self._source = source
             else:
+                # Be sure to reset the source
+                self._source = None
                 self._vocabularyFactory = source
 
         return property(getter, setter)

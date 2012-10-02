@@ -125,8 +125,11 @@ class SchemaFieldWidget(FieldWidget):
 
     def htmlClass(self):
         css_class = ['field']
-        css_class.append('field-%s' % (
-                self.component._field.__class__.__name__.lower()))
+        if ISchemaField.providedBy(self.component):
+            # Prevent old FieldWidget to fail if they haven't been
+            # updated to the new API.
+            css_class.append('field-%s' % (
+                    self.component._field.__class__.__name__.lower()))
         if self.required:
             css_class.append('field-required')
         return ' '.join(css_class)
