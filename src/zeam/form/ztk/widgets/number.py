@@ -67,8 +67,32 @@ class FloatField(IntegerField):
     """
 
 
-# BBB
-FloatSchemaField = FloatField
+class CurrencyField(FloatField):
+    """ A currency field.
+    """
+
+    def __init__(self, min=None,
+                       max=None,
+                       symbol=u'€',
+                       thousandsSeparator=u',',
+                       decimalSeparator=u'.',
+                       symbolPrecedes=False,
+                       symbolSpaceSepartor=True,
+                       fracDigits=2,
+                       positiveSign=u'',
+                       negativeSign=u'-',
+                       signPrecedes=True,
+                       **options):
+        super(CurrencyField, self).__init__(max=max, min=min, **options)
+        self.symbol = symbol
+        self.thousandsSeparator = thousandsSeparator
+        self.decimalSeparator = decimalSeparator
+        self.symbolPrecedes = symbolPrecedes
+        self.symbolSpaceSepartor = symbolSpaceSepartor
+        self.fracDigits = fracDigits
+        self.positiveSign = positiveSign
+        self.negativeSign = negativeSign
+        self.signPrecedes = signPrecedes
 
 
 class FloatFieldWidgetExtractor(IntegerFieldWidgetExtractor):
@@ -82,33 +106,24 @@ class NumberWidget(FieldWidget):
     defaultHTMLClass = ['field', 'field-number']
 
 
-class CurrencyWidget(FieldWidget):
-    grok.adapts(FloatField, Interface, Interface)
-    grok.name('currency')
+class CurrencyDisplayWidget(FieldWidget):
+    grok.adapts(CurrencyField, Interface, Interface)
+    grok.name('display')
 
     defaultHTMLClass = ['field', 'field-currency']
-    symbol = '&euro;'
-    thousandsSeparator = ','
-    decimalSeparator = '.'
-    symbolPrecedes = False
-    symbolSpaceSepartor = True
-    fracDigits = 2
-    positiveSign = ''
-    negativeSign = ''
     negativeHtmlClass = 'field-currency-negative'
-    signPrecedes = True
 
     def htmlClass(self):
-        value = super(CurrencyWidget, self).htmlClass()
+        value = super(CurrencyDisplayWidget, self).htmlClass()
         if self.negativeHtmlClass:
             value += " " + self.negativeHtmlClass
         return value
 
     def valueToUnicode(self, value):
-        return self.formatHtmlCurrency(value or 0.0)
+        return self.formatHtmlCurrency(value)
 
     def formatHtmlCurrency(self, value):
-        string_value = ("%%.0%df" % self.fracDigits) % abs(value)
+        string_value = ("%%.0%df" % self.component.fracDigits) % abs(value)
         integer_part, decimal_part = string_value.split('.')
         digits = list(integer_part)
         chars = []
@@ -118,22 +133,22 @@ class CurrencyWidget(FieldWidget):
             chars.append(digit)
             count += 1
             if count % 3 == 0 and len(digits):
-                chars.append(self.thousandsSeparator)
+                chars.append(self.component.thousandsSeparator)
         integer_part = "".join(reversed(chars))
-        buf = ''
-        if self.symbolPrecedes:
-            buf += self.symbol
-            if self.symbolSpaceSepartor:
+        buf = u''
+        if self.component.symbolPrecedes:
+            buf += self.component.symbol
+            if self.component.symbolSpaceSepartor:
                 buf += '&nbsp;'
         if value >= 0:
-            buf += self.positiveSign
+            buf += self.component.positiveSign
         else:
-            buf += self.negativeSign
-        buf += integer_part + self.decimalSeparator + decimal_part
-        if not self.symbolPrecedes:
-            if self.symbolSpaceSepartor:
+            buf += self.component.negativeSign
+        buf += integer_part + self.component.decimalSeparator + decimal_part
+        if not self.component.symbolPrecedes:
+            if self.component.symbolSpaceSepartor:
                 buf += '&nbsp;'
-            buf += self.symbol
+            buf += self.component.symbol
         return buf
 
 
