@@ -1,0 +1,50 @@
+=============================
+zeam.form.ztk currency widget
+=============================
+
+  >>> class Account(object):
+  ...     def __init__(self, balance=0.0):
+  ...          self.balance = balance
+
+  >>> content = Account(101.01)
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+
+Field
+-----
+
+So now you can create a field:
+
+  >>> from zeam.form.ztk import Fields
+  >>> from zeam.form.ztk.widgets import CurrencyField
+  >>> from zeam.form.base import interfaces
+
+  >>> currency_field = CurrencyField(identifier=u'balance', title=u'balance')
+  >>> from zope.interface.verify import verifyObject
+  >>> verifyObject(interfaces.IField, currency_field)
+  True
+  >>> currency_field.mode = 'display'
+  >>> fields = Fields(currency_field)
+
+
+Widget
+------
+
+You have an associated widget:
+
+  >>> from zeam.form.ztk import Widgets, FormData
+
+  >>> sub = FormData(content, request)
+  >>> sub.ignoreContent = False
+
+  >>> widgets = Widgets(fields, form=sub, request=request)
+  >>> widgets.update()
+
+  >>> currency_widget = widgets['form.field.balance']
+  >>> verifyObject(interfaces.IWidget, currency_widget)
+  True
+
+  >>> print currency_widget.render()
+  <div class="field" id="form-field-balance">101.01&nbsp;€</div>
+

@@ -11,7 +11,8 @@ def test_suite():
     for filename in ['bool.txt', 'choice.txt', 'collection_set.txt',
                      'collection_list.txt', 'collection_object.txt',
                      'multichoice.txt', 'object.txt', 'date.txt',
-                     'radio.txt', 'uri.txt', 'text.txt', 'time.txt']:
+                     'radio.txt', 'uri.txt', 'text.txt', 'time.txt',
+                     'currency.txt']:
         test = doctest.DocFileSuite(
             filename,
             optionflags=optionflags,

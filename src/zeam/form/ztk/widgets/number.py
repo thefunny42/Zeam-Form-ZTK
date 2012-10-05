@@ -111,13 +111,6 @@ class CurrencyDisplayWidget(FieldWidget):
     grok.name('display')
 
     defaultHTMLClass = ['field', 'field-currency']
-    negativeHtmlClass = 'field-currency-negative'
-
-    def htmlClass(self):
-        value = super(CurrencyDisplayWidget, self).htmlClass()
-        if self.negativeHtmlClass:
-            value += " " + self.negativeHtmlClass
-        return value
 
     def valueToUnicode(self, value):
         return self.formatHtmlCurrency(value)
