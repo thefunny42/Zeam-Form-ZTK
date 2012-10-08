@@ -72,6 +72,8 @@ class IObjectField(IField):
 class IZeamFormZTKAPI(IZeamFormBaseAPI):
     """API exported by zeam.form.ztk.
     """
+    customize = interface.Attribute(
+        u"Decorator used to customize created fields")
 
     AddAction = interface.Attribute(
         u"Action to add a new content to one other")

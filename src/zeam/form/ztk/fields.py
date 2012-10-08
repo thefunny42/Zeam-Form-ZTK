@@ -8,6 +8,7 @@ from zeam.form.ztk.interfaces import ISchemaField, IFieldCreatedEvent
 
 from grokcore import component as grok
 from zope import schema, component
+from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface, Invalid
 from zope.schema import interfaces as schema_interfaces
@@ -19,13 +20,10 @@ _ = MessageFactory("zeam.form.base")
 class FieldCreatedEvent(object):
     grok.implements(IFieldCreatedEvent)
 
-    def __init__(self, field, interface=None):
+    def __init__(self, field, interface=None, origin=None):
         self.interface = interface
         self.field = field
-
-
-def fieldCreatedEventHandler(event):
-    component.subscribers((event.field, event.interface, event), None)
+        self.origin = origin
 
 
 class SchemaFieldFactory(object):
@@ -40,7 +38,9 @@ class SchemaFieldFactory(object):
         interface = self.context.interface
         if interface is None and not getattr(self.context, '__name__', None):
             raise AssertionError("Field has no interface or __name__")
-        yield interfaces.IField(self.context)
+        result = interfaces.IField(self.context)
+        notify(FieldCreatedEvent(result, interface, self.context))
+        yield result
 
 
 class InterfaceSchemaFieldFactory(object):
@@ -54,7 +54,9 @@ class InterfaceSchemaFieldFactory(object):
 
     def produce(self):
         for name, field in schema.getFieldsInOrder(self.context):
-            yield interfaces.IField(field)
+            result =  interfaces.IField(field)
+            notify(FieldCreatedEvent(result, self.context, field))
+            yield result
 
 
 class SchemaField(Field):
@@ -173,7 +175,4 @@ def registerDefault():
     component.provideAdapter(
         InterfaceSchemaFieldFactory,
         (zope.interface.interfaces.IInterface,))
-    component.provideHandler(
-        fieldCreatedEventHandler,
-        (IFieldCreatedEvent,))
     registerSchemaField(SchemaField, schema_interfaces.IField)

@@ -3,11 +3,9 @@
 from zeam.form.base.fields import Field
 from zeam.form.base.markers import Marker, NO_VALUE
 from zeam.form.base.widgets import FieldWidget
-from zeam.form.ztk.fields import FieldCreatedEvent
 from zeam.form.ztk.fields import registerSchemaField
 
 from grokcore import component as grok
-from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
@@ -60,7 +58,6 @@ def TextSchemaFactory(schema):
         maxLength=schema.max_length,
         interface=schema.interface,
         defaultValue=schema.default or NO_VALUE)
-    notify(FieldCreatedEvent(field, schema.interface))
     return field
 
 

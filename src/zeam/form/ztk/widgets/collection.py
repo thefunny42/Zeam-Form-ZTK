@@ -32,7 +32,6 @@ from zeam.form.base.form import cloneFormData
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import WidgetExtractor, FieldWidget, Widgets
-from zeam.form.ztk.fields import FieldCreatedEvent
 from zeam.form.ztk.fields import registerSchemaField
 from zeam.form.ztk.interfaces import ICollectionField, IListField
 from zeam.form.ztk.widgets.choice import ChoiceField, ChoiceFieldWidget
@@ -40,7 +39,6 @@ from zeam.form.ztk.widgets.object import ObjectField
 
 from grokcore import component as grok
 from zope import component
-from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
@@ -459,7 +457,6 @@ def makeCollectionSchemaFactory(factory):
             valueField=schema.value_type,
             interface=schema.interface,
             defaultValue=schema.default or NO_VALUE)
-        notify(FieldCreatedEvent(field, schema.interface))
         return field
 
     return CollectionSchemaFactory

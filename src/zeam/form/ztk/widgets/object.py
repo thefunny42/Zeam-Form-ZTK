@@ -7,14 +7,12 @@ from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE, Marker, DEFAULT
 from zeam.form.base.widgets import WidgetExtractor
 from zeam.form.base.widgets import Widgets, FieldWidget
-from zeam.form.ztk.fields import FieldCreatedEvent
 from zeam.form.ztk.fields import registerSchemaField
 from zeam.form.ztk.interfaces import IObjectField
 
 from grokcore import component as grok
 from zope.component import getUtility
 from zope.component.interfaces import IFactory
-from zope.event import notify
 from zope.interface import Interface, implements
 from zope.schema import interfaces as schema_interfaces
 
@@ -102,7 +100,6 @@ def ObjectSchemaFactory(schema):
         schema=schema.schema,
         interface=schema.interface,
         defaultValue=schema.default or NO_VALUE)
-    notify(FieldCreatedEvent(field, schema.interface))
     return field
 
 

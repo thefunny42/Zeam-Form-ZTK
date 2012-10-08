@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from grokcore import component as grok
 from zeam.form.base.fields import Field
 from zeam.form.base.widgets import FieldWidget, DisplayFieldWidget
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.ztk.fields import FieldCreatedEvent
 from zeam.form.ztk.fields import registerSchemaField
-from zope.event import notify
+
+from grokcore import component as grok
 from zope.i18nmessageid import MessageFactory
 from zope.schema import interfaces as schema_interfaces
 
@@ -57,7 +56,6 @@ def BooleanSchemaFactory(schema):
         readonly=schema.readonly,
         interface=schema.interface,
         defaultValue=bool(schema.default))
-    notify(FieldCreatedEvent(field, schema.interface))
     return field
 
 

@@ -4,13 +4,11 @@ from zeam.form.base.markers import NO_VALUE, Marker
 from zeam.form.base.fields import Field
 from zeam.form.base.widgets import FieldWidget
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.ztk.fields import FieldCreatedEvent
 from zeam.form.ztk.fields import registerSchemaField
 from zeam.form.ztk.interfaces import IFormSourceBinder
 
 from grokcore import component as grok
 from zope import component
-from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import interfaces as schema_interfaces
@@ -192,7 +190,6 @@ def ChoiceSchemaFactory(schema):
         vocabularyName=schema.vocabularyName,
         interface=schema.interface,
         defaultValue=schema.default or NO_VALUE)
-    notify(FieldCreatedEvent(field, schema.interface))
     return field
 
 def register():

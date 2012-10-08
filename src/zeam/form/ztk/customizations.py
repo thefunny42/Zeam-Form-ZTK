@@ -1,0 +1,98 @@
+
+import sys
+import martian
+from martian.util import frame_is_module
+from martian.error import GrokImportError
+
+from zope.event import subscribers
+from zope.interface.adapter import AdapterRegistry
+from zope.interface import providedBy, implementedBy
+
+from zeam.form.ztk.interfaces import IFieldCreatedEvent
+
+
+class CustomizationRegistry(object):
+    """Register and execute customization handlers.
+    """
+
+    def __init__(self):
+        self._scheduled = False
+        self._events = []
+        self._origin = AdapterRegistry()
+        self._field = AdapterRegistry()
+        subscribers.append(self.watch)
+
+    def watch(self, *events):
+        if len(events) > 0 and IFieldCreatedEvent.providedBy(events[0]):
+            self._events.append(events[0])
+
+    def register(self, handler, options):
+        if 'origin' in options:
+            self._origin.subscribe(
+                (options['origin'], options.get('schema')), None, handler)
+        elif 'field' in options:
+            self._field.subscribe(
+                (options['field'], options.get('schema')), None, handler)
+        else:
+            raise AssertionError('Invalid customization')
+
+    def execute(self, clear=True):
+        for event in self._events:
+            if event.origin is not None:
+                for handler in self._origin.subscriptions(
+                    (providedBy(event.origin), implementedBy(event.interface)),
+                    None):
+                    handler(event.field)
+            for handler in self._field.subscribers(
+                (providedBy(event.field), implementedBy(event.interface)),
+                None):
+                handler(event.field)
+        if clear:
+            del self._events[:]
+        self._scheduled = False
+
+    def schedule(self, config):
+        if not self._scheduled:
+            config.action(
+                discriminator=('customize fields',),
+                callable=self.execute,
+                args=tuple(),
+                order=sys.maxint-1)
+            self._scheduled = True
+
+registry = CustomizationRegistry()
+
+
+class customize:
+
+    def __init__(self, origin=None, schema=None, field=None):
+        self.options = {'origin': origin, 'schema': schema, 'field':field}
+
+    def __call__(self, handler):
+        frame = sys._getframe(1)
+        if not frame_is_module(frame):
+            raise GrokImportError(
+                '@customize can only be used on module level')
+        if not self.options:
+            raise GrokImportError(
+                '@customize options are missing')
+
+        customizations = frame.f_locals.get(
+            '__zeam_form_customizations__', None)
+        if customizations is None:
+            frame.f_locals['__zeam_form_customizations__'] = customizations = []
+        customizations.append((handler, self.options))
+        return handler
+
+
+class CustomizationGrokker(martian.GlobalGrokker):
+
+    def grok(self, name, module, module_info, config, *kw):
+        customizations = module_info.getAnnotation(
+            'zeam.form.customizations', [])
+        if customizations:
+            for customization in customizations:
+                registry.register(customization[0], customization[1])
+            registry.schedule(config)
+            return True
+        return False
