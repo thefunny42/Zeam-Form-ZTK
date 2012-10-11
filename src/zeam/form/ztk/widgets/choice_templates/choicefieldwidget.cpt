@@ -3,8 +3,7 @@
         tal:attributes="name widget.identifier;
                         id widget.htmlId();
                         class widget.htmlClass();
-                        required widget.htmlAttribute('required');
-                        size widget.htmlAttribute('size')">
+                        widget.htmlAttributes()">
   <option value="#"
           tal:repeat="choice widget.choices()"
           tal:attributes="value choice.token;

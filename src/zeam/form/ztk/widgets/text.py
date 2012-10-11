@@ -21,6 +21,10 @@ class TextField(Field):
                  minLength=0,
                  maxLength=None,
                  **options):
+        if 'cols' not in options:
+            options['cols'] = '80'
+        if 'rows' not in options:
+            options['rows'] = '5'
         super(TextField, self).__init__(title, **options)
         self.minLength = minLength
         self.maxLength = maxLength
@@ -45,6 +49,9 @@ TextSchemaField = TextField
 class TextareaWidget(FieldWidget):
     grok.adapts(TextField, Interface, Interface)
     defaultHtmlClass = ['field', 'field-text']
+    defaultHtmlAttributes = set(['maxlength', 'placeholder', 'required',
+                                 'rows', 'warp', 'readonly', 'cols',
+                                 'style'])
 
 
 def TextSchemaFactory(schema):

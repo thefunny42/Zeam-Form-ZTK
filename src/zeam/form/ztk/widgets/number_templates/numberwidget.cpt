@@ -1,12 +1,6 @@
 <input type="number" value="#" id="#" name="#" class="#"
-       tal:attributes="readonly widget.htmlAttribute('readonly');
-                       required widget.htmlAttribute('required');
-                       autocomplete widget.htmlAttribute('autocomplete');
-                       max widget.htmlAttribute('max');
-                       min widget.htmlAttribute('min');
-                       step widget.htmlAttribute('step');
-                       placeholder widget.htmlAttribute('placeholder');
-                       name widget.identifier;
+       tal:attributes="name widget.identifier;
                        value widget.inputValue();
                        id widget.htmlId();
-                       class widget.htmlClass()" />
+                       class widget.htmlClass();
+                       widget.htmlAttributes()" />

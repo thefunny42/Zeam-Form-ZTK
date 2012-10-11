@@ -40,6 +40,9 @@ class PasswordField(Field):
 class PasswordWidget(FieldWidget):
     grok.adapts(PasswordField, None, None)
     defaultHtmlClass = ['field', 'field-password']
+    defaultHtmlAttributes = ['readonly', 'required', 'autocomplete',
+                             'maxlength', 'pattern', 'placeholder',
+                             'size', 'style']
 
 
 def PasswordSchemaFactory(schema):

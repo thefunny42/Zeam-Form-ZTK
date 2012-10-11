@@ -341,7 +341,7 @@ the error reported::
   <span class="field-error">Missing required value.</span>
   <br />
   <textarea id="form-field-comment-field-comment" name="form.field.comment.field.comment"
-            class="field field-text field-required" rows="5" required="required" cols="80"></textarea>
+            class="field field-text field-required" rows="5" cols="80" required="required"></textarea>
   <br />
   <label class="field-label" for="form-field-comment-field-email">Email</label>
   <br />

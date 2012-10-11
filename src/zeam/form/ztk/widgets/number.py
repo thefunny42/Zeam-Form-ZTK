@@ -65,6 +65,10 @@ class FloatField(IntegerField):
     """
 
 
+# BBB
+FloatSchemaField = FloatField
+
+
 class CurrencyField(FloatField):
     """ A currency field.
     """
@@ -101,14 +105,17 @@ class FloatFieldWidgetExtractor(IntegerFieldWidgetExtractor):
 
 class NumberWidget(FieldWidget):
     grok.adapts(IntegerField, Interface, Interface)
-    defaultHTMLClass = ['field', 'field-number']
+    defaultHtmlClass = ['field', 'field-number']
+    defaultHtmlAttributes = set(['readonly', 'required', 'autocomplete',
+                                 'max', 'min', 'setup', 'placeholder',
+                                 'style'])
 
 
 class CurrencyDisplayWidget(FieldWidget):
     grok.adapts(CurrencyField, Interface, Interface)
     grok.name('display')
 
-    defaultHTMLClass = ['field', 'field-currency']
+    defaultHtmlClass = ['field', 'field-currency']
 
     def valueToUnicode(self, value):
         return self.formatHtmlCurrency(value)

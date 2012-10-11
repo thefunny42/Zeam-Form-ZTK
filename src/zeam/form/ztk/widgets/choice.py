@@ -107,6 +107,7 @@ ChoiceSchemaField = ChoiceField
 class ChoiceFieldWidget(FieldWidget):
     grok.adapts(ChoiceField, Interface, Interface)
     defaultHtmlClass = ['field', 'field-choice']
+    defaultHtmlAttributes = set(['required', 'size', 'style'])
     _choices = None
 
     def __init__(self, field, form, request):

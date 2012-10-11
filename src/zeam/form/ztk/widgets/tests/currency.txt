@@ -46,5 +46,5 @@ You have an associated widget:
   True
 
   >>> print currency_widget.render()
-  <div class="field" id="form-field-balance">101.01&nbsp;€</div>
+  101.01&nbsp;€
 

@@ -44,6 +44,9 @@ TextLineSchemaField = TextLineField
 class TextLineWidget(FieldWidget):
     grok.adapts(TextLineField, None, None)
     defaultHtmlClass = ['field', 'field-textline']
+    defaultHtmlAttributes = set(['readonly', 'required', 'autocomplete',
+                                 'maxlength', 'pattern', 'placeholder',
+                                 'size', 'style'])
 
 
 def TextLineSchemaFactory(schema):

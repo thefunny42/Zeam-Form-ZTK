@@ -6,7 +6,7 @@ from martian.error import GrokImportError
 
 from zope.event import subscribers
 from zope.interface.adapter import AdapterRegistry
-from zope.interface import providedBy, implementedBy
+from zope.interface import providedBy, implementedBy, Interface
 
 from zeam.form.ztk.interfaces import IFieldCreatedEvent
 
@@ -28,25 +28,51 @@ class CustomizationRegistry(object):
 
     def register(self, handler, options):
         if 'origin' in options:
-            self._origin.subscribe(
-                (options['origin'], options.get('schema')), None, handler)
+            self._origin.register(
+                (options['origin'], options.get('schema')),
+                Interface,
+                options.get('name', u''),
+                handler)
         elif 'field' in options:
-            self._field.subscribe(
-                (options['field'], options.get('schema')), None, handler)
+            self._field.register(
+                (options['field'], options.get('schema')),
+                Interface,
+                options.get('name', u''),
+                handler)
+        elif 'schema' in options:
+            self._origin.register(
+                (Interface, options['schema']),
+                Interface,
+                options.get('name', u''),
+                handler)
         else:
             raise AssertionError('Invalid customization')
 
     def execute(self, clear=True):
         for event in self._events:
+            handler = None
             if event.origin is not None:
-                for handler in self._origin.subscriptions(
-                    (providedBy(event.origin), implementedBy(event.interface)),
-                    None):
+                # 1. Lookup customization with the original field
+                required = (providedBy(event.origin), event.interface)
+                # 1.a Original field and name
+                handler = self._origin.lookup(
+                    required, Interface, event.field.identifier)
+                if handler is None:
+                    # 1.b Original field without name
+                    handler = self._origin.lookup(required, Interface)
+                if handler is not None:
                     handler(event.field)
-            for handler in self._field.subscribers(
-                (providedBy(event.field), implementedBy(event.interface)),
-                None):
-                handler(event.field)
+            if handler is None:
+                # 2. No customization found, lookup with the zeam.form field
+                required = (providedBy(event.field), event.interface)
+                # 2.a zeam.form field and name
+                handler = self._field.lookup(
+                    required, Interface, event.field.identifier)
+                if handler is None:
+                    # 2.b zeam.form field without name
+                    handler = self._field.lookup(required, Interface)
+                if handler is not None:
+                    handler(event.field)
         if clear:
             del self._events[:]
         self._scheduled = False
@@ -65,8 +91,9 @@ registry = CustomizationRegistry()
 
 class customize:
 
-    def __init__(self, origin=None, schema=None, field=None):
-        self.options = {'origin': origin, 'schema': schema, 'field':field}
+    def __init__(self, origin=None, schema=None, field=None, name=u''):
+        self.options = {'origin': origin, 'schema': schema,
+                        'field':field, 'name': name}
 
     def __call__(self, handler):
         frame = sys._getframe(1)

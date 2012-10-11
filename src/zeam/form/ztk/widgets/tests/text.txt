@@ -81,7 +81,7 @@ You have an associated widget:
 
   >>> print text_widget.render() #doctest: +NORMALIZE_WHITESPACE
   <textarea id="form-field-comment" name="form.field.comment" class="field field-text field-required"
-            rows="5" required="required" cols="80"></textarea>
+            rows="5" cols="80" required="required"></textarea>
 
 
 Extractor
