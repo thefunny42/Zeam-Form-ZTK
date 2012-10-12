@@ -1,10 +1,19 @@
 Changelog
 =========
 
-1.3 (unreleased)
+1.3 (2012/10/12)
 ----------------
 
-* ...
+* Update fields and widgets to no longer proxy
+  ``zope.schema``. Instead they do their own validation and are
+  standalone (they can be created and used without ``zope.schema``).
+
+* Support more HTML 5 features, like for number fields, and extra
+  attributes that can be inserted with the help of ``htmlAttributes``,
+  like ``placeholder``...
+
+* Add a ``CurrencyField``, that can be used to display nicely
+  currencies.
 
 1.2.3 (2012/09/24)
 ------------------
