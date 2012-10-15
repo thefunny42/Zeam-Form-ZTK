@@ -57,6 +57,7 @@ def BooleanSchemaFactory(schema):
         required=schema.required,
         readonly=schema.readonly,
         interface=schema.interface,
+        constrainValue=schema.constraint,
         defaultValue=bool(schema.default))
     return field
 

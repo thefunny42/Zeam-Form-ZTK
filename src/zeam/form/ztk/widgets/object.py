@@ -99,6 +99,7 @@ def ObjectSchemaFactory(schema):
         readonly=schema.readonly,
         schema=schema.schema,
         interface=schema.interface,
+        constrainValue=schema.constraint,
         defaultValue=schema.default or NO_VALUE)
     return field
 

@@ -7,8 +7,12 @@ We need first a text schema:
   >>> from zope import interface, schema
   >>> from zope.interface.verify import verifyObject
 
+  >>> def constraint_text(text):
+  ...      return text != 'No'
+
   >>> class IQuestion(interface.Interface):
-  ...     comment = schema.Text(title=u"Why do you like zeam?")
+  ...     comment = schema.Text(title=u"Why do you like zeam?",
+  ...                           constraint=constraint_text)
 
 And a test content and request:
 
@@ -51,6 +55,9 @@ You an validate the input:
   >>> text_field.validate(NO_VALUE, form)
   u'Missing required value.'
 
+  >>> text_field.validate('No', form)
+  u'The constraint failed.'
+
   >>> text_field.minLength = 6
   >>> text_field.validate('what?', form)
   u'Not enough text was entered.'
@@ -59,7 +66,7 @@ You an validate the input:
 
   >>> text_field.maxLength = 6
   >>> text_field.validate('what did you say?', form)
-   u'Too much text was entered.'
+  u'Too much text was entered.'
 
 
 Widget

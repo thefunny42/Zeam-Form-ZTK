@@ -160,6 +160,7 @@ def IntegerSchemaFactory(schema):
         min=schema.min,
         max=schema.max,
         interface=schema.interface,
+        constrainValue=schema.constraint,
         defaultValue=schema.default or NO_VALUE)
     return field
 
@@ -174,6 +175,7 @@ def FloatSchemaFactory(schema):
         min=schema.min,
         max=schema.max,
         interface=schema.interface,
+        constrainValue=schema.constraint,
         defaultValue=schema.default or NO_VALUE)
     return field
 

@@ -55,6 +55,7 @@ def PasswordSchemaFactory(schema):
         minLength=schema.min_length,
         maxLength=schema.max_length,
         interface=schema.interface,
+        constrainValue=schema.constraint,
         defaultValue=schema.default or NO_VALUE)
     return field
 

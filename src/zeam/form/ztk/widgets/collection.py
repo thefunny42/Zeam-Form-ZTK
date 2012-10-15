@@ -456,6 +456,7 @@ def makeCollectionSchemaFactory(factory):
             maxLength=schema.max_length,
             valueField=schema.value_type,
             interface=schema.interface,
+            constrainValue=schema.constraint,
             defaultValue=schema.default or NO_VALUE)
         return field
 

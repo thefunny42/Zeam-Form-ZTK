@@ -190,6 +190,7 @@ def ChoiceSchemaFactory(schema):
         source=schema.vocabulary,
         vocabularyName=schema.vocabularyName,
         interface=schema.interface,
+        constrainValue=schema.constraint,
         defaultValue=schema.default or NO_VALUE)
     return field
 
