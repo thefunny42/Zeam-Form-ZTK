@@ -82,6 +82,8 @@ class DateWidgetExtractor(WidgetExtractor):
     def extract(self):
         value, error = super(DateWidgetExtractor, self).extract()
         if value is not NO_VALUE:
+            if not len(value):
+                return NO_VALUE, None
             formatter = self.component.getFormatter(self.form)
             try:
                 value = formatter.parse(value)

@@ -142,17 +142,53 @@ here because the parsing is a bit more advanced:
   >>> date_extractor.extract()
   (datetime.date(1982, 6, 10), None)
 
-Now if you give an invalid date you will have an error::
+  >>> date_field.validate(date_extractor.extract()[0], date_form)
+   u'This date is before the ${not_before}.'
 
-  >>> invalidDateRequest = TestRequest(form={
+Now if you give an invalid date you will have an error:
+
+  >>> invalid_date_request = TestRequest(form={
   ...     'form.field.date': u'the best day ever'})
-  >>> invalidDayData = FormData(day, invalidDateRequest)
+  >>> invalid_day_data = FormData(day, invalid_date_request)
 
-  >>> invalidDayExtractor = getMultiAdapter(
-  ...      (date_field, invalidDayData, invalidDateRequest),
+  >>> invalid_day_extractor = getMultiAdapter(
+  ...      (date_field, invalid_day_data, invalid_date_request),
   ...      interfaces.IWidgetExtractor)
 
-  >>> verifyObject(interfaces.IWidgetExtractor, invalidDayExtractor)
+  >>> verifyObject(interfaces.IWidgetExtractor, invalid_day_extractor)
   True
-  >>> invalidDayExtractor.extract()
+  >>> invalid_day_extractor.extract()
   (None, "The datetime string did not match the pattern u'yy/MM/dd'.")
+
+Or an empty request:
+
+  >>> no_date_request = TestRequest(form={
+  ...     'form.field.date': u''})
+  >>> no_day_data = FormData(day, no_date_request)
+
+  >>> no_day_extractor = getMultiAdapter(
+  ...      (date_field, no_day_data, no_date_request),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, no_day_extractor)
+  True
+  >>> no_day_extractor.extract()
+  (<Marker NO_VALUE>, None)
+
+  >>> date_field.validate(no_day_extractor.extract()[0], no_day_data)
+  u'Missing required value.'
+
+
+But if the first is not required, this should not error:
+
+  >>> date_field.required = False
+  >>> not_required_extractor = getMultiAdapter(
+  ...      (date_field, no_day_data, no_date_request),
+  ...      interfaces.IWidgetExtractor)
+
+  >>> verifyObject(interfaces.IWidgetExtractor, not_required_extractor)
+  True
+  >>> not_required_extractor.extract()
+  (<Marker NO_VALUE>, None)
+
+  >>> date_field.validate(not_required_extractor.extract()[0], no_day_data)
