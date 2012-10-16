@@ -28,7 +28,7 @@ And a test content and request:
 Field
 -----
 
-So now you can create a field, and get a boolean field:
+So now you can create a field, and get a text field:
 
   >>> from zeam.form.ztk import Fields, FormData, NO_VALUE
   >>> from zeam.form.base import interfaces
@@ -54,10 +54,17 @@ You an validate the input:
   True
   >>> text_field.validate(NO_VALUE, form)
   u'Missing required value.'
+  >>> text_field.validate('', form)
+  u'Missing required value.'
 
   >>> text_field.validate('No', form)
   u'The constraint failed.'
 
+  >>> text_field.required = False
+  >>> text_field.validate(NO_VALUE, form)
+  >>> text_field.validate('', form)
+
+  >>> text_field.required = True
   >>> text_field.minLength = 6
   >>> text_field.validate('what?', form)
   u'Not enough text was entered.'
@@ -95,7 +102,7 @@ Extractor
 ---------
 
 And finaly we have an extractor. If there is nothing in the request
-the value is False:
+the value is NO_VALUE:
 
   >>> from zope import component
 
@@ -106,7 +113,7 @@ the value is False:
   >>> empty_extractor.extract()
   (<Marker NO_VALUE>, None)
 
-And with a value:
+And with some text:
 
   >>> text_request = TestRequest(
   ...         form={text_widget.identifier: u'Sometime there was an another version ...', })

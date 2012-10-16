@@ -52,12 +52,13 @@ class IntegerFieldWidgetExtractor(FieldWidgetExtractor):
         value, error = super(IntegerFieldWidgetExtractor, self).extract()
         if error:
             return (value, error)
-        if value is not NO_VALUE:
+        if value is not NO_VALUE and len(value):
             try:
                 value = self.valueType(value)
             except (ValueError, TypeError):
                 return (NO_VALUE, self.failedMessage)
-        return (value, error)
+            return (value, None)
+        return (NO_VALUE, None)
 
 
 class FloatField(IntegerField):

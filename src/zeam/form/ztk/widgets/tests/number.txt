@@ -1,0 +1,150 @@
+============================
+zeam.form.ztk number widgets
+============================
+
+Let's create some interface with number fields:
+
+  >>> from zope import schema, interface
+  >>> from zope.interface.verify import verifyObject
+  >>> from zope.component import getMultiAdapter
+
+  >>> class IQuantity(interface.Interface):
+  ...     size = schema.Int(title=u'Size')
+  ...     weigth = schema.Float(title=u'Weigth')
+
+And some test content:
+
+  >>> from zope.publisher.browser import TestRequest
+  >>> from zeam.form.ztk import FormData
+  >>> request = TestRequest()
+
+  >>> class Quantity(object):
+  ...    interface.implements(IQuantity)
+  ...    size = 0
+  ...    weigth = 0.0
+  >>> content = Quantity()
+  >>> content_form = FormData(content, request)
+  >>> content_form.ignoreContent = False
+
+
+Fields
+------
+
+So now you can create fields, and get a integer field and float one:
+
+  >>> from zeam.form.ztk import Fields, NO_VALUE
+  >>> from zeam.form.base import interfaces
+
+  >>> fields = Fields(IQuantity)
+  >>> int_field = fields['size']
+  >>> int_field
+  <IntegerField Size>
+
+  >>> float_field = fields['weigth']
+  >>> float_field
+  <FloatField Weigth>
+
+  >>> verifyObject(interfaces.IField, int_field)
+  True
+  >>> verifyObject(interfaces.IField, float_field)
+  True
+
+
+Validation
+~~~~~~~~~~
+
+You an validate the input:
+
+  >>> int_field.required
+  True
+  >>> int_field.validate(42, content_form)
+  >>> int_field.validate(NO_VALUE, content_form)
+  u'Missing required value.'
+
+  >>> int_field.required = False
+  >>> int_field.validate(NO_VALUE, content_form)
+
+  >>> int_field.required = True
+  >>> int_field.min = 6
+  >>> int_field.validate(4, content_form)
+  u'This number is too small.'
+  >>> int_field.validate(6, content_form)
+
+  >>> int_field.max = 12
+  >>> int_field.validate(14, content_form)
+  u'This number is too big.'
+  >>> int_field.validate(10, content_form)
+
+
+Widget
+------
+
+You have an associated widget:
+
+  >>> from zeam.form.ztk import Widgets
+
+  >>> widgets = Widgets(fields, form=content_form, request=request)
+  >>> widgets.update()
+
+  >>> int_widget = widgets['form.field.size']
+  >>> int_widget
+  <NumberWidget Size>
+  >>> float_widget = widgets['form.field.weigth']
+  >>> float_widget
+  <NumberWidget Weigth>
+
+  >>> verifyObject(interfaces.IWidget, int_widget)
+  True
+  >>> verifyObject(interfaces.IWidget, float_widget)
+  True
+
+
+Extractor
+---------
+
+And finally we have an extractor. If there is nothing in the request
+the value is NO_VALUE:
+
+  >>> from zope import component
+
+  >>> int_field.required = False
+
+  >>> extractor = component.getMultiAdapter(
+  ...      (int_field, content_form, request), interfaces.IWidgetExtractor)
+  >>> extractor
+  <zeam.form.ztk.widgets.number.IntegerFieldWidgetExtractor object at ...>
+  >>> extractor.extract()
+  (<Marker NO_VALUE>, None)
+
+Now it is possible there was an empty string in the request:
+
+  >>> empty_request = TestRequest(
+  ...         form={int_widget.identifier: u'', })
+  >>> empty_extractor = component.getMultiAdapter(
+  ...      (int_field, content_form, empty_request), interfaces.IWidgetExtractor)
+  >>> empty_extractor
+  <zeam.form.ztk.widgets.number.IntegerFieldWidgetExtractor object at ...>
+  >>> empty_extractor.extract()
+  (<Marker NO_VALUE>, None)
+
+Or you have a valid number:
+
+  >>> valid_request = TestRequest(
+  ...         form={int_widget.identifier: u'42', })
+  >>> valid_extractor = component.getMultiAdapter(
+  ...      (int_field, content_form, valid_request), interfaces.IWidgetExtractor)
+  >>> valid_extractor
+  <zeam.form.ztk.widgets.number.IntegerFieldWidgetExtractor object at ...>
+  >>> valid_extractor.extract()
+  (42, None)
+
+Or maybe a string or characters that doesn't represent a number:
+
+  >>> invalid_request = TestRequest(
+  ...         form={int_widget.identifier: u'This does not look like a number', })
+  >>> invalid_extractor = component.getMultiAdapter(
+  ...      (int_field, content_form, invalid_request), interfaces.IWidgetExtractor)
+  >>> invalid_extractor
+  <zeam.form.ztk.widgets.number.IntegerFieldWidgetExtractor object at ...>
+  >>> invalid_extractor.extract()
+  (<Marker NO_VALUE>, u'This number is not a valid whole number.')

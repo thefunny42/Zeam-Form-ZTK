@@ -37,6 +37,10 @@ So now you can create a field, and get a URI field:
   >>> uri_field
   <URIField Location>
 
+  >>> uri_field.title
+  u'Location'
+  >>> uri_field.required
+  True
   >>> verifyObject(interfaces.IField, uri_field)
   True
 
@@ -50,6 +54,13 @@ The field will only validate proper URIs:
   >>> uri_field.validate('Github', None)
   u'The URI is malformed.'
 
+  >>> uri_field.validate('', None)
+  u'Missing required value.'
+
+  >>> uri_field.required = False
+  >>> uri_field.validate('', None)
+
+  >>> uri_field.required = True
   >>> uri_field.maxLength = 20
   >>> uri_field.validate('https://github.com/thefunny42/Zeam-Form-ZTK', None)
   u'The URI is too long.'

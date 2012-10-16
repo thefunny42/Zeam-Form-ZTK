@@ -12,7 +12,7 @@ def test_suite():
                      'collection_list.txt', 'collection_object.txt',
                      'multichoice.txt', 'object.txt', 'date.txt',
                      'radio.txt', 'uri.txt', 'text.txt', 'time.txt',
-                     'currency.txt']:
+                     'currency.txt', 'number.txt']:
         test = doctest.DocFileSuite(
             filename,
             optionflags=optionflags,

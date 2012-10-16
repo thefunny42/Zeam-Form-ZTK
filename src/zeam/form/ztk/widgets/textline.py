@@ -24,11 +24,14 @@ class TextLineField(Field):
         self.minLength = minLength
         self.maxLength = maxLength
 
+    def isEmpty(self, value):
+        return value is NO_VALUE or not len(value)
+
     def validate(self, value, form):
         error = super(TextLineField, self).validate(value, form)
         if error is not None:
             return error
-        if not isinstance(value, Marker):
+        if not isinstance(value, Marker) and len(value):
             assert isinstance(value, basestring)
             if self.minLength and len(value) < self.minLength:
                 return _(u"This text is too short.")
