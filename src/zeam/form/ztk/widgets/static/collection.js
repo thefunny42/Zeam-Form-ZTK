@@ -34,7 +34,7 @@
             });
 
         // Remove the template from the DOM.
-        $node.html('');
+        $node.remove();
         // Return an object that let you render the template
         return {
             identifier: identifier,
@@ -80,24 +80,25 @@
         var field_name = base_name + '.field.';
 
         var rewriter = function () {
-            var input = $(this);
-            var old_name = input.attr('name');
+            var $input = $(this),
+                input_name,
+                template_name = $input.attr('name');
 
-            if (starts_with(old_name, selector_name)) {
-                input.attr('name', selector_name + count);
-            } else if (starts_with(old_name, present_name)) {
-                input.attr('name', present_name + count);
-            } else if (starts_with(old_name, field_name)) {
-                var new_name = field_name + count;
+            if (starts_with(template_name, selector_name)) {
+                $input.attr('name', selector_name + count);
+            } else if (starts_with(template_name, present_name)) {
+                $input.attr('name', present_name + count);
+            } else if (starts_with(template_name, field_name)) {
+                input_name = field_name + count;
                 var i = field_name.length;
 
                 // Consume the old count
-                for (; i < old_name.length && old_name[i] != '.'; i++);
+                for (; i < template_name.length && template_name[i] != '.'; i++);
                 // Copy the end of the old name to the new one
-                for (; i < old_name.length; i++) {
-                    new_name += old_name[i];
+                for (; i < template_name.length; i++) {
+                    input_name += template_name[i];
                 };
-                input.attr('name', new_name);
+                $input.attr('name', input_name);
             };
         };
         // Rewrite name for input, textarea and select tags.
