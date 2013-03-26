@@ -1,0 +1,8 @@
+<a href="#" id="#" class="#"
+   tal:define="value widget.inputValue()"
+   tal:attributes="href string:mailto:${value};
+                   id widget.htmlId();
+                   class widget.htmlClass()"
+   tal:content="value">
+  data
+</a>

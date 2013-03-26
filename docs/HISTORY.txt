@@ -4,7 +4,7 @@ Changelog
 1.3.2 (unreleased)
 ------------------
 
-* ...
+* Add a native email widget.
 
 1.3.1 (2012/11/19)
 ------------------
