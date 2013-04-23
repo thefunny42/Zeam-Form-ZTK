@@ -119,7 +119,7 @@ Currently supported fields:
 - Date, Datetime: generate a text line input and parse/display the
   date using the locale,
 
-- TextLine, Text, Boolean, URI, and numbers (Int, Float ...),
+- TextLine, Text, Boolean, URI, Email, and numbers (Int, Float ...),
 
 - Password,
 
