@@ -1,5 +1,5 @@
 
-// Requires: json-template.js
+// Requires: json-template.js and jQuery 1.7
 
 (function ($, jsontemplate){
     var field_name_regexp = /(.*)\.field\.(\d+)$/;
@@ -25,7 +25,7 @@
 
         var identifier = $node.attr('rel');
         var template = new jsontemplate.Template(
-            $node.get(0).innerHTML, {
+            $.trim($node.get(0).innerHTML), {
                 // For the moment this use an hijack version of
                 // json-template.
                 undefined_callable: function(name){
@@ -136,7 +136,7 @@
 
     $(document).ready(function (){
         // Bind add buttons
-        $('form input.field-collection-add-line').live('click', function() {
+        $(document).on('click', 'form input.field-collection-add-line', function() {
             var $field = $(this).closest('div.field-collection');
 
             // Clear the empty message
@@ -173,7 +173,7 @@
         });
 
         // Bind the remove button
-        $('form input.field-collection-remove-line').live('click', function() {
+        $(document).on('click', 'form input.field-collection-remove-line', function() {
             var field = $(this).closest('div.field-collection');
             var container = field.find('.field-collection-lines:first');
             var selected = container.children(
@@ -206,7 +206,7 @@
         });
 
         // Bind the up button
-        $('form button.field-collection-move-up').live('click', function () {
+        $(document).on('click', 'form button.field-collection-move-up', function () {
             var button = $(this);
             var line = button.closest('.field-collection-line');
             var previous_line = line.prev();
@@ -230,7 +230,7 @@
         });
 
         // Bind the down button
-        $('form button.field-collection-move-down').live('click', function () {
+        $(document).on('click', 'form button.field-collection-move-down', function () {
             var line = $(this).closest('.field-collection-line');
             var next_line = line.next();
 
