@@ -49,7 +49,7 @@ class TextLineWidget(FieldWidget):
     defaultHtmlClass = ['field', 'field-textline']
     defaultHtmlAttributes = set(['readonly', 'required', 'autocomplete',
                                  'maxlength', 'pattern', 'placeholder',
-                                 'size', 'style'])
+                                 'size', 'style', 'disabled'])
 
 
 def TextLineSchemaFactory(schema):

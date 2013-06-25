@@ -24,7 +24,7 @@ BooleanSchemaField = BooleanField
 class CheckBoxWidget(FieldWidget):
     grok.adapts(BooleanField, None, None)
     defaultHtmlClass = ['field', 'field-bool']
-    defaultHtmlAttributes = set(['readonly', 'style'])
+    defaultHtmlAttributes = set(['readonly', 'style', 'disabled'])
     alternateLayout = True
 
 
