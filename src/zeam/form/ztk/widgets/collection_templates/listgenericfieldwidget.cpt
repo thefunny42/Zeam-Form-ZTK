@@ -16,11 +16,13 @@
           <input type="checkbox" class="field-collection-line-selector"
                  name="${widget.identifier}.checked.${valueIdentifier}" />
           <tal:ordering tal:condition="widget.allowOrdering">
-            <button type="submit" title="Move up" class="field-collection-move-up"
+            <button type="button" title="Move up"
+                    class="field-collection-move-up"
                     i18n:attributes="title">
               &nbsp;
             </button>
-            <button title="Move down" class="field-collection-move-down"
+            <button type="button" title="Move down"
+                    class="field-collection-move-down"
                     i18n:attributes="title">
               &nbsp;
             </button>
