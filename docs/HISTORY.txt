@@ -1,8 +1,15 @@
 Changelog
 =========
 
-1.3.3 (unreleased)
+1.3.3 (2013/12/20)
 ------------------
+
+* Update collection javascript not to bind events on the document
+  anymore, but on the field. This prevent breakage if the events get
+  intercepted. The reordering buttons no longer submit the form, even
+  if the javascript isn't included.
+
+* Allow people to customize the ``disabled`` attributes on fields.
 
 * Update collection javascript to work with jQuery 1.9. It now
   requires at least jQuery 1.7.
