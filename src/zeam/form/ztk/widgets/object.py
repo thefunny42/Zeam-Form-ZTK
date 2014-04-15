@@ -7,7 +7,7 @@ from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE, Marker, DEFAULT
 from zeam.form.base.widgets import WidgetExtractor
 from zeam.form.base.widgets import Widgets, FieldWidget
-from zeam.form.ztk.fields import BaseField, registerSchemaField
+from zeam.form.ztk.fields import Field, registerSchemaField
 from zeam.form.ztk.interfaces import IObjectField
 
 from grokcore import component as grok
@@ -17,7 +17,7 @@ from zope.interface import Interface, implements
 from zope.schema import interfaces as schema_interfaces
 
 
-class ObjectField(BaseField):
+class ObjectField(Field):
     """A collection field.
     """
     implements(IObjectField)

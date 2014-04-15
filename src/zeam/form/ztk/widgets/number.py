@@ -3,7 +3,7 @@
 from zeam.form.base.interfaces import IFieldExtractionValueSetting
 from zeam.form.base.markers import Marker, NO_VALUE
 from zeam.form.base.widgets import FieldWidget, FieldWidgetExtractor
-from zeam.form.ztk.fields import BaseField, registerSchemaField
+from zeam.form.ztk.fields import Field, registerSchemaField
 
 from grokcore import component as grok
 from zope.i18nmessageid import MessageFactory
@@ -13,7 +13,7 @@ from zope.schema import interfaces as schema_interfaces
 _ = MessageFactory("zeam.form.base")
 
 
-class IntegerField(BaseField):
+class IntegerField(Field):
     """A integer field.
     """
 

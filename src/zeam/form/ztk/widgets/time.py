@@ -5,7 +5,7 @@ import datetime
 from zeam.form.base.markers import NO_VALUE, Marker
 from zeam.form.base.widgets import FieldWidget, DisplayFieldWidget
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.ztk.fields import BaseField, registerSchemaField
+from zeam.form.ztk.fields import Field, registerSchemaField
 
 from grokcore import component as grok
 from zope.i18n.format import DateTimeParseError
@@ -16,7 +16,7 @@ from zope.schema import interfaces as schema_interfaces
 _ = MessageFactory("zeam.form.base")
 
 
-class TimeField(BaseField):
+class TimeField(Field):
     """A time field.
     """
     valueLength = 'short'

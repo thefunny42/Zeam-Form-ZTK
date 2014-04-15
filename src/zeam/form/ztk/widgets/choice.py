@@ -3,7 +3,7 @@
 from zeam.form.base.markers import NO_VALUE, Marker
 from zeam.form.base.widgets import FieldWidget
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.ztk.fields import BaseField, registerSchemaField
+from zeam.form.ztk.fields import Field, registerSchemaField
 from zeam.form.ztk.interfaces import IFormSourceBinder
 
 from grokcore import component as grok
@@ -17,7 +17,7 @@ from zope.schema.interfaces import IVocabularyTokenized, IVocabularyFactory
 _ = MessageFactory("zeam.form.base")
 
 
-class ChoiceField(BaseField):
+class ChoiceField(Field):
     """A choice field.
     """
     _source = None

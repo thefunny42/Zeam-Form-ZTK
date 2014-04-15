@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zeam.form.base import interfaces
-from zeam.form.base.fields import Field
+from zeam.form.base.fields import Field as BaseField
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import FieldWidget, WidgetExtractor
 from zeam.form.ztk.interfaces import ISchemaField, IFieldCreatedEvent
@@ -60,14 +60,14 @@ class InterfaceSchemaFieldFactory(object):
             yield result
 
 
-class BaseField(Field):
+class Field(BaseField):
 
     defaultFactory = None
     
     def __init__(self, *args, **kwargs):
         if 'defaultFactory' in kwargs:
              self.defaultFactory = kwargs.pop('defaultFactory')
-        super(BaseField, self).__init__(*args, **kwargs)
+        super(Field, self).__init__(*args, **kwargs)
 
     def getDefaultValue(self, form):
         if self.defaultFactory is not None:
@@ -78,7 +78,7 @@ class BaseField(Field):
             else: 
                 default = self.defaultFactory()
         else:
-            default = super(BaseField, self).getDefaultValue(form)
+            default = super(Field, self).getDefaultValue(form)
 
         if default is NO_VALUE:
             default = self.defaultValue
@@ -89,7 +89,7 @@ class BaseField(Field):
         return default
         
             
-class SchemaField(Field):
+class SchemaField(BaseField):
     """A form field using a zope.schema field as settings.
     """
     grok.implements(ISchemaField)

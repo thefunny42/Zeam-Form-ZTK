@@ -26,13 +26,13 @@ except ImportError:
 
 from zeam.form.base.datamanager import NoneDataManager
 from zeam.form.base.errors import Errors, Error
-from zeam.form.base.fields import Field, Fields
+from zeam.form.base.fields import Fields
 from zeam.form.base.markers import Marker
 from zeam.form.base.form import cloneFormData
 from zeam.form.base.interfaces import IField, IWidget, IWidgetExtractor
 from zeam.form.base.markers import NO_VALUE
 from zeam.form.base.widgets import WidgetExtractor, FieldWidget, Widgets
-from zeam.form.ztk.fields import registerSchemaField
+from zeam.form.ztk.fields import Field, registerSchemaField
 from zeam.form.ztk.interfaces import ICollectionField, IListField
 from zeam.form.ztk.widgets.choice import ChoiceField, ChoiceFieldWidget
 from zeam.form.ztk.widgets.object import ObjectField
