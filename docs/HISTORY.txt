@@ -1,14 +1,12 @@
 Changelog
 =========
 
-1.3.4 (unreleased)
+1.3.4 (2014/04/15)
 ------------------
 
 * Introducing the "defaultFactory" attributes from `zope.schema`.
   It was necessary to hijack the default value computing from zope.schema
   DefaultProperty.
-
-* ...
 
 
 1.3.3 (2013/12/20)
