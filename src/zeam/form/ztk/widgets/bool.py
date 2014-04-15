@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from zeam.form.base.fields import Field
 from zeam.form.base.widgets import FieldWidget, DisplayFieldWidget
 from zeam.form.base.widgets import WidgetExtractor
-from zeam.form.ztk.fields import registerSchemaField
+from zeam.form.ztk.fields import BaseField, registerSchemaField
 
 from grokcore import component as grok
 from zope.i18nmessageid import MessageFactory
@@ -13,7 +12,7 @@ from zope.schema import interfaces as schema_interfaces
 _ = MessageFactory("zeam.form.base")
 
 
-class BooleanField(Field):
+class BooleanField(BaseField):
     """A boolean field.
     """
 
@@ -58,7 +57,8 @@ def BooleanSchemaFactory(schema):
         readonly=schema.readonly,
         interface=schema.interface,
         constrainValue=schema.constraint,
-        defaultValue=bool(schema.default))
+        defaultFactory=schema.defaultFactory,
+        defaultValue=bool(schema.__dict__['default']))
     return field
 
 

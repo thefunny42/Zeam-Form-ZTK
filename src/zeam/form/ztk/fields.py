@@ -12,6 +12,7 @@ from zope.event import notify
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface, Invalid
 from zope.schema import interfaces as schema_interfaces
+from zope.schema._bootstrapinterfaces import IContextAwareDefaultFactory
 import zope.interface.interfaces
 
 _ = MessageFactory("zeam.form.base")
@@ -59,6 +60,35 @@ class InterfaceSchemaFieldFactory(object):
             yield result
 
 
+class BaseField(Field):
+
+    defaultFactory = None
+    
+    def __init__(self, *args, **kwargs):
+        if 'defaultFactory' in kwargs:
+             self.defaultFactory = kwargs.pop('defaultFactory')
+        super(BaseField, self).__init__(*args, **kwargs)
+
+    def getDefaultValue(self, form):
+        if self.defaultFactory is not None:
+            if IContextAwareDefaultFactory.providedBy(self.defaultFactory):
+                if form is None:
+                    raise TypeError('defaultFactory context required.')
+                default = self.defaultFactory(form.getContent()) 
+            else: 
+                default = self.defaultFactory()
+        else:
+            default = super(BaseField, self).getDefaultValue(form)
+
+        if default is NO_VALUE:
+            default = self.defaultValue
+
+        if default is None:
+            return NO_VALUE
+
+        return default
+        
+            
 class SchemaField(Field):
     """A form field using a zope.schema field as settings.
     """
@@ -75,7 +105,6 @@ class SchemaField(Field):
 
     def get_field(self):
         return self._field
-
 
     def clone(self, new_identifier=None):
         copy = self.__class__(self._field)

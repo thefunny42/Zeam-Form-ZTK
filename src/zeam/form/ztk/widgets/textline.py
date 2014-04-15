@@ -1,9 +1,8 @@
 # Text line widget
 
 from zeam.form.base.markers import Marker, NO_VALUE
-from zeam.form.base.fields import Field
 from zeam.form.base.widgets import FieldWidget
-from zeam.form.ztk.fields import registerSchemaField
+from zeam.form.ztk.fields import BaseField, registerSchemaField
 
 from grokcore import component as grok
 from zope.i18nmessageid import MessageFactory
@@ -12,7 +11,7 @@ from zope.schema import interfaces as schema_interfaces
 _ = MessageFactory("zeam.form.base")
 
 
-class TextLineField(Field):
+class TextLineField(BaseField):
     """A text line field.
     """
 
@@ -63,7 +62,8 @@ def TextLineSchemaFactory(schema):
         maxLength=schema.max_length,
         interface=schema.interface,
         constrainValue=schema.constraint,
-        defaultValue=schema.default or NO_VALUE)
+        defaultFactory=schema.defaultFactory,
+        defaultValue=schema.__dict__['default'] or NO_VALUE)
     return field
 
 

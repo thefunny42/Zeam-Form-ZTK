@@ -136,6 +136,47 @@ You can clone a field and keep all settings::
   'my-special-rendering-mode'
 
 
+Default values
+~~~~~~~~~~~~~~
+ 
+  >>> from zope.schema._bootstrapinterfaces import IContextAwareDefaultFactory
+
+  >>> def ComputeMe():
+  ...     return 2 * 2
+  
+  >>> @interface.provider(IContextAwareDefaultFactory)
+  ... def DeductMe(context):
+  ...     if context is None:
+  ...         return 0
+  ...     return len(context.__class__.__name__)
+  ...
+
+  >>> class IComputing(interface.Interface):
+  ...     name = schema.TextLine(title=u"Name", default=u"Computer generated")
+  ...     num1 = schema.Int(title=u"Number 1",
+  ...                       defaultFactory=ComputeMe)
+  ...     num2 = schema.Int(title=u"Number 2",
+  ...                       defaultFactory=DeductMe)
+
+  >>> s3 = Fields(IComputing)
+  >>> s3['num1'].getDefaultValue(form=None)
+  4
+
+  >>> s3['num1'].defaultValue
+  <Marker NO_VALUE>
+
+  >>> s3['num2'].getDefaultValue(form=None)
+  Traceback (most recent call last):
+  ...
+  TypeError: defaultFactory context required.
+
+  >>> from zeam.form.base import Fields, FormData
+  >>> from zope.publisher.browser import TestRequest
+  >>> form = FormData(object(), TestRequest())
+  >>> s3['num2'].getDefaultValue(form)
+  6
+
+
 Data managers
 -------------
 

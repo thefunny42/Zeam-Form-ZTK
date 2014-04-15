@@ -2,12 +2,12 @@
 
 from zeam.form.base.datamanager import ObjectDataManager
 from zeam.form.base.errors import Errors
-from zeam.form.base.fields import Field, Fields
+from zeam.form.base.fields import Fields
 from zeam.form.base.form import cloneFormData
 from zeam.form.base.markers import NO_VALUE, Marker, DEFAULT
 from zeam.form.base.widgets import WidgetExtractor
 from zeam.form.base.widgets import Widgets, FieldWidget
-from zeam.form.ztk.fields import registerSchemaField
+from zeam.form.ztk.fields import BaseField, registerSchemaField
 from zeam.form.ztk.interfaces import IObjectField
 
 from grokcore import component as grok
@@ -17,7 +17,7 @@ from zope.interface import Interface, implements
 from zope.schema import interfaces as schema_interfaces
 
 
-class ObjectField(Field):
+class ObjectField(BaseField):
     """A collection field.
     """
     implements(IObjectField)
@@ -100,7 +100,8 @@ def ObjectSchemaFactory(schema):
         schema=schema.schema,
         interface=schema.interface,
         constrainValue=schema.constraint,
-        defaultValue=schema.default or NO_VALUE)
+        defaultFactory=schema.defaultFactory,
+        defaultValue=schema.__dict__['default'] or NO_VALUE)
     return field
 
 
