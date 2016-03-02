@@ -21,6 +21,18 @@ try:
 except ImportError:
     class Library(object):
         name = ""
+
+        def init_library_nr(self):
+            pass
+
+        def library_nr(self):
+            return 20000
+
+        @property
+        def known_assets(self):
+            return []
+
+
     library = Library()
     requireCollectionResources = lambda: None
 
