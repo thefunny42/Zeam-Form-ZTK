@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.3.5 (2016/03/08)
+------------------
+
+*  Extended the Mock Library class to make it compatible with the newest
+   fanstatic api.
+
+
 1.3.4 (2014/04/15)
 ------------------
 
