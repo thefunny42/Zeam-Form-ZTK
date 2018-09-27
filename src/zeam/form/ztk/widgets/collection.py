@@ -52,17 +52,16 @@ from zeam.form.ztk.widgets.object import ObjectField
 from grokcore import component as grok
 from zope import component
 from zope.i18nmessageid import MessageFactory
-from zope.interface import Interface
+from zope.interface import Interface, implementer
 from zope.schema import interfaces as schema_interfaces
 
 _ = MessageFactory("zeam.form.base")
 
 
+@implementer(ICollectionField)
 class CollectionField(Field):
     """A collection field.
     """
-    grok.implements(ICollectionField)
-
     collectionType = list
     allowAdding = True
     allowRemove = True
@@ -102,10 +101,10 @@ class CollectionField(Field):
 CollectionSchemaField = CollectionField
 
 
+@implementer(IListField)
 class ListField(CollectionField):
     """A list field
     """
-    grok.implements(IListField)
     collectionType = list
     allowOrdering = True
 

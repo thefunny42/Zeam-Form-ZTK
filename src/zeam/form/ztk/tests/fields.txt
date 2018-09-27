@@ -149,7 +149,6 @@ Default values
   ...     if context is None:
   ...         return 0
   ...     return len(context.__class__.__name__)
-  ...
 
   >>> class IComputing(interface.Interface):
   ...     name = schema.TextLine(title=u"Name", default=u"Computer generated")
@@ -229,10 +228,11 @@ Now, if we provide the correct adapters, we can build the data
 manager::
 
   >>> import grokcore.component as grok
+  >>> from zope.interface import implementer
 
-  >>> class TitleProvider(grok.Adapter):
+  >>> @implementer(ITitledItem)
+  ... class TitleProvider(grok.Adapter):
   ...     grok.context(Item)
-  ...     grok.implements(ITitledItem)
   ...
   ...     def get_title(self):
   ...         return getattr(self.context, '_title', None)
@@ -242,9 +242,9 @@ manager::
   ...
   ...     title = property(get_title, set_title)
 
-  >>> class DescProvider(grok.Adapter):
+  >>> @implementer(IDescriptiveItem)
+  ... class DescProvider(grok.Adapter):
   ...     grok.context(Item)
-  ...     grok.implements(IDescriptiveItem)
   ...
   ...     def get_description(self):
   ...         return getattr(self.context, '_description', None)
