@@ -75,7 +75,7 @@ class Field(BaseField):
 
         if default is NO_VALUE:
             default = self.defaultValue
-            
+
         if default is None:
             return NO_VALUE
 
