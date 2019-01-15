@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.3.6 (2018/01/15)
+------------------
+
+* Fixed the use of defaultFactory
+
+* Updated to newer versions of GTK packages
+
+
 1.3.5 (2016/03/08)
 ------------------
 
