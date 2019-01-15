@@ -2,6 +2,14 @@
 """
 We are going to use a simple form with an edit action to edit a comment.
 
+Monkeypatch i18n
+
+  >>> import zope.i18n
+  >>> import zope.i18n.config
+  >>> old_1, old_2 = zope.i18n.negotiate, zope.i18n.config.ALLOWED_LANGUAGES
+  >>> zope.i18n.negotiate = lambda context: 'en'
+  >>> zope.i18n.config.ALLOWED_LANGUAGES = ['en']
+
 Let's grok our example:
 
   >>> from zeam.form.ztk.testing import grok
@@ -19,7 +27,7 @@ Let's add a comment and try to edit it with our form:
   >>> root['comment'].name
   u''
 
-  >>> from zope.app.wsgi.testlayer import Browser
+  >>> from zope.testbrowser.wsgi import Browser
   >>> browser = Browser()
   >>> browser.handleErrors = False
 

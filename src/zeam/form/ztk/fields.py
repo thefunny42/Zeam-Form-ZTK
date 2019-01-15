@@ -10,7 +10,7 @@ from grokcore import component as grok
 from zope import schema, component
 from zope.event import notify
 from zope.i18nmessageid import MessageFactory
-from zope.interface import Interface, Invalid
+from zope.interface import Interface, Invalid, implementer
 from zope.schema import interfaces as schema_interfaces
 from zope.schema._bootstrapinterfaces import IContextAwareDefaultFactory
 import zope.interface.interfaces
@@ -18,8 +18,8 @@ import zope.interface.interfaces
 _ = MessageFactory("zeam.form.base")
 
 
-class FieldCreatedEvent(object):
-    grok.implements(IFieldCreatedEvent)
+@implementer(IFieldCreatedEvent)
+class FieldCreatedEvent:
 
     def __init__(self, field, interface=None, origin=None):
         self.interface = interface
@@ -27,10 +27,10 @@ class FieldCreatedEvent(object):
         self.origin = origin
 
 
-class SchemaFieldFactory(object):
+@implementer(interfaces.IFieldFactory)
+class SchemaFieldFactory:
     """Create form fields from a zope.schema field (by adapting it).
     """
-    grok.implements(interfaces.IFieldFactory)
 
     def __init__(self, context):
         self.context = context
@@ -44,11 +44,11 @@ class SchemaFieldFactory(object):
         yield result
 
 
-class InterfaceSchemaFieldFactory(object):
+@implementer(interfaces.IFieldFactory)
+class InterfaceSchemaFieldFactory:
     """Create a set of form fields from a zope.interface by looking
     each zope.schema fields defined on it and adapting them.
     """
-    grok.implements(interfaces.IFieldFactory)
 
     def __init__(self, context):
         self.context = context
@@ -61,13 +61,6 @@ class InterfaceSchemaFieldFactory(object):
 
 
 class Field(BaseField):
-
-    defaultFactory = None
-    
-    def __init__(self, *args, **kwargs):
-        if 'defaultFactory' in kwargs:
-             self.defaultFactory = kwargs.pop('defaultFactory')
-        super(Field, self).__init__(*args, **kwargs)
 
     def getDefaultValue(self, form):
         if self.defaultFactory is not None:
@@ -87,12 +80,12 @@ class Field(BaseField):
             return NO_VALUE
 
         return default
-        
-            
+
+
+@implementer(ISchemaField)
 class SchemaField(BaseField):
     """A form field using a zope.schema field as settings.
     """
-    grok.implements(ISchemaField)
 
     def __init__(self, field):
         super(SchemaField, self).__init__(

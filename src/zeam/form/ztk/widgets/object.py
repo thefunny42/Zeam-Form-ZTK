@@ -13,14 +13,14 @@ from zeam.form.ztk.interfaces import IObjectField
 from grokcore import component as grok
 from zope.component import getUtility
 from zope.component.interfaces import IFactory
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 from zope.schema import interfaces as schema_interfaces
 
 
+@implementer(IObjectField)
 class ObjectField(Field):
     """A collection field.
     """
-    implements(IObjectField)
     objectFactory = DEFAULT
     dataManager = ObjectDataManager
 
