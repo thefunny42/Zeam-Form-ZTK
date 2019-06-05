@@ -49,7 +49,7 @@ class InvariantsValidation(object):
             obj = Data(interface, data)
             try:
                 interface.validateInvariants(obj, errors)
-            except Invalid, error:
+            except Invalid as error:
                 pass
             for error in errors:
                 yield error.args[0]

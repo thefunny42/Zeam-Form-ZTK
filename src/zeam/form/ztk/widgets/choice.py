@@ -34,44 +34,38 @@ class ChoiceField(Field):
         elif vocabularyName is not None:
             self.vocabularyFactory = vocabularyName
 
-    @apply
-    def vocabularyFactory():
+    @property
+    def vocabularyFactory(self):
+        if self._vocabularyFactory is None:
+            if self._vocabularyName is not None:
+                self._vocabularyFactory = component.getUtility(
+                    schema_interfaces.IVocabularyFactory,
+                    name=self._vocabularyName)
+        return self._vocabularyFactory
 
-        def getter(self):
-            if self._vocabularyFactory is None:
-                if self._vocabularyName is not None:
-                    self._vocabularyFactory = component.getUtility(
-                        schema_interfaces.IVocabularyFactory,
-                        name=self._vocabularyName)
-            return self._vocabularyFactory
+    @vocabularyFactory.setter
+    def vocabularyFactory(self, factory):
+        if isinstance(factory, str):
+            self._vocabularyName = factory
+            self._vocabularyFactory = None
+        else:
+            self._vocabularyName = None
+            self._vocabularyFactory = factory
+        self._source = None
 
-        def setter(self, factory):
-            if isinstance(factory, str):
-                self._vocabularyName = factory
-                self._vocabularyFactory = None
-            else:
-                self._vocabularyName = None
-                self._vocabularyFactory = factory
+    @property
+    def source(self):
+        return self._source
+
+    @source.setter
+    def source(self, source):
+        # Verify if this is a source or a vocabulary
+        if IVocabularyTokenized.providedBy(source):
+            self._source = source
+        else:
+            # Be sure to reset the source
             self._source = None
-
-        return property(getter, setter)
-
-    @apply
-    def source():
-
-        def getter(self):
-            return self._source
-
-        def setter(self, source):
-            # Verify if this is a source or a vocabulary
-            if IVocabularyTokenized.providedBy(source):
-                self._source = source
-            else:
-                # Be sure to reset the source
-                self._source = None
-                self._vocabularyFactory = source
-
-        return property(getter, setter)
+            self._vocabularyFactory = source
 
     def getChoices(self, form):
         source = self.source

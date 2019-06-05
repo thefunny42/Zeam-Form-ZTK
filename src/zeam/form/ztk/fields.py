@@ -118,9 +118,9 @@ class SchemaField(BaseField):
             try:
                 binded_field = self._field.bind(context)
                 binded_field.validate(value)
-            except schema_interfaces.ValidationError, error:
+            except schema_interfaces.ValidationError as error:
                 return error.doc()
-            except Invalid, error:
+            except Invalid as error:
                 return error.args[0]
         return None
 
@@ -170,11 +170,11 @@ class SchemaWidgetExtractor(WidgetExtractor):
         if value is not NO_VALUE:
             try:
                 value = self.component.fromUnicode(value)
-            except schema_interfaces.ValidationError, e:
+            except schema_interfaces.ValidationError as e:
                 return None, e.doc()
-            except Invalid, e:
+            except Invalid as e:
                 return None, e.args[0]
-            except ValueError, e:
+            except ValueError as e:
                 return None, _(u"Invalid value.")
 
         return value, None

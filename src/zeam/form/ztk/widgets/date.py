@@ -86,7 +86,7 @@ class DateWidgetExtractor(WidgetExtractor):
             formatter = self.component.getFormatter(self.form)
             try:
                 value = formatter.parse(value)
-            except (ValueError, DateTimeParseError), error:
+            except (ValueError, DateTimeParseError) as error:
                 return None, str(error)
         return value, error
 
