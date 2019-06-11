@@ -1,5 +1,7 @@
 # Text line widget
 
+import zeam.form.ztk.compat
+
 from zeam.form.base.markers import Marker, NO_VALUE
 from zeam.form.base.widgets import FieldWidget
 from zeam.form.ztk.fields import Field, registerSchemaField
@@ -31,7 +33,7 @@ class TextLineField(Field):
         if error is not None:
             return error
         if not isinstance(value, Marker) and len(value):
-            assert isinstance(value, basestring)
+            assert isinstance(value, zeam.form.ztk.compat.string_types)
             if self.minLength and len(value) < self.minLength:
                 return _(u"This text is too short.")
             if self.maxLength and len(value) > self.maxLength:

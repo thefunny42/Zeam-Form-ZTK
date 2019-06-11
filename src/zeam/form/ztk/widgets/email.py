@@ -1,4 +1,4 @@
-
+import zeam.form.ztk.compat
 from zeam.form.base.fields import Field
 from zeam.form.base.widgets import FieldWidget
 from zeam.form.ztk.fields import registerSchemaField
@@ -77,7 +77,7 @@ class EmailField(Field):
         if error is not None:
             return error
         if not isinstance(value, Marker) and len(value):
-            assert isinstance(value, basestring)
+            assert isinstance(value, zeam.form.ztk.compat.string_types)
             if not isMailAddress(value):
                 return _(u"This email is not valid.")
             if self.minLength and len(value) < self.minLength:

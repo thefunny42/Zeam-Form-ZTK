@@ -1,6 +1,7 @@
 # URI widget
 
 import re
+import zeam.form.ztk.compat
 
 from zeam.form.base.markers import Marker, NO_VALUE
 from zeam.form.base.widgets import FieldWidget
@@ -42,7 +43,7 @@ class URIField(Field):
         if error is not None:
             return error
         if not isinstance(value, Marker) and len(value):
-            assert isinstance(value, basestring)
+            assert isinstance(value, zeam.form.ztk.compat.string_types)
             if not isURI(value):
                 return _(u"The URI is malformed.")
             if self.minLength and len(value) < self.minLength:
