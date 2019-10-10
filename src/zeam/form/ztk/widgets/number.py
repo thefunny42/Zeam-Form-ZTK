@@ -31,7 +31,7 @@ class IntegerField(Field):
         if error is not None:
             return error
         if not isinstance(value, Marker):
-            assert isinstance(value, (int, long, float))
+            assert isinstance(value, (int, float))
             if self.min is not None and value < self.min:
                 return _(u"This number is too small.")
             if self.max is not None and value > self.max:
