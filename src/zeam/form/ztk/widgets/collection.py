@@ -25,6 +25,7 @@ except ImportError:
         def init_library_nr(self):
             pass
 
+        @property
         def library_nr(self):
             return 20000
 
