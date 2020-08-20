@@ -9,9 +9,7 @@ def test_suite():
 
     suite = unittest.TestSuite()
     for filename in ['fields.txt', 'validation.txt']:
-        dottedname = f'zeam.form.ztk.tests.{filename[:-4]}'
         test = doctest.DocFileSuite(
-            dottedname,
             optionflags=optionflags,
             globs=globs)
         test.layer = FunctionalLayer

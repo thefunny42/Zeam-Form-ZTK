@@ -20,8 +20,8 @@ First we need some test interfaces that uses collections::
   ...         value_type=schema.Bool(required=True),
   ...         required=True)
 
-  >>> class ListOfTextlines(object):
-  ...    interface.implements(IListOfTextlines)
+  >>> @interface.implementer(IListOfTextlines)
+  ... class ListOfTextlines(object):
   ...    names = None
 
   >>> content = ListOfTextlines()
@@ -55,7 +55,7 @@ So now you can create a field, and get a collection field::
 This field works on list, and contains text lines:
 
   >>> field.collectionType
-  <type 'list'>
+  <class 'list'>
   >>> value_field = field.valueField
   >>> value_field
   <TextLineField >
@@ -87,7 +87,7 @@ On a required list of required booleans:
   >>> required_field.required
   True
   >>> required_field.collectionType
-  <type 'list'>
+  <class 'list'>
   >>> required_value_field = required_field.valueField
   >>> required_value_field
   <BooleanField >
@@ -104,14 +104,14 @@ Validation should validate only a list of textlines:
   >>> from zeam.form.base.markers import NO_VALUE
   >>> field.validate(NO_VALUE, None)
   >>> field.validate([], None)
-  >>> field.validate([u'paul', u'henri'], None)
+  >>> field.validate(['paul', 'henri'], None)
 
 If the field is required you cannot provide empty lists:
 
   >>> required_field.validate(NO_VALUE, None)
-  u'Missing required value.'
+  'Missing required value.'
   >>> required_field.validate([], None)
-  u'Missing required value.'
+  'Missing required value.'
   >>> required_field.validate([True, False, True], None)
 
 Widget
@@ -156,7 +156,7 @@ Let's now create a widget which have values, and we will see that we
 have a sub-widget for each entry of the collection::
 
   >>> list_content = ListOfTextlines()
-  >>> list_content.names = [u'Arthur', u'Henri', u'Paul']
+  >>> list_content.names = ['Arthur', 'Henri', 'Paul']
 
   >>> list_form = FormData(list_content, request)
   >>> list_form.ignoreContent = False
@@ -179,10 +179,10 @@ have a sub-widget for each entry of the collection::
   [<TextLineWidget form.field.names.field.0>,
    <TextLineWidget form.field.names.field.1>,
    <TextLineWidget form.field.names.field.2>]
-  >>> map(lambda w:w.value, list_widget.valueWidgets)
-  [{'form.field.names.field.0': u'Arthur'},
-   {'form.field.names.field.1': u'Henri'},
-   {'form.field.names.field.2': u'Paul'}]
+  >>> list(map(lambda w:w.value, list_widget.valueWidgets))
+  [{'form.field.names.field.0': 'Arthur'},
+   {'form.field.names.field.1': 'Henri'},
+   {'form.field.names.field.2': 'Paul'}]
 
 Getting input from the request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -191,11 +191,11 @@ The widget is able to get its data from the request. Sub-widgets will be
 created for each data value found in the request::
 
   >>> list_request = TestRequest(form={
-  ...     'form.field.names': u'2',
-  ...     'form.field.names.present.0': u'1',
-  ...     'form.field.names.field.0': u'Nicolas',
-  ...     'form.field.names.present.1': u'1',
-  ...     'form.field.names.field.1': u'Jean',})
+  ...     'form.field.names': '2',
+  ...     'form.field.names.present.0': '1',
+  ...     'form.field.names.field.0': 'Nicolas',
+  ...     'form.field.names.present.1': '1',
+  ...     'form.field.names.field.1': 'Jean',})
 
 This request parsed with our widget we will create two sub-widget, one
 with the value ``Nicolas``, the other with the value ``Jean``::
@@ -218,9 +218,9 @@ with the value ``Nicolas``, the other with the value ``Jean``::
   >>> list(list_widget.valueWidgets)
   [<TextLineWidget form.field.names.field.0>,
    <TextLineWidget form.field.names.field.1>]
-  >>> map(lambda w:w.value, list_widget.valueWidgets)
-  [{'form.field.names.field.0': u'Nicolas'},
-   {'form.field.names.field.1': u'Jean'}]
+  >>> list(map(lambda w:w.value, list_widget.valueWidgets))
+  [{'form.field.names.field.0': 'Nicolas'},
+   {'form.field.names.field.1': 'Jean'}]
   >>> list_widget.error
 
 Removing input from the request
@@ -230,13 +230,13 @@ A request can ask to remove one (or more) of the values contained in
 the request::
 
   >>> list_remove_request = TestRequest(form={
-  ...     'form.field.names': u'2',
-  ...     'form.field.names.remove': u'Remove',
-  ...     'form.field.names.checked.0': u'checked',
-  ...     'form.field.names.present.0': u'1',
-  ...     'form.field.names.field.0': u'Nicolas',
-  ...     'form.field.names.present.1': u'1',
-  ...     'form.field.names.field.1': u'Jean',})
+  ...     'form.field.names': '2',
+  ...     'form.field.names.remove': 'Remove',
+  ...     'form.field.names.checked.0': 'checked',
+  ...     'form.field.names.present.0': '1',
+  ...     'form.field.names.field.0': 'Nicolas',
+  ...     'form.field.names.present.1': '1',
+  ...     'form.field.names.field.1': 'Jean',})
 
 And if we parse this request, we will have only one sub-widget created
 for the second value, the first will have been ignored (and so
@@ -261,8 +261,8 @@ removed), and there is no error::
   False
   >>> list(list_remove_widget.valueWidgets)
   [<TextLineWidget form.field.names.field.1>]
-  >>> map(lambda w:w.value, list_remove_widget.valueWidgets)
-  [{'form.field.names.field.1': u'Jean'}]
+  >>> list(map(lambda w:w.value, list_remove_widget.valueWidgets))
+  [{'form.field.names.field.1': 'Jean'}]
   >>> list_remove_widget.error
 
 There is a possibility that the user made a mistake, and click on
@@ -287,8 +287,8 @@ remove after. We want the data to be validated if the option
   True
   >>> list(list_remove_inline_widget.valueWidgets)
   [<TextLineWidget form.field.names.field.1>]
-  >>> map(lambda w:w.value, list_remove_inline_widget.valueWidgets)
-  [{'form.field.names.field.1': u'Jean'}]
+  >>> list(map(lambda w:w.value, list_remove_inline_widget.valueWidgets))
+  [{'form.field.names.field.1': 'Jean'}]
   >>> list_remove_inline_widget.error
 
 Adding input from the request
@@ -298,10 +298,10 @@ In the same way, a request can ask to add a new empty sub-widget in
 order to be able to enter a new value::
 
   >>> list_add_request = TestRequest(form={
-  ...     'form.field.names': u'3',
-  ...     'form.field.names.add': u'Add',
-  ...     'form.field.names.present.1': u'1',
-  ...     'form.field.names.field.1': u'Jean',})
+  ...     'form.field.names': '3',
+  ...     'form.field.names.add': 'Add',
+  ...     'form.field.names.present.1': '1',
+  ...     'form.field.names.field.1': 'Jean',})
 
 With that request the widget will create two widgets, and one (new)
 empty::
@@ -326,9 +326,9 @@ empty::
   >>> list(list_add_widget.valueWidgets)
   [<TextLineWidget form.field.names.field.1>,
    <TextLineWidget form.field.names.field.3>]
-  >>> map(lambda w:w.value, list_add_widget.valueWidgets)
-  [{'form.field.names.field.1': u'Jean'},
-   {'form.field.names.field.3': u''}]
+  >>> list(map(lambda w:w.value, list_add_widget.valueWidgets))
+  [{'form.field.names.field.1': 'Jean'},
+   {'form.field.names.field.3': ''}]
 
 Empty request
 .............
@@ -357,7 +357,7 @@ remove values::
 And you have the same with a request containing just the marker::
 
   >>> list_almost_empty_request = TestRequest(form={
-  ...     'form.field.names': u'4'})
+  ...     'form.field.names': '4'})
   >>> list_almost_empty_form = FormData(content, list_almost_empty_request)
 
   >>> list_almost_empty_widgets = Widgets(
@@ -392,12 +392,12 @@ corresponding widget extractor::
 And you are able to get back your values:
 
   >>> list_extractor.extract()
-  ([u'Nicolas', u'Jean'], None)
+  (['Nicolas', 'Jean'], None)
 
 It will work as well if you have no values in your request::
 
   >>> noPeopleRequest = TestRequest(form={
-  ...     'form.field.names': u'0'})
+  ...     'form.field.names': '0'})
   >>> noPeopleInvitation = FormData(content, noPeopleRequest)
 
   >>> noPeopleExtractor = getMultiAdapter(
@@ -415,4 +415,3 @@ If you have a fully empty request::
   ...      interfaces.IWidgetExtractor)
   >>> noPeopleExtractor.extract()
   (<Marker NO_VALUE>, None)
-

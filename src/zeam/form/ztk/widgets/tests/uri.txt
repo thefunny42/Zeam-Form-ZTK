@@ -15,7 +15,7 @@ We need first a schema with a URI field, and a content:
   >>> from zope.interface.verify import verifyObject
 
   >>> class ILink(interface.Interface):
-  ...     uri = schema.URI(title=u"Location")
+  ...     uri = schema.URI(title="Location")
 
   >>> class Link(object):
   ...     pass
@@ -38,7 +38,7 @@ So now you can create a field, and get a URI field:
   <URIField Location>
 
   >>> uri_field.title
-  u'Location'
+  'Location'
   >>> uri_field.required
   True
   >>> verifyObject(interfaces.IField, uri_field)
@@ -52,10 +52,10 @@ The field will only validate proper URIs:
 
   >>> uri_field.validate('https://github.com/thefunny42/Zeam-Form-ZTK', None)
   >>> uri_field.validate('Github', None)
-  u'The URI is malformed.'
+  'The URI is malformed.'
 
   >>> uri_field.validate('', None)
-  u'Missing required value.'
+  'Missing required value.'
 
   >>> uri_field.required = False
   >>> uri_field.validate('', None)
@@ -63,12 +63,12 @@ The field will only validate proper URIs:
   >>> uri_field.required = True
   >>> uri_field.maxLength = 20
   >>> uri_field.validate('https://github.com/thefunny42/Zeam-Form-ZTK', None)
-  u'The URI is too long.'
+  'The URI is too long.'
   >>> uri_field.validate('http://github.com', None)
 
   >>> uri_field.minLength = 15
   >>> uri_field.validate('http://g.com', None)
-  u'The URI is too short.'
+  'The URI is too short.'
 
 
 Widget
@@ -91,6 +91,6 @@ You have an associated widget::
   >>> URIWidget = URIWidgets['form.field.uri']
   >>> URIWidget
   <URIWidget Location>
-  >>> print URIWidget.render() #doctest: +NORMALIZE_WHITESPACE
+  >>> print(URIWidget.render())  #doctest: +NORMALIZE_WHITESPACE
   <input type="url" value="" id="form-field-uri" class="field field-uri field-required"
          name="form.field.uri" required="required" />

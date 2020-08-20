@@ -9,27 +9,27 @@ First we need a test interface and content::
   >>> from zope.interface.verify import verifyObject
 
   >>> class IComment(interface.Interface):
-  ...    title = schema.TextLine(title=u"Title")
-  ...    comment = schema.Text(title=u"Comment")
-  ...    email = schema.TextLine(title=u"Email", required=False)
+  ...    title = schema.TextLine(title="Title")
+  ...    comment = schema.Text(title="Comment")
+  ...    email = schema.TextLine(title="Email", required=False)
 
   >>> class IPost(interface.Interface):
-  ...    comment = schema.Object(title=u"Comment", schema=IComment, required=False)
+  ...    comment = schema.Object(title="Comment", schema=IComment, required=False)
 
 And we will need a content and a request to test::
 
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
 
-  >>> class Comment(object):
-  ...    interface.implements(IComment)
+  >>> @interface.implementer(IComment)
+  ... class Comment(object):
   ...    def __init__(self, title=None, comment=None, email=None):
   ...        self.title = title
   ...        self.comment = comment
   ...        self.email = email
 
-  >>> class Post(object):
-  ...    interface.implements(IPost)
+  >>> @interface.implementer(IPost)
+  ... class Post(object):
   ...    def __init__(self, comment=None):
   ...        self.comment = comment
 
@@ -57,8 +57,7 @@ You have an Object field you get out of the interface::
 Now we have a couple more methods on our field to help us with our
 object, to get its schema and fields::
 
-  >>> post_field.objectSchema
-  <InterfaceClass __builtin__.IComment>
+  >>> assert post_field.objectSchema is IComment
 
   >>> comment_fields = post_field.objectFields
   >>> comment_fields
@@ -101,11 +100,11 @@ The field will only validate a correct value::
 
   >>> from zeam.form.base.markers import NO_VALUE
 
-  >>> post_field.validate(Comment(u'Hello', u'hello people !'), None)
+  >>> post_field.validate(Comment('Hello', 'hello people !'), None)
 
   >>> post_field.required = True
   >>> post_field.validate(NO_VALUE, None)
-  u'Missing required value.'
+  'Missing required value.'
 
   >>> post_field.required = False
   >>> post_field.validate(NO_VALUE, None)
@@ -139,10 +138,10 @@ object, all of them prefixed by the main widget identifier::
   3
   >>> list(post_widget.objectWidgets)
   [<TextLineWidget Title>, <TextareaWidget Comment>, <TextLineWidget Email>]
-  >>> map(lambda w: w.value, post_widget.objectWidgets)
-  [{'form.field.comment.field.title': u''},
-   {'form.field.comment.field.comment': u''},
-   {'form.field.comment.field.email': u''}]
+  >>> list(map(lambda w: w.value, post_widget.objectWidgets))
+  [{'form.field.comment.field.title': ''},
+   {'form.field.comment.field.comment': ''},
+   {'form.field.comment.field.email': ''}]
 
 
 Editing content data
@@ -150,7 +149,7 @@ Editing content data
 
 The widget can edit data coming from the content::
 
-  >>> hello_content = Post(Comment(title=u'Hello', comment=u'Hello my name is arthur'))
+  >>> hello_content = Post(Comment(title='Hello', comment='Hello my name is arthur'))
 
   >>> post_hello_form = FormData(hello_content, request)
   >>> post_hello_form.ignoreContent = False
@@ -169,10 +168,10 @@ The widget can edit data coming from the content::
   3
   >>> list(comment_hello_widget.objectWidgets)
   [<TextLineWidget Title>, <TextareaWidget Comment>, <TextLineWidget Email>]
-  >>> map(lambda w: w.value, comment_hello_widget.objectWidgets)
-  [{'form.field.comment.field.title': u'Hello'},
-   {'form.field.comment.field.comment': u'Hello my name is arthur'},
-   {'form.field.comment.field.email': u''}]
+  >>> list(map(lambda w: w.value, comment_hello_widget.objectWidgets))
+  [{'form.field.comment.field.title': 'Hello'},
+   {'form.field.comment.field.comment': 'Hello my name is arthur'},
+   {'form.field.comment.field.email': ''}]
 
 
 Display widget
@@ -205,10 +204,10 @@ the object, all of them prefixed by the main widget identifier::
   3
   >>> list(display_widget.objectWidgets)
   [<DisplayFieldWidget Title>, <DisplayFieldWidget Comment>, <DisplayFieldWidget Email>]
-  >>> map(lambda w: w.value, display_widget.objectWidgets)
-  [{'form.field.comment.field.title': u''},
-   {'form.field.comment.field.comment': u''},
-   {'form.field.comment.field.email': u''}]
+  >>> list(map(lambda w: w.value, display_widget.objectWidgets))
+  [{'form.field.comment.field.title': ''},
+   {'form.field.comment.field.comment': ''},
+   {'form.field.comment.field.email': ''}]
 
 
 Widget Extractor
@@ -218,10 +217,10 @@ You can extract from a request values to create an object by getting
 an extractor for the widget::
 
   >>> comment_request = TestRequest(form={
-  ...     'form.field.comment': u'1',
-  ...     'form.field.comment.field.title': u'Super cool',
-  ...     'form.field.comment.field.comment': u'Everything is working alright.',
-  ...     'form.field.comment.field.email': u''})
+  ...     'form.field.comment': '1',
+  ...     'form.field.comment.field.title': 'Super cool',
+  ...     'form.field.comment.field.comment': 'Everything is working alright.',
+  ...     'form.field.comment.field.email': ''})
   >>> comment_form = FormData(content, comment_request)
 
   >>> comment_extractor = getMultiAdapter(
@@ -241,11 +240,11 @@ And you can extract the object of the request::
   >>> errors
 
   >>> value.title
-  u'Super cool'
+  'Super cool'
   >>> value.comment
-  u'Everything is working alright.'
+  'Everything is working alright.'
   >>> value.email
-  u''
+  ''
 
 If nothing is in the request, you have no value::
 
@@ -263,8 +262,8 @@ If nothing is in the request, you have no value::
 If a sub field doesn't validate the error is reported back::
 
   >>> comment_invalid_request = TestRequest(form={
-  ...     'form.field.comment': u'1',
-  ...     'form.field.comment.field.title': u'Super cool failure'})
+  ...     'form.field.comment': '1',
+  ...     'form.field.comment.field.title': 'Super cool failure'})
   >>> comment_invalid_form = FormData(content, comment_invalid_request)
 
   >>> comment_invalid_extractor = getMultiAdapter(
@@ -278,9 +277,9 @@ If a sub field doesn't validate the error is reported back::
   <Errors for 'form.field.comment'>
   >>> verifyObject(IError, errors)
   True
-  >>> map(lambda e: (e.identifier, e.title), errors)
-  [('form.field.comment.field.comment', u'Missing required value.'),
-   ('form.field.comment', u'There were errors.')]
+  >>> list(map(lambda e: (e.identifier, e.title), errors))
+  [('form.field.comment.field.comment', 'Missing required value.'),
+   ('form.field.comment', 'There were errors.')]
 
 
 Reporting sub field errors
@@ -312,41 +311,36 @@ sub-widgets have the correct errors as well:
   >>> verifyObject(IError, comment_invalid_widget.error)
   True
   >>> comment_invalid_widget.error.title
-  u'There were errors.'
+  'There were errors.'
   >>> len(comment_invalid_widget.objectWidgets)
   3
   >>> list(comment_invalid_widget.objectWidgets)
   [<TextLineWidget Title>, <TextareaWidget Comment>, <TextLineWidget Email>]
-  >>> map(lambda w: w.error , comment_invalid_widget.objectWidgets)
+  >>> list(map(lambda w: w.error , comment_invalid_widget.objectWidgets))
   [None, <Error Missing required value.>, None]
-  >>> map(lambda w: w.value, comment_invalid_widget.objectWidgets)
-  [{'form.field.comment.field.title': u'Super cool failure'},
-   {'form.field.comment.field.comment': u''},
-   {'form.field.comment.field.email': u''}]
+  >>> list(map(lambda w: w.value, comment_invalid_widget.objectWidgets))
+  [{'form.field.comment.field.title': 'Super cool failure'},
+   {'form.field.comment.field.comment': ''},
+   {'form.field.comment.field.email': ''}]
 
 If you render the widget, you have the same template than a form, with
 the error reported::
 
-  >>> print comment_invalid_widget.render() #doctest: +NORMALIZE_WHITESPACE
+  >>> print(comment_invalid_widget.render())  # doctest: +NORMALIZE_WHITESPACE
   <label class="field-label" for="form-field-comment-field-title">Title</label>
   <span class="field-required">*</span>
   <br />
-  <input type="text" value="Super cool failure" id="form-field-comment-field-title"
-         name="form.field.comment.field.title"
-         class="field field-textline field-required" required="required" />
-  <br />
-  <label class="field-label" for="form-field-comment-field-comment">Comment</label>
-  <span class="field-required">*</span>
-  <br />
-  <span class="field-error">Missing required value.</span>
-  <br />
-  <textarea id="form-field-comment-field-comment" name="form.field.comment.field.comment"
-            class="field field-text field-required" rows="5" cols="80" required="required"></textarea>
-  <br />
-  <label class="field-label" for="form-field-comment-field-email">Email</label>
-  <br />
-  <input type="text" value="" id="form-field-comment-field-email"
-         name="form.field.comment.field.email" class="field field-textline" />
-  <br />
-  <input type="hidden" name="form.field.comment" value="1" />
-
+  <input type="text" value="Super cool failure" id="form-field-comment-field-title" name="form.field.comment.field.title" class="field field-textline form-control field-required" required="required" />
+   <br />
+   <label class="field-label" for="form-field-comment-field-comment">Comment</label>
+   <span class="field-required">*</span>
+   <br />
+   <span class="field-error">Missing required value.</span>
+   <br />
+   <textarea id="form-field-comment-field-comment" name="form.field.comment.field.comment" class="field field-text field-required" cols="80" required="required" rows="5"></textarea>
+   <br />
+   <label class="field-label" for="form-field-comment-field-email">Email</label>
+   <br />
+   <input type="text" value="" id="form-field-comment-field-email" name="form.field.comment.field.email" class="field field-textline form-control" />
+   <br />
+   <input type="hidden" name="form.field.comment" value="1" />

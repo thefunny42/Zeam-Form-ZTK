@@ -9,8 +9,8 @@ Let's create some interface with number fields:
   >>> from zope.component import getMultiAdapter
 
   >>> class IQuantity(interface.Interface):
-  ...     size = schema.Int(title=u'Size')
-  ...     weigth = schema.Float(title=u'Weigth')
+  ...     size = schema.Int(title='Size')
+  ...     weigth = schema.Float(title='Weigth')
 
 And some test content:
 
@@ -18,10 +18,11 @@ And some test content:
   >>> from zeam.form.ztk import FormData
   >>> request = TestRequest()
 
-  >>> class Quantity(object):
-  ...    interface.implements(IQuantity)
+  >>> @interface.implementer(IQuantity)
+  ... class Quantity(object):
   ...    size = 0
   ...    weigth = 0.0
+
   >>> content = Quantity()
   >>> content_form = FormData(content, request)
   >>> content_form.ignoreContent = False
@@ -59,7 +60,7 @@ You an validate the input:
   True
   >>> int_field.validate(42, content_form)
   >>> int_field.validate(NO_VALUE, content_form)
-  u'Missing required value.'
+  'Missing required value.'
 
   >>> int_field.required = False
   >>> int_field.validate(NO_VALUE, content_form)
@@ -67,12 +68,12 @@ You an validate the input:
   >>> int_field.required = True
   >>> int_field.min = 6
   >>> int_field.validate(4, content_form)
-  u'This number is too small.'
+  'This number is too small.'
   >>> int_field.validate(6, content_form)
 
   >>> int_field.max = 12
   >>> int_field.validate(14, content_form)
-  u'This number is too big.'
+  'This number is too big.'
   >>> int_field.validate(10, content_form)
 
 
@@ -119,7 +120,7 @@ the value is NO_VALUE:
 Now it is possible there was an empty string in the request:
 
   >>> empty_request = TestRequest(
-  ...         form={int_widget.identifier: u'', })
+  ...         form={int_widget.identifier: '', })
   >>> empty_extractor = component.getMultiAdapter(
   ...      (int_field, content_form, empty_request), interfaces.IWidgetExtractor)
   >>> empty_extractor
@@ -130,7 +131,7 @@ Now it is possible there was an empty string in the request:
 Or you have a valid number:
 
   >>> valid_request = TestRequest(
-  ...         form={int_widget.identifier: u'42', })
+  ...         form={int_widget.identifier: '42', })
   >>> valid_extractor = component.getMultiAdapter(
   ...      (int_field, content_form, valid_request), interfaces.IWidgetExtractor)
   >>> valid_extractor
@@ -141,10 +142,10 @@ Or you have a valid number:
 Or maybe a string or characters that doesn't represent a number:
 
   >>> invalid_request = TestRequest(
-  ...         form={int_widget.identifier: u'This does not look like a number', })
+  ...         form={int_widget.identifier: 'This does not look like a number', })
   >>> invalid_extractor = component.getMultiAdapter(
   ...      (int_field, content_form, invalid_request), interfaces.IWidgetExtractor)
   >>> invalid_extractor
   <zeam.form.ztk.widgets.number.IntegerFieldWidgetExtractor object at ...>
   >>> invalid_extractor.extract()
-  (<Marker NO_VALUE>, u'This number is not a valid whole number.')
+  (<Marker NO_VALUE>, 'This number is not a valid whole number.')

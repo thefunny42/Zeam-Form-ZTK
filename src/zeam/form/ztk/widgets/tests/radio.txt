@@ -13,7 +13,7 @@ First we need a choice::
 
   >>> def display_vocabulary(values):
   ...     for value in values:
-  ...         print "%r %r %r" % (value.value, value.token, value.title)
+  ...         print("%r %r %r" % (value.value, value.token, value.title))
 
   >>> letter_vocabulary = SimpleVocabulary([
   ...     SimpleTerm(value='A', token='a1', title='Letter A'),
@@ -31,9 +31,10 @@ And we will need a content and a request to test:
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
 
-  >>> class FirstContent(object):
-  ...    interface.implements(IFirstChoice)
+  >>> @interface.implementer(IFirstChoice)
+  ... class FirstContent(object):
   ...    choice = None
+
   >>> content = FirstContent()
   >>> content.choice = 'B'
 
@@ -56,7 +57,7 @@ So now you can create a field, and get a choice field::
 
   >>> letter_field.validate('A', None)
   >>> letter_field.validate('foo', None)
-   u'The selected value is not among the possible choices.'
+   'The selected value is not among the possible choices.'
 
   >>> verifyObject(interfaces.IField, letter_field)
   True
@@ -95,7 +96,7 @@ You have an associated widget::
   >>> firstWidget.inputValue()
   'b1'
 
-  >>> print firstWidget.render()
+  >>> print(firstWidget.render())
   <input type="radio" id="form-field-choice-0" name="form.field.choice" value="a1" class="field field-choice field-required" />
     <label for="form-field-choice-0">Letter A</label>
     <br />
@@ -127,7 +128,7 @@ different than the real value::
 Let's now do it with a value::
 
   >>> letter_request = TestRequest(
-  ...         form={firstWidget.identifier: u'a1', })
+  ...         form={firstWidget.identifier: 'a1', })
 
   >>> letter_extractor = component.getMultiAdapter(
   ...      (letter_field, firstForm, letter_request), interfaces.IWidgetExtractor)
@@ -154,8 +155,8 @@ and an interface for it::
   ...         title=u"My Choice",
   ...         source=context_vocabulary)
 
-  >>> class ContextContent(object):
-  ...    interface.implements(IContextChoice)
+  >>> @interface.implementer(IContextChoice)
+  ... class ContextContent(object):
   ...    choice = None
 
   >>> content = ContextContent()
@@ -193,7 +194,7 @@ So now you can create a field, and get a choice field::
 
   >>> context_field.validate('A', context_form)
   >>> context_field.validate(42, context_form)
-  u'The selected value is not among the possible choices.'
+  'The selected value is not among the possible choices.'
 
 
 Widget
@@ -217,7 +218,7 @@ You have an associated widget::
   >>> context_widget.inputValue()
   'c1'
 
-  >>> print context_widget.render()
+  >>> print(context_widget.render())
   <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required" required="required">
     <option value="a1">Letter A</option>
     <option value="b1">Letter B</option>

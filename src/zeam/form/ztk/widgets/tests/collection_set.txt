@@ -13,8 +13,8 @@ We need to define some interfaces, and a content:
   ...         value_type=schema.Int(required=True),
   ...         required=False)
 
-  >>> class BingoResults(object):
-  ...     interface.implements(IBingoResults)
+  >>> @interface.implementer(IBingoResults)
+  ... class BingoResults(object):
   ...     numbers = None
 
   >>> content = BingoResults()
@@ -37,7 +37,7 @@ You can create a field to work on the numbers field of the interface:
 This field works a set of numbers:
 
   >>> field.collectionType
-  <type 'set'>
+  <class 'set'>
   >>> value_field = field.valueField
   >>> value_field
   <IntegerField >
@@ -133,9 +133,9 @@ The widget is able to edit data coming from the request, without errors:
   >>> list(numbers_widget.valueWidgets)
   [<NumberWidget form.field.numbers.field.0>,
    <NumberWidget form.field.numbers.field.1>]
-  >>> map(lambda w:w.value, numbers_widget.valueWidgets)
-  [{'form.field.numbers.field.0': u'1'},
-   {'form.field.numbers.field.1': u'2'}]
+  >>> list(map(lambda w:w.value, numbers_widget.valueWidgets))
+  [{'form.field.numbers.field.0': '1'},
+   {'form.field.numbers.field.1': '2'}]
   >>> numbers_widget.error
 
 Adding data to the request
@@ -178,25 +178,25 @@ should makes 4:
    <NumberWidget form.field.numbers.field.1>,
    <NumberWidget form.field.numbers.field.2>,
    <NumberWidget form.field.numbers.field.4>]
-  >>> map(lambda w:w.value, numbers_add_faulty_widget.valueWidgets)
-  [{'form.field.numbers.field.0': u'1'},
-   {'form.field.numbers.field.1': u'Toto'},
-   {'form.field.numbers.field.2': u''},
-   {'form.field.numbers.field.4': u''}]
+  >>> list(map(lambda w:w.value, numbers_add_faulty_widget.valueWidgets))
+  [{'form.field.numbers.field.0': '1'},
+   {'form.field.numbers.field.1': 'Toto'},
+   {'form.field.numbers.field.2': ''},
+   {'form.field.numbers.field.4': ''}]
 
 However 2 request fields where invalid, and the ``inlineValidation``
 on, they should have been validated:
 
   >>> numbers_add_faulty_widget.error
   <Errors for 'form.field.numbers'>
-  >>> map(lambda e: (e.identifier, e.title), numbers_add_faulty_widget.error)
-  [('form.field.numbers.field.1', u'This number is not a valid whole number.'),
-   ('form.field.numbers', u'There were errors.'),
-   ('form.field.numbers.field.2', u'Missing required value.')]
+  >>> list(map(lambda e: (e.identifier, e.title), numbers_add_faulty_widget.error))
+  [('form.field.numbers.field.1', 'This number is not a valid whole number.'),
+   ('form.field.numbers', 'There were errors.'),
+   ('form.field.numbers.field.2', 'Missing required value.')]
 
 Errors should be present on the sub-widgets as well:
 
-  >>> map(lambda w: w.error, numbers_add_faulty_widget.valueWidgets)
+  >>> list(map(lambda w: w.error, numbers_add_faulty_widget.valueWidgets))
   [None, <Error This number is not a valid whole number.>, <Error Missing required value.>, None]
 
 Now, if add something while having valid data in the widget, we won't
@@ -232,9 +232,9 @@ have any error reported:
   [<NumberWidget form.field.numbers.field.0>,
    <NumberWidget form.field.numbers.field.1>,
    <NumberWidget form.field.numbers.field.2>]
-  >>> map(lambda w:w.value, numbers_add_widget.valueWidgets)
-  [{'form.field.numbers.field.0': u'2'},
-   {'form.field.numbers.field.1': u'42'},
-   {'form.field.numbers.field.2': u''}]
+  >>> list(map(lambda w:w.value, numbers_add_widget.valueWidgets))
+  [{'form.field.numbers.field.0': '2'},
+   {'form.field.numbers.field.1': '42'},
+   {'form.field.numbers.field.2': ''}]
 
   >>> numbers_add_widget.error

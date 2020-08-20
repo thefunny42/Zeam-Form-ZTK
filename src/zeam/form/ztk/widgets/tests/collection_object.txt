@@ -10,28 +10,28 @@ implementation::
   >>> from zope.component import IFactory, provideUtility
 
   >>> class IProgram(interface.Interface):
-  ...     name = schema.TextLine(title=u"Name")
-  ...     location = schema.TextLine(title=u"Where")
-  ...     date = schema.Date(title=u"When", required=False)
+  ...     name = schema.TextLine(title="Name")
+  ...     location = schema.TextLine(title="Where")
+  ...     date = schema.Date(title="When", required=False)
 
   >>> class IProgramSelection(interface.Interface):
-  ...     programs = schema.List(title=u"Program selection",
+  ...     programs = schema.List(title="Program selection",
   ...                            value_type=schema.Object(schema=IProgram),
   ...                            required=True)
 
-  >>> class Program(object):
-  ...      interface.implements(IProgram)
+  >>> @interface.implementer(IProgram)
+  ... class Program:
   ...      def __init__(self, name=None, location=None, date=None):
   ...           self.name = name
   ...           self.location = location
   ...           self.date = date
 
-  >>> class Selection(object):
-  ...      interface.implements(IProgramSelection)
+  ... @interface.implementer(IProgramSelection)
+  >>> class Selection:
   ...      def __init__(self, programs=[]):
   ...           self.programs = list(programs)
 
-  >>> content = Selection([Program(u'TV', u'at my place', datetime.date(2001, 6, 23))])
+  >>> content = Selection([Program('TV', 'at my place', datetime.date(2001, 6, 23))])
 
   >>> provideUtility(Program, IFactory, name=IProgram.__identifier__)
 
@@ -63,9 +63,9 @@ The field can only validate a list of correctly build objects::
 
   >>> from zeam.form.base.markers import NO_VALUE
   >>> field.validate(NO_VALUE, None)
-  u'Missing required value.'
+  'Missing required value.'
   >>> field.validate([], None)
-  u'Missing required value.'
+  'Missing required value.'
 
 
 Widget
@@ -100,12 +100,12 @@ You can add and remove values, and have already a value::
   >>> list(widget.valueWidgets)
   [<ObjectFieldWidget form.field.programs.field.0>]
 
-  >>> map(lambda w: list(w.objectWidgets), widget.valueWidgets)
+  >>> list(map(lambda w: list(w.objectWidgets), widget.valueWidgets))
   [[<TextLineWidget Name>, <TextLineWidget Where>, <DateFieldWidget When>]]
-  >>> map(lambda w: map(lambda x: x.value, w.objectWidgets), widget.valueWidgets)
-  [[{'form.field.programs.field.0.field.name': u'TV'},
-    {'form.field.programs.field.0.field.location': u'at my place'},
-    {'form.field.programs.field.0.field.date': u'01/06/23'}]]
+  >>> list(map(lambda w: list(map(lambda x: x.value, w.objectWidgets)), widget.valueWidgets))
+  [[{'form.field.programs.field.0.field.name': 'TV'},
+    {'form.field.programs.field.0.field.location': 'at my place'},
+    {'form.field.programs.field.0.field.date': '01/06/23'}]]
 
 Getting input from the request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,16 +113,16 @@ Getting input from the request
 You can extract information from the request.
 
   >>> programs_request = TestRequest(form={
-  ...     'form.field.programs': u'2',
-  ...     'form.field.programs.present.0': u'1',
-  ...     'form.field.programs.field.0': u'1',
-  ...     'form.field.programs.field.0.field.name': u'Manga',
-  ...     'form.field.programs.field.0.field.location': u'Mangashop',
-  ...     'form.field.programs.present.1': u'1',
-  ...     'form.field.programs.field.1': u'1',
-  ...     'form.field.programs.field.1.field.name': u'TV',
-  ...     'form.field.programs.field.1.field.location': u'at my place',
-  ...     'form.field.programs.field.1.field.date': u'10/06/23'})
+  ...     'form.field.programs': '2',
+  ...     'form.field.programs.present.0': '1',
+  ...     'form.field.programs.field.0': '1',
+  ...     'form.field.programs.field.0.field.name': 'Manga',
+  ...     'form.field.programs.field.0.field.location': 'Mangashop',
+  ...     'form.field.programs.present.1': '1',
+  ...     'form.field.programs.field.1': '1',
+  ...     'form.field.programs.field.1.field.name': 'TV',
+  ...     'form.field.programs.field.1.field.location': 'at my place',
+  ...     'form.field.programs.field.1.field.date': '10/06/23'})
 
   >>> programs_form = FormData(content, programs_request)
 
@@ -137,16 +137,16 @@ You can extract information from the request.
   [<ObjectFieldWidget form.field.programs.field.0>,
    <ObjectFieldWidget form.field.programs.field.1>]
 
-  >>> map(lambda w: list(w.objectWidgets), programs_widget.valueWidgets)
+  >>> list(map(lambda w: list(w.objectWidgets), programs_widget.valueWidgets))
   [[<TextLineWidget Name>, <TextLineWidget Where>, <DateFieldWidget When>],
    [<TextLineWidget Name>, <TextLineWidget Where>, <DateFieldWidget When>]]
-  >>> map(lambda w: map(lambda x: x.value, w.objectWidgets), programs_widget.valueWidgets)
-  [[{'form.field.programs.field.0.field.name': u'Manga'},
-    {'form.field.programs.field.0.field.location': u'Mangashop'},
-    {'form.field.programs.field.0.field.date': u''}],
-   [{'form.field.programs.field.1.field.name': u'TV'},
-    {'form.field.programs.field.1.field.location': u'at my place'},
-    {'form.field.programs.field.1.field.date': u'10/06/23'}]]
+  >>> list(map(lambda w: list(map(lambda x: x.value, w.objectWidgets)), programs_widget.valueWidgets))
+  [[{'form.field.programs.field.0.field.name': 'Manga'},
+    {'form.field.programs.field.0.field.location': 'Mangashop'},
+    {'form.field.programs.field.0.field.date': ''}],
+   [{'form.field.programs.field.1.field.name': 'TV'},
+    {'form.field.programs.field.1.field.location': 'at my place'},
+    {'form.field.programs.field.1.field.date': '10/06/23'}]]
 
 
 Widget Extractor
@@ -171,18 +171,18 @@ You can extract data from the request::
 If the records doesn't validate properly errors are reported::
 
   >>> programs_invalid_request = TestRequest(form={
-  ...     'form.field.programs': u'4',
-  ...     'form.field.programs.present.0': u'1',
-  ...     'form.field.programs.field.0': u'1',
-  ...     'form.field.programs.field.0.field.name': u'Manga',
-  ...     'form.field.programs.present.1': u'1',
-  ...     'form.field.programs.field.1': u'1',
-  ...     'form.field.programs.field.1.field.name': u'TV',
-  ...     'form.field.programs.field.1.field.location': u'at my place',
-  ...     'form.field.programs.field.1.field.date': u'10/06/23',
-  ...     'form.field.programs.present.3': u'1',
-  ...     'form.field.programs.field.3': u'1',
-  ...     'form.field.programs.field.3.field.location': u'Antwerpen'})
+  ...     'form.field.programs': '4',
+  ...     'form.field.programs.present.0': '1',
+  ...     'form.field.programs.field.0': '1',
+  ...     'form.field.programs.field.0.field.name': 'Manga',
+  ...     'form.field.programs.present.1': '1',
+  ...     'form.field.programs.field.1': '1',
+  ...     'form.field.programs.field.1.field.name': 'TV',
+  ...     'form.field.programs.field.1.field.location': 'at my place',
+  ...     'form.field.programs.field.1.field.date': '10/06/23',
+  ...     'form.field.programs.present.3': '1',
+  ...     'form.field.programs.field.3': '1',
+  ...     'form.field.programs.field.3.field.location': 'Antwerpen'})
 
   >>> programs_invalid_form = FormData(content, programs_invalid_request)
 
@@ -248,7 +248,7 @@ The widgets keep the request values, and report each error correctly::
   [<ObjectFieldWidget form.field.programs.field.0>,
    <ObjectFieldWidget form.field.programs.field.1>,
    <ObjectFieldWidget form.field.programs.field.3>]
-  >>> map(lambda w: w.error , programs_invalid_widget.valueWidgets)
+  >>> list(map(lambda w: w.error , programs_invalid_widget.valueWidgets))
   [<Errors for 'form.field.programs.field.0'>,
    None,
    <Errors for 'form.field.programs.field.3'>]

@@ -45,4 +45,4 @@ You have an associated widget:
   >>> verifyObject(interfaces.IWidget, currency_widget)
   True
 
-  >>> assert currency_widget.render().encode('utf-8') == "101.01&nbsp;€\n"
+  >>> assert currency_widget.render() == "101.01&nbsp;€\n"

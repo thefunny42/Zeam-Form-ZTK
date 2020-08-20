@@ -10,7 +10,7 @@ Let's create some interface using times:
   >>> import datetime
 
   >>> class ITimeInfo(interface.Interface):
-  ...     time = schema.Time(title=u'Current time')
+  ...     time = schema.Time(title='Current time')
 
 And some content for them:
 
@@ -18,9 +18,10 @@ And some content for them:
   >>> from zeam.form.ztk import FormData
   >>> request = TestRequest()
 
-  >>> class TimeInfo(object):
-  ...    interface.implements(ITimeInfo)
+  >>> @interface.implementer(ITimeInfo)
+  ... class TimeInfo(object):
   ...    time = None
+
   >>> timeinfo = TimeInfo()
   >>> timeinfo.time = datetime.time(12, 00, 00)
   >>> time_form = FormData(timeinfo, request)
@@ -52,12 +53,12 @@ You can validate a time between two different times:
   >>> time_field.max = datetime.time(18, 30)
 
   >>> time_field.validate(NO_VALUE, time_form)
-  u'Missing required value.'
+  'Missing required value.'
   >>> time_field.validate(datetime.time(12, 55), time_form)
   >>> time_field.validate(datetime.time(7, 45), time_form)
-  u'This time is before ${not_before}.'
+  'This time is before ${not_before}.'
   >>> time_field.validate(datetime.time(23, 45), time_form)
-  u'This time is after ${not_after}.'
+  'This time is after ${not_after}.'
 
 Widget
 ------
@@ -83,9 +84,9 @@ of the time, based on the locale of the request:
   True
 
   >>> time_widget.inputValue()
-  u'12:00'
+  '12:00'
 
-  >>> print time_widget.render() #doctest: +NORMALIZE_WHITESPACE
+  >>> print(time_widget.render()) #doctest: +NORMALIZE_WHITESPACE
   <input type="text" id="form-field-time" name="form.field.time"
          class="field field-time field-required" value="12:00" required="required" />
 
@@ -97,7 +98,7 @@ You can extract a value from the request. It is a bit more difficult
 here because the parsing is a bit more advanced:
 
   >>> timeRequest = TestRequest(form={
-  ...     'form.field.time': u'12:21'})
+  ...     'form.field.time': '12:21'})
   >>> niceTimeData = FormData(timeinfo, timeRequest)
 
   >>> niceTimeExtractor = getMultiAdapter(
@@ -112,7 +113,7 @@ here because the parsing is a bit more advanced:
 Now if you give an invalid date you will have an error::
 
   >>> invalidTimeRequest = TestRequest(form={
-  ...     'form.field.time': u'the best time ever'})
+  ...     'form.field.time': 'the best time ever'})
   >>> invalidTimeData = FormData(timeinfo, invalidTimeRequest)
 
   >>> invalidTimeExtractor = getMultiAdapter(
@@ -122,4 +123,4 @@ Now if you give an invalid date you will have an error::
   >>> verifyObject(interfaces.IWidgetExtractor, invalidTimeExtractor)
   True
   >>> invalidTimeExtractor.extract()
-  (None, "The datetime string did not match the pattern u'HH:mm'.")
+  (None, "The datetime string did not match the pattern 'HH:mm'.")

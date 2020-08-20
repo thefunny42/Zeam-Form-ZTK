@@ -13,7 +13,7 @@ First we need a choice:
 
   >>> def display_vocabulary(values):
   ...     for value in values:
-  ...         print "%r %r %r" % (value.value, value.token, value.title)
+  ...         print("%r %r %r" % (value.value, value.token, value.title))
 
   >>> letter_vocabulary = SimpleVocabulary([
   ...     SimpleTerm(value='A', token='a1', title='Letter A'),
@@ -27,7 +27,7 @@ First we need a choice:
 
   >>> class ISimpleChoice(interface.Interface):
   ...     choice = schema.Choice(
-  ...         title=u"My favorite letter",
+  ...         title="My favorite letter",
   ...         source=letter_vocabulary)
 
 
@@ -36,9 +36,10 @@ And we will need a content and a request to test:
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
 
-  >>> class SimpleContent(object):
-  ...    interface.implements(ISimpleChoice)
+  >>> @interface.implementer(ISimpleChoice)
+  ... class SimpleContent(object):
   ...    choice = None
+
   >>> content = SimpleContent()
   >>> content.choice = 'B'
 
@@ -63,7 +64,7 @@ So now you can create a field, and get a choice field:
 
   >>> simple_field.validate('A', None)
   >>> simple_field.validate('foo', None)
-  u'The selected value is not among the possible choices.'
+  'The selected value is not among the possible choices.'
 
   >>> verifyObject(interfaces.IField, simple_field)
   True
@@ -92,7 +93,7 @@ You have an associated widget:
   >>> simple_widget.inputValue()
   'b1'
 
-  >>> print simple_widget.render()
+  >>> print(simple_widget.render())
   <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required" required="required">
     <option value="a1">Letter A</option>
     <option value="b1" selected="selected">Letter B</option>
@@ -120,7 +121,7 @@ We have a display widget that display a value with the correct title:
   >>> display_widget
   <ChoiceDisplayWidget My favorite letter>
 
-  >>> print display_widget.render()
+  >>> print(display_widget.render())
   Letter B
 
 You can display a content that have a value which is not in the
@@ -142,7 +143,7 @@ vocabulary. Nothing will be displayed:
   >>> broken_display_widget
   <ChoiceDisplayWidget My favorite letter>
 
-  >>> print broken_display_widget.render()
+  >>> print(broken_display_widget.render())
   <BLANKLINE>
 
 Extractor
@@ -165,7 +166,7 @@ different than the real value:
 Let's now do it with a value:
 
   >>> simple_request = TestRequest(
-  ...    form={simple_widget.identifier: u'a1', })
+  ...    form={simple_widget.identifier: 'a1', })
 
   >>> simple_extractor = component.getMultiAdapter(
   ...    (simple_field, simple_form, simple_request),
@@ -177,14 +178,14 @@ Let's now do it with a value:
 And a value which is not in the vocabulary:
 
   >>> broken_request = TestRequest(
-  ...    form={simple_widget.identifier: u'z42', })
+  ...    form={simple_widget.identifier: 'z42', })
 
   >>> broken_extractor = component.getMultiAdapter(
   ...    (simple_field, simple_form, broken_request),
   ...    interfaces.IWidgetExtractor)
 
   >>> broken_extractor.extract()
-  (None, u'Invalid value')
+  (None, 'Invalid value')
 
 Context binded source
 =====================
@@ -201,11 +202,11 @@ and an interface for it:
 
   >>> class IContextChoice(interface.Interface):
   ...     choice = schema.Choice(
-  ...         title=u"My Choice",
+  ...         title="My Choice",
   ...         source=context_vocabulary)
 
-  >>> class ContextContent(object):
-  ...    interface.implements(IContextChoice)
+  >>> @interface.implementer(IContextChoice)
+  ... class ContextContent(object):
   ...    choice = None
 
   >>> content = ContextContent()
@@ -247,14 +248,14 @@ You can validate a value that is inside the choice:
 
   >>> context_field.validate('A', context_form)
   >>> context_field.validate(1, context_form)
-  u'The selected value is not among the possible choices.'
+  'The selected value is not among the possible choices.'
 
   >>> context_field.required = False
   >>> context_field.validate(NO_VALUE, context_form)
 
   >>> context_field.required = True
   >>> context_field.validate(NO_VALUE, context_form)
-  u'Missing required value.'
+  'Missing required value.'
 
 Widget
 ------
@@ -280,7 +281,7 @@ You have an associated widget:
   >>> context_widget.inputValue()
   'c1'
 
-  >>> print context_widget.render()
+  >>> print(context_widget.render())
   <select id="form-field-choice" name="form.field.choice" class="field field-choice field-required" required="required">
     <option value="a1">Letter A</option>
     <option value="b1">Letter B</option>
@@ -303,7 +304,7 @@ You after creation change the vocabulary:
   3 '#3' 'Number 3'
 
   >>> context_field.validate('A', None)
-   u'The selected value is not among the possible choices.'
+  'The selected value is not among the possible choices.'
   >>> context_field.validate(1, None)
 
 Or you can change the factory. Let's define a form binded source:
@@ -326,7 +327,7 @@ Or you can change the factory. Let's define a form binded source:
 
   >>> context_field.validate('A', context_form)
   >>> context_field.validate(1, context_form)
-  u'The selected value is not among the possible choices.'
+  'The selected value is not among the possible choices.'
 
 
 Registered vocabulary
@@ -349,7 +350,7 @@ a schema:
 
   >>> class IThirdChoice(interface.Interface):
   ...     choice = schema.Choice(
-  ...         title=u"The third letter",
+  ...         title="The third letter",
   ...         vocabulary="Third letter")
 
 Field

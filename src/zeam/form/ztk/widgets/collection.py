@@ -283,7 +283,8 @@ class MultiGenericFieldWidget(FieldWidget):
         self.jsonAddTemplate = None
         self.includeEmptyMessage = self.allowRemove
         if self.allowAdding:
-            self.jsonAddIdentifier = 'id' + md5hash(self.identifier)
+            self.jsonAddIdentifier = 'id' + md5hash(
+                self.identifier.encode('utf-8'))
             widgets = Widgets()
             widgets.append(self.createValueWidget(
                     '{' + self.jsonAddIdentifier + '}', None))

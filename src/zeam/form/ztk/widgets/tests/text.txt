@@ -11,7 +11,7 @@ We need first a text schema:
   ...      return text != 'No'
 
   >>> class IQuestion(interface.Interface):
-  ...     comment = schema.Text(title=u"Why do you like zeam?",
+  ...     comment = schema.Text(title="Why do you like zeam?",
   ...                           constraint=constraint_text)
 
 And a test content and request:
@@ -19,9 +19,9 @@ And a test content and request:
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
 
-  >>> class Question(object):
-  ...    interface.implements(IQuestion)
-  ...    comment = u''
+  >>> @interface.implementer(IQuestion)
+  ... class Question(object):
+  ...    comment = ''
   >>> content = Question()
 
 
@@ -53,12 +53,12 @@ You an validate the input:
   >>> text_field.required
   True
   >>> text_field.validate(NO_VALUE, form)
-  u'Missing required value.'
+  'Missing required value.'
   >>> text_field.validate('', form)
-  u'Missing required value.'
+  'Missing required value.'
 
   >>> text_field.validate('No', form)
-  u'The constraint failed.'
+  'The constraint failed.'
 
   >>> text_field.required = False
   >>> text_field.validate(NO_VALUE, form)
@@ -67,13 +67,13 @@ You an validate the input:
   >>> text_field.required = True
   >>> text_field.minLength = 6
   >>> text_field.validate('what?', form)
-  u'Not enough text was entered.'
+  'Not enough text was entered.'
 
   >>> text_field.validate('what did you say?', form)
 
   >>> text_field.maxLength = 6
   >>> text_field.validate('what did you say?', form)
-  u'Too much text was entered.'
+  'Too much text was entered.'
 
 
 Widget
@@ -93,9 +93,9 @@ You have an associated widget:
   >>> verifyObject(interfaces.IWidget, text_widget)
   True
 
-  >>> print text_widget.render() #doctest: +NORMALIZE_WHITESPACE
+  >>> print(text_widget.render())  #doctest: +NORMALIZE_WHITESPACE
   <textarea id="form-field-comment" name="form.field.comment" class="field field-text field-required"
-            rows="5" cols="80" required="required"></textarea>
+            cols="80" required="required" rows="5"></textarea>
 
 
 Extractor
@@ -116,10 +116,10 @@ the value is NO_VALUE:
 And with some text:
 
   >>> text_request = TestRequest(
-  ...         form={text_widget.identifier: u'Sometime there was an another version ...', })
+  ...         form={text_widget.identifier: 'Sometime there was an another version ...', })
   >>> text_extractor = component.getMultiAdapter(
   ...      (text_field, form, text_request), interfaces.IWidgetExtractor)
   >>> text_extractor
   <zeam.form.base.widgets.FieldWidgetExtractor object at ...>
   >>> text_extractor.extract()
-  (u'Sometime there was an another version ...', None)
+  ('Sometime there was an another version ...', None)

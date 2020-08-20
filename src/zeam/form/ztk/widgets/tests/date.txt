@@ -10,10 +10,10 @@ Let's create some interface using dates::
   >>> import datetime
 
   >>> class IDayInfo(interface.Interface):
-  ...     date = schema.Date(title=u'Current date')
+  ...     date = schema.Date(title='Current date')
 
   >>> class IAppointment(interface.Interface):
-  ...     when = schema.Datetime(title=u'When')
+  ...     when = schema.Datetime(title='When')
 
 And some content for them::
 
@@ -21,17 +21,19 @@ And some content for them::
   >>> from zeam.form.ztk import FormData
   >>> request = TestRequest()
 
-  >>> class DayInfo(object):
-  ...    interface.implements(IDayInfo)
+  >>> @interface.implementer(IDayInfo)
+  ... class DayInfo(object):
   ...    date = None
+
   >>> day = DayInfo()
   >>> day.date = datetime.date(1983, 4, 25)
   >>> date_form = FormData(day, request)
   >>> date_form.ignoreContent = False
 
-  >>> class Appointment(object):
-  ...    interface.implements(IAppointment)
+  >>> @interface.implementer(IAppointment)
+  ... class Appointment(object):
   ...    when = None
+
   >>> appointment = Appointment()
   >>> appointment_form = FormData(appointment, request)
   >>> appointment_form.ignoreContent = False
@@ -71,12 +73,12 @@ You can validate a date field between two different dates:
   >>> date_field.max = datetime.date(1984, 1, 1)
 
   >>> date_field.validate(NO_VALUE, date_form)
-  u'Missing required value.'
+  'Missing required value.'
   >>> date_field.validate(datetime.date(1983, 4, 25), date_form)
   >>> date_field.validate(datetime.date(1981, 4, 25), date_form)
-  u'This date is before the ${not_before}.'
+  'This date is before the ${not_before}.'
   >>> date_field.validate(datetime.date(1985, 4, 25), date_form)
-  u'This date is after the ${not_after}.'
+  'This date is after the ${not_after}.'
 
 And the same for a datetime field:
 
@@ -85,12 +87,12 @@ And the same for a datetime field:
   >>> when_field.max = datetime.datetime(2012, 2, 16, 18, 30)
 
   >>> when_field.validate(NO_VALUE, appointment_form)
-  u'Missing required value.'
+  'Missing required value.'
   >>> when_field.validate(datetime.datetime(2012, 2, 15, 12, 0), appointment_form)
   >>> when_field.validate(datetime.datetime(2012, 2, 15, 8, 0), appointment_form)
-  u'This date is before the ${not_before}.'
+  'This date is before the ${not_before}.'
   >>> when_field.validate(datetime.datetime(2012, 4, 25, 12, 00), appointment_form)
-  u'This date is after the ${not_after}.'
+  'This date is after the ${not_after}.'
 
 Widget
 ------
@@ -116,9 +118,9 @@ of the date, based on the locale of the request:
   True
 
   >>> date_widget.inputValue()
-  u'83/04/25'
+  '83/04/25'
 
-  >>> print date_widget.render() #doctest: +NORMALIZE_WHITESPACE
+  >>> print(date_widget.render())  #doctest: +NORMALIZE_WHITESPACE
   <input type="text" id="form-field-date" name="form.field.date"
          class="field field-date field-required" value="83/04/25" required="required" />
 
@@ -130,7 +132,7 @@ You can extract a value from the request. It is a bit more difficult
 here because the parsing is a bit more advanced:
 
   >>> date_request = TestRequest(form={
-  ...     'form.field.date': u'82/06/10'})
+  ...     'form.field.date': '82/06/10'})
   >>> date_form = FormData(day, date_request)
 
   >>> date_extractor = getMultiAdapter(
@@ -143,12 +145,12 @@ here because the parsing is a bit more advanced:
   (datetime.date(1982, 6, 10), None)
 
   >>> date_field.validate(date_extractor.extract()[0], date_form)
-   u'This date is before the ${not_before}.'
+   'This date is before the ${not_before}.'
 
 Now if you give an invalid date you will have an error:
 
   >>> invalid_date_request = TestRequest(form={
-  ...     'form.field.date': u'the best day ever'})
+  ...     'form.field.date': 'the best day ever'})
   >>> invalid_day_data = FormData(day, invalid_date_request)
 
   >>> invalid_day_extractor = getMultiAdapter(
@@ -158,12 +160,12 @@ Now if you give an invalid date you will have an error:
   >>> verifyObject(interfaces.IWidgetExtractor, invalid_day_extractor)
   True
   >>> invalid_day_extractor.extract()
-  (None, "The datetime string did not match the pattern u'yy/MM/dd'.")
+  (None, "The datetime string did not match the pattern 'yy/MM/dd'.")
 
 Or an empty request:
 
   >>> no_date_request = TestRequest(form={
-  ...     'form.field.date': u''})
+  ...     'form.field.date': ''})
   >>> no_day_data = FormData(day, no_date_request)
 
   >>> no_day_extractor = getMultiAdapter(
@@ -176,7 +178,7 @@ Or an empty request:
   (<Marker NO_VALUE>, None)
 
   >>> date_field.validate(no_day_extractor.extract()[0], no_day_data)
-  u'Missing required value.'
+  'Missing required value.'
 
 
 But if the first is not required, this should not error:

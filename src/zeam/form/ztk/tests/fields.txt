@@ -1,0 +1,306 @@
+=============
+zeam.form.ztk
+=============
+
+Fields can be generated from zope.schema.
+
+Creation from a Zope interface
+------------------------------
+
+You can create a full set of fields from a Zope interface::
+
+  >>> from zope import schema, interface
+
+  >>> class IPlanet(interface.Interface):
+  ...     name = schema.TextLine(title=u"Name")
+  ...     size = schema.Int(title=u"Size",
+  ...                       description=u"Size in Km",
+  ...                       readonly=True)
+
+  >>> from zeam.form.base import Fields
+  >>> s2 = Fields(IPlanet)
+  >>> list(s2)
+  [<TextLineField Name>, <IntegerField Size>]
+
+Those are correct fields, filled with the interface definition
+information::
+
+  >>> name_field, size_field = list(s2)
+  >>> name_field
+  <TextLineField Name>
+  >>> name_field.title
+  'Name'
+  >>> name_field.identifier
+  'name'
+  >>> name_field.description
+  ''
+  >>> size_field
+  <IntegerField Size>
+  >>> size_field.description
+  'Size in Km'
+
+  >>> from zope.interface.verify import verifyObject
+  >>> from zeam.form.base import interfaces
+  >>> verifyObject(interfaces.IField, name_field, size_field)
+  True
+
+You can add fields via an interface after::
+
+  >>> class IHabitationSupport(interface.Interface):
+  ...     city = schema.TextLine(title=u"City name")
+  ...     people = schema.Int(title=u"Number of people",
+  ...                         required=False,
+  ...                         description=u"Or population size")
+
+  >>> s2.extend(IHabitationSupport)
+  >>> list(s2)
+  [<TextLineField Name>, <IntegerField Size>,
+   <TextLineField City name>, <IntegerField Number of people>]
+
+You can add a field from an interface alone::
+
+  >>> class IFoodSupport(interface.Interface):
+  ...      vegetables = schema.TextLine(title=u"Vegetables kind")
+  ...      meat = schema.TextLine(title=u"Meat kind")
+
+  >>> s2.extend(IFoodSupport['vegetables'])
+  >>> list(s2.select('vegetables'))
+  [<TextLineField Vegetables kind>]
+
+  >>> list(Fields(IFoodSupport['meat']))
+  [<TextLineField Meat kind>]
+
+But it need to belong to an interface::
+
+  >>> Fields(schema.TextLine(title=u"Quality of McDo restaurant"))
+  Traceback (most recent call last):
+     ...
+  AssertionError: Field has no interface or __name__
+  >>> s2.extend(schema.TextLine(title=u"Quality of McDo restaurant"))
+  Traceback (most recent call last):
+     ...
+  AssertionError: Field has no interface or __name__
+
+Or to specify at least a __name__:
+
+  >>> fields_created_with_name = Fields(schema.TextLine(
+  ...     __name__="quality",
+  ...     title=u"Quality of McDo restaurant"))
+  >>> list(fields_created_with_name)
+  [<TextLineField Quality of McDo restaurant>]
+  >>> fields_created_with_name['quality']
+  <TextLineField Quality of McDo restaurant>
+
+Description, required and readonly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Those values are correctly collected from the schema field::
+
+  >>> s2['city'].description
+  ''
+  >>> s2['city'].required
+  True
+
+  >>> s2['people'].description
+  'Or population size'
+  >>> s2['people'].required
+  False
+
+  >>> s2['size'].description
+  'Size in Km'
+  >>> s2['size'].required
+  True
+
+  >>> s2['size'].readonly
+  True
+  >>> s2['people'].readonly
+  False
+
+Cloning a field
+~~~~~~~~~~~~~~~
+
+You can clone a field and keep all settings::
+
+  >>> s2['size'].mode = 'my-special-rendering-mode'
+  >>> clone = s2['size'].clone(new_identifier='myclone')
+
+  >>> clone
+  <IntegerField Size>
+  >>> clone.identifier
+  'myclone'
+  >>> clone.description
+  'Size in Km'
+  >>> clone.required
+  True
+  >>> clone.mode
+  'my-special-rendering-mode'
+
+
+Default values
+~~~~~~~~~~~~~~
+
+  >>> from zope.schema._bootstrapinterfaces import IContextAwareDefaultFactory
+
+  >>> def ComputeMe():
+  ...     return 2 * 2
+
+  >>> @interface.provider(IContextAwareDefaultFactory)
+  ... def DeductMe(context):
+  ...     if context is None:
+  ...         return 0
+  ...     return len(context.__class__.__name__)
+
+  >>> class IComputing(interface.Interface):
+  ...     name = schema.TextLine(title=u"Name", default=u"Computer generated")
+  ...     num1 = schema.Int(title=u"Number 1",
+  ...                       defaultFactory=ComputeMe)
+  ...     num2 = schema.Int(title=u"Number 2",
+  ...                       defaultFactory=DeductMe)
+
+  >>> s3 = Fields(IComputing)
+  >>> s3['num1'].getDefaultValue(form=None)
+  4
+
+  >>> s3['num1'].defaultValue
+  <Marker NO_VALUE>
+
+  >>> s3['num2'].getDefaultValue(form=None)
+  Traceback (most recent call last):
+  ...
+  TypeError: defaultFactory context required.
+
+  >>> from zeam.form.base import Fields, FormData
+  >>> from zope.publisher.browser import TestRequest
+  >>> form = FormData(object(), TestRequest())
+  >>> s3['num2'].getDefaultValue(form)
+  6
+
+
+Data managers
+-------------
+
+The adapters-aware data manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes, it's necessary, while edition or adding an object, to work
+with fields that are provided through more than one adapter. For these
+special usecases, a special datamanager is used: the
+`GenericAdaptiveDataManager`.
+
+First, we define some interfaces, with at least one fields::
+
+  >>> from zope.schema import TextLine
+  >>> from zope.interface import Interface
+
+  >>> class ITitledItem(Interface):
+  ...     title = TextLine(title=u"A title")
+
+  >>> class IDescriptiveItem(Interface):
+  ...     description = TextLine(title=u"Some description")
+
+Then, we create a `Fields` collection out of it::
+
+  >>> fields = Fields(ITitledItem, IDescriptiveItem)
+
+Now, we need an object that will be used as a context::
+
+  >>> class Item(object):
+  ...     pass
+
+  >>> item = Item()
+
+At this point, calling the GenericAdaptiveDataManager will provoke an
+error, since no adapters are registered, yet::
+
+  >>> from zeam.form.ztk.datamanager import makeGenericAdaptiveDataManager
+  >>> factory = makeGenericAdaptiveDataManager(*fields)
+  >>> print(factory)
+  <class 'zeam.form.ztk....GenericAdaptiveDataManager'>
+
+  >>> gadm = factory(item)
+  Traceback (most recent call last):
+  ...
+  TypeError: ('Could not adapt', <Item object at ...>,
+              <InterfaceClass ...ITitledItem>)
+
+
+Now, if we provide the correct adapters, we can build the data
+manager::
+
+  >>> import grokcore.component as grok
+  >>> from zope.interface import implementer
+
+  >>> @implementer(ITitledItem)
+  ... class TitleProvider(grok.Adapter):
+  ...     grok.context(Item)
+  ...
+  ...     def get_title(self):
+  ...         return getattr(self.context, '_title', None)
+  ...
+  ...     def set_title(self, value):
+  ...         return setattr(self.context, '_title', value)
+  ...
+  ...     title = property(get_title, set_title)
+
+  >>> @implementer(IDescriptiveItem)
+  ... class DescProvider(grok.Adapter):
+  ...     grok.context(Item)
+  ...
+  ...     def get_description(self):
+  ...         return getattr(self.context, '_description', None)
+  ...
+  ...     def set_description(self, value):
+  ...         return setattr(self.context, '_description', value)
+  ...
+  ...     description = property(get_description, set_description)
+
+  >>> grok.testing.grok_component('title', TitleProvider)
+  True
+  >>> grok.testing.grok_component('desc', DescProvider)
+  True
+
+  >>> gadm = factory(item)
+  >>> print(gadm)
+  <GenericAdaptiveDataManager used for <Item object at ...>>
+
+The data manager should provide all the necessary interfaces::
+
+  >>> ITitledItem.providedBy(gadm), IDescriptiveItem.providedBy(gadm)
+  (True, True)
+
+We can, now, simply get and set our attributes::
+
+  >>> print(gadm.get("title"))
+  None
+
+  >>> print(gadm.get("description"))
+  None
+
+  >>> print(gadm.get("nothing"))
+  Traceback (most recent call last):
+  ...
+  KeyError: 'nothing'
+
+  >>> gadm.set('title', 'My title')
+  >>> title = gadm.get('title')
+  >>> print(title)
+  My title
+  >>> title is item._title
+  True
+
+  >>> gadm.set('description', 'My description')
+  >>> description = gadm.get('description')
+  >>> print(description)
+  My description
+  >>> description is item._description
+  True
+
+To be thorough, we display the inner attributes that are created
+during the data manager initialisation::
+
+  >>> gadm.fields
+  {'description': <InterfaceClass __builtin__.IDescriptiveItem>,
+   'title': <InterfaceClass __builtin__.ITitledItem>}
+  >>> sorted(gadm.adapters.items())
+  [(<InterfaceClass __builtin__.IDescriptiveItem>, <DescProvider object at ...>),
+   (<InterfaceClass __builtin__.ITitledItem>, <TitleProvider object at ...>)]

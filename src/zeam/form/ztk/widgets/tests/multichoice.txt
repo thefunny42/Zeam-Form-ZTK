@@ -10,31 +10,31 @@ Define some interfaces that specifcy list of choices:
   >>> from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 
   >>> choices = SimpleVocabulary([
-  ...     SimpleTerm(token='vodka', title=u'Vodka', value='42%'),
-  ...     SimpleTerm(token='tequila', title=u'Tequila', value='30%'),
-  ...     SimpleTerm(token='cognac', title=u'Cognac', value='51%'),
-  ...     SimpleTerm(token='champagne', title=u'Champagne', value='12%')])
+  ...     SimpleTerm(token='vodka', title='Vodka', value='42%'),
+  ...     SimpleTerm(token='tequila', title='Tequila', value='30%'),
+  ...     SimpleTerm(token='cognac', title='Cognac', value='51%'),
+  ...     SimpleTerm(token='champagne', title='Champagne', value='12%')])
 
   >>> class ISetOfChoices(interface.Interface):
   ...     choices = schema.Set(
-  ...         title=u"My choices",
+  ...         title="My choices",
   ...         value_type=schema.Choice(source=choices),
   ...         required=False)
 
   >>> class IRequiredSetOfChoices(interface.Interface):
   ...     choices = schema.Set(
-  ...         title=u"My required choices",
+  ...         title="My required choices",
   ...         value_type=schema.Choice(source=choices),
   ...         required=True)
 
 Define content for testing purpose:
 
-  >>> class SetOfChoices(object):
-  ...    interface.implements(ISetOfChoices)
+  >>> @interface.implementer(ISetOfChoices)
+  ... class SetOfChoices:
   ...    choices = None
 
-  >>> class RequiredSetOfChoices(object):
-  ...    interface.implements(IRequiredSetOfChoices)
+  >>> @interface.implementer(IRequiredSetOfChoices)
+  ... class RequiredSetOfChoices(object):
   ...    choices = None
 
   >>> content = SetOfChoices()
@@ -64,7 +64,7 @@ We can have a field out of the interface:
 And the field manage a set collection of choice:
 
   >>> field.collectionType
-  <type 'set'>
+  <class 'set'>
   >>> value_field = field.valueField
   >>> value_field
   <ChoiceField >
@@ -92,9 +92,9 @@ Validation should validate only set that contains correct choices:
 If the field is required, an empty collection will not validate:
 
   >>> required_field.validate(NO_VALUE, None)
-  u'Missing required value.'
+  'Missing required value.'
   >>> required_field.validate(set(), None)
-  u'Missing required value.'
+  'Missing required value.'
   >>> required_field.validate(set(['42%', '51%']), None)
 
 Multi choice widget
@@ -125,19 +125,19 @@ choice, you will get a multi-choice widget by default:
 The widget will provides a list of choice that you can render. The
 ones already selected in the content will already by marked:
 
-  >>> list(widget.renderableChoice())
-  [{'token': 'vodka', 'checked': True,
-    'id': 'form-field-choices-0', 'title': u'Vodka'},
-   {'token': 'tequila', 'checked': False,
-    'id': 'form-field-choices-1', 'title': u'Tequila'},
-   {'token': 'cognac', 'checked': False,
-    'id': 'form-field-choices-2', 'title': u'Cognac'},
-   {'token': 'champagne', 'checked': True,
-    'id': 'form-field-choices-3', 'title': u'Champagne'}]
+  >>> assert list(widget.renderableChoice()) == [
+  ... {'token': 'vodka', 'checked': True,
+  ...  'id': 'form-field-choices-0', 'title': 'Vodka'},
+  ... {'token': 'tequila', 'checked': False,
+  ...  'id': 'form-field-choices-1', 'title': 'Tequila'},
+  ... {'token': 'cognac', 'checked': False,
+  ...  'id': 'form-field-choices-2', 'title': 'Cognac'},
+  ... {'token': 'champagne', 'checked': True,
+  ...  'id': 'form-field-choices-3', 'title': 'Champagne'}]
 
 And we can render this widget:
 
-  >>> print widget.render()
+  >>> print(widget.render())
   <input type="checkbox" id="form-field-choices-0" name="form.field.choices"
    value="vodka" checked="checked" class="field field-multichoice" />
   <label for="form-field-choices-0">Vodka</label>
@@ -166,8 +166,8 @@ the browser will send nothing and it would sounds like nothing was in
 the request:
 
   >>> content_request = TestRequest(form={
-  ...     'form.field.choices': [u'vodka', u'tequila'],
-  ...     'form.field.choices.present' : u'1'})
+  ...     'form.field.choices': ['vodka', 'tequila'],
+  ...     'form.field.choices.present' : '1'})
   >>> choice_form = FormData(content, content_request)
 
   >>> choice_widgets = Widgets(fields, form=choice_form, request=content_request)
@@ -177,20 +177,20 @@ the request:
 
 And so now you have only Vodka and Tequila of selected by the widget:
 
-  >>> list(choice_widget.renderableChoice())
-  [{'token': 'vodka', 'checked': True,
-    'id': 'form-field-choices-0', 'title': u'Vodka'},
-   {'token': 'tequila', 'checked': True,
-    'id': 'form-field-choices-1', 'title': u'Tequila'},
-   {'token': 'cognac', 'checked': False,
-    'id': 'form-field-choices-2', 'title': u'Cognac'},
-   {'token': 'champagne', 'checked': False,
-    'id': 'form-field-choices-3', 'title': u'Champagne'}]
+  >>> assert list(choice_widget.renderableChoice()) == [
+  ... {'token': 'vodka', 'checked': True,
+  ...   'id': 'form-field-choices-0', 'title': 'Vodka'},
+  ...  {'token': 'tequila', 'checked': True,
+  ...   'id': 'form-field-choices-1', 'title': 'Tequila'},
+  ...  {'token': 'cognac', 'checked': False,
+  ...   'id': 'form-field-choices-2', 'title': 'Cognac'},
+  ...  {'token': 'champagne', 'checked': False,
+  ...   'id': 'form-field-choices-3', 'title': 'Champagne'}]
 
 However the user can uncheck all available choices:
 
   >>> empty_request = TestRequest(form={
-  ...     'form.field.choices.present' : u'1'})
+  ...     'form.field.choices.present' : '1'})
   >>> empty_form = FormData(content, empty_request)
 
   >>> empty_widgets = Widgets(
@@ -199,15 +199,15 @@ However the user can uncheck all available choices:
   >>> empty_widgets.update()
   >>> empty_widget = empty_widgets['form.field.choices']
 
-  >>> list(empty_widget.renderableChoice())
-  [{'token': 'vodka', 'checked': False,
-    'id': 'form-field-choices-0', 'title': u'Vodka'},
-   {'token': 'tequila', 'checked': False,
-    'id': 'form-field-choices-1', 'title': u'Tequila'},
-   {'token': 'cognac', 'checked': False,
-    'id': 'form-field-choices-2', 'title': u'Cognac'},
-   {'token': 'champagne', 'checked': False,
-    'id': 'form-field-choices-3', 'title': u'Champagne'}]
+  >>> assert list(empty_widget.renderableChoice()) == [
+  ...     {'token': 'vodka', 'checked': False,
+  ...      'id': 'form-field-choices-0', 'title': 'Vodka'},
+  ...     {'token': 'tequila', 'checked': False,
+  ...      'id': 'form-field-choices-1', 'title': 'Tequila'},
+  ...     {'token': 'cognac', 'checked': False,
+  ...      'id': 'form-field-choices-2', 'title': 'Cognac'},
+  ...     {'token': 'champagne', 'checked': False,
+  ...      'id': 'form-field-choices-3', 'title': 'Champagne'}]
 
 Multi Choice Widget extractor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,8 +225,7 @@ multi-choice widgets:
 
 And you can get your values out of it:
 
-  >>> extractor.extract()
-  (set(['42%', '30%']), None)
+  >>> assert extractor.extract() == ({'42%', '30%'}, None)
 
 If you selected nothing, you will get an empty selection:
 
@@ -235,8 +234,7 @@ If you selected nothing, you will get an empty selection:
 
   >>> verifyObject(interfaces.IWidgetExtractor, empty_extractor)
   True
-  >>> empty_extractor.extract()
-  (set([]), None)
+  >>> assert empty_extractor.extract() == (set(), None)
 
 If you have nothing in your request, you will get nothing:
 
@@ -271,7 +269,7 @@ You can use a multi select widget as well:
 
 And we can render this widget:
 
-  >>> print select_widget.render()
+  >>> print(select_widget.render())
   <select id="form-field-choices" name="form.field.choices"
    class="field field-multichoice" multiple="multiple">
     <option value="vodka" selected="selected">Vodka</option>

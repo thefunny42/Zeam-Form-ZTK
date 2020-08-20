@@ -15,8 +15,8 @@ And a test content and request:
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
 
-  >>> class Question(object):
-  ...    interface.implements(IQuestion)
+  >>> @interface.implementer(IQuestion)
+  ... class Question(object):
   ...    answer = True
   >>> content = Question()
 
@@ -58,9 +58,8 @@ You have an associated widget:
   >>> verifyObject(interfaces.IWidget, boolean_widget)
   True
 
-  >>> print boolean_widget.render()
-  <input id="form-field-answer" name="form.field.answer" class="field field-bool field-required"
-         checked="checked" value="True" type="checkbox" />
+  >>> print(boolean_widget.render())
+  <input id="form-field-answer" name="form.field.answer" class="field field-bool field-required" value="True" type="checkbox" />
 
 
 Extractor
