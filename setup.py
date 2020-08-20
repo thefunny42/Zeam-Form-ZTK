@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.3.7.dev0'
+version = '1.4.0'
 
 tests_require = [
     'zope.app.schema',
@@ -34,6 +34,7 @@ setup(name='zeam.form.ztk',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
+          'chameleon >= 3.8',
           'grokcore.component',
           'grokcore.view',
           'grokcore.security',
