@@ -19,13 +19,13 @@ Let's add a comment and try to edit it with our form:
 
   >>> from zeam.form.ztk.ftests.forms.editform_fixture import Comment
   >>> root = getRootFolder()
-  >>> root['comment'] = Comment(u'zeam.form', u'Is great')
+  >>> root['comment'] = Comment('zeam.form', 'Is great')
   >>> root['comment'].title
-  u'zeam.form'
+  'zeam.form'
   >>> root['comment'].comment
-  u'Is great'
+  'Is great'
   >>> root['comment'].name
-  u''
+  ''
 
   >>> from zope.testbrowser.wsgi import Browser
   >>> browser = Browser()
@@ -36,7 +36,7 @@ Now acccess the edit form:
   >>> browser.open('http://localhost/comment/edit')
   >>> browser.addHeader('Authorization', 'Basic mgr:mgrpw')
 
-  >>> u'Modify your comment' in browser.contents
+  >>> 'Modify your comment' in browser.contents
   True
 
   >>> title_field = browser.getControl('Title')
