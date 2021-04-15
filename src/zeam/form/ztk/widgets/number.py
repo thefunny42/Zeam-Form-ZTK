@@ -105,7 +105,7 @@ class FloatFieldWidgetExtractor(IntegerFieldWidgetExtractor):
 
 class NumberWidget(FieldWidget):
     grok.adapts(IntegerField, Interface, Interface)
-    defaultHtmlClass = ['field', 'field-number']
+    defaultHtmlClass = ['field', 'field-number', 'form-control']
     defaultHtmlAttributes = set(['readonly', 'required', 'autocomplete',
                                  'max', 'min', 'setup', 'placeholder',
                                  'style'])

@@ -52,7 +52,7 @@ TextSchemaField = TextField
 
 class TextareaWidget(FieldWidget):
     grok.adapts(TextField, Interface, Interface)
-    defaultHtmlClass = ['field', 'field-text']
+    defaultHtmlClass = ['field', 'field-text', 'form-control']
     defaultHtmlAttributes = set(['maxlength', 'placeholder', 'required',
                                  'rows', 'warp', 'readonly', 'cols',
                                  'style'])
